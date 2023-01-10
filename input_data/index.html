@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <link rel="shortcut icon" href="../img/favicon.ico" />
+    <title>Input data generation - TDFstat</title>
+    <link rel="stylesheet" href="../css/theme.css" />
+    <link rel="stylesheet" href="../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.5.0/styles/github.min.css" />
+        <link href="../extra.css" rel="stylesheet" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Input data generation";
+        var mkdocs_page_input_path = "input_data.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <script src="../js/jquery-3.6.0.min.js" defer></script>
+    <!--[if lt IE 9]>
+      <script src="../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.5.0/highlight.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.5.0/languages/yaml.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.5.0/languages/plaintext.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.5.0/languages/python.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.5.0/languages/cpp.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.5.0/languages/bash.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.5.0/languages/shell.min.js"></script>
+      <script>hljs.initHighlightingOnLoad();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href=".." class="icon icon-home"> TDFstat
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="..">Home</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Pipeline description</span></p>
+              <ul class="current">
+                  <li class="toctree-l1 current"><a class="reference internal current" href="./">Input data generation</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#extract-narrow-band-time-series-from-short-fourier-transform-databases-with-extract_band">Extract narrow-band time series from Short Fourier Transform databases with extract_band</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#prerequisites">Prerequisites</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#example">Example</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#output">Output</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#genseg-description">genseg description</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#input-data-structure">Input data structure</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#gaussian-input-data-for-tests">Gaussian input data (for tests)</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#prerequisites_1">Prerequisites</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#compilation">Compilation</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#example_1">Example</a>
+    </li>
+        </ul>
+    </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../grid_generation/">Grid generation</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../search_for_candidates/">F-statistic candidate signal search</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../coincidences/">Coincidences between candidates</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../fap_coincidences/">False alarm probablity of conicidences</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../followup/">Followup of interesting outliers</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../sensitivity_upper_limits/">Sensitivity upper limits</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../fisher/">Fisher matrix calculation</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../simple_example/">Pipeline: a minimal example</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../articles/">Documents and publications</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Docs howto</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../mkdocs_howto/">Docs howto</a>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="..">TDFstat</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href=".." class="icon icon-home" alt="Docs"></a> &raquo;</li>
+          <li>Pipeline description &raquo;</li>
+      <li>Input data generation</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="input-data-generation">Input data generation</h1>
+<h2 id="extract-narrow-band-time-series-from-short-fourier-transform-databases-with-extract_band">Extract narrow-band time series from Short Fourier Transform databases with <code>extract_band</code></h2>
+<p>This program converts Short Fourier Transformation series to time series. 
+Written by Pia Astone (INFN, Physics Department of University of Rome "La Sapienza").</p>
+<h3 id="prerequisites">Prerequisites</h3>
+<p>C compiler &amp; standard C libraries (<code>math.h</code>). Links to the PSS library (created by Pia Astone).</p>
+<h3 id="example">Example</h3>
+<pre><code>% extract_band &lt; input_file
+</code></pre>
+<p>where <code>input_file</code> is an ASCII file containing the following rows:  </p>
+<ul>
+<li>Maximal number of SFT</li>
+<li>The name of the output file</li>
+<li>The list of SFT files</li>
+<li>The frequency band in Hz</li>
+<li>The width of frequency band in Hz</li>
+</ul>
+<p>e.g.,</p>
+<pre><code>100000
+J0034+1612_2010-10-10.out
+J0034+1612_2010-10-10.list
+718.2480
+1
+</code></pre>
+<h3 id="output">Output</h3>
+<pre><code>% Beginning freq- Band- Samples in one stretch- Subsampling factor- inter (overlapping, 2 if data were overlapped)- Frequency step- Scaling factor- ***The data are real and imag of the FFT
+% 908.152344 0.250000 256 8192.000000 2  0.0009766 1.000000e-20
+% FFT number in the file; Beginning mjd days; Gps s; Gps ns;
+% 100 55099.5879745370 937922816 0
+ 4.59662571e+02  2.27630825e+01
+-3.50387007e+02 -2.20005558e+02
+ 3.57587904e+02  1.01217077e+02
+ 1.74400486e+02  2.62086552e+02
+ 2.21804800e+02 -5.20278366e+02
+-3.87826732e+02 -1.55758978e+02
+</code></pre>
+<h2 id="genseg-description"><code>genseg</code> description</h2>
+<p><em>TODO</em> For the implementation see <a href="https://github.com/mbejger/polgraw-allsky/tree/master/gen2day">here</a>. </p>
+<h3 id="input-data-structure">Input data structure</h3>
+<p>The time series input data is divided into time segments of typically a few days length and consists - for each detector - of the input time series data, the ephemerides and the grid-generating matrix file (defining the parameter space of the search). </p>
+<p>A single run requires 2 data files for each detector <code>DD</code>, stored in <code>data_dir/nnn/DD</code> subdirectory, where <code>DD</code> is currently either <code>H1</code> (Hanford), <code>L1</code> (Livingston) or <code>V1</code> (Virgo Cascina):</p>
+<ul>
+<li><code>xdat_nnn_bbbb.bin</code> - time-domain narrow-band data sequence, sampled at  half second. <code>nnn</code> is the number of time frame, <code>bbbb</code> is the number of frequency band (see below),</li>
+<li><code>DetSSB.bin</code>  -  location  of  the  detector  w.r.t. the Solar
+   System Barycenter (SSB), in Cartesian coordinates, sampled at <code>dt</code> sampling rate (array of size <code>2N</code>), </li>
+<li>Last two records in this file  are the angle <code>phir</code>, determining the  position of Earth in  its diurnal motion, and the obliquity of  the ecliptic <code>epsm</code>, both calculated for the first sample of the data. </li>
+</ul>
+<p>Third file is the sky positions-frequency-spindown grid file in linear coordinates (common for all the detectors), stored in <code>data_dir/nnn</code> in case of the network search (one grid file is used by all the detectors) or in each detector directory separately (in case of single-detector searches): </p>
+<ul>
+<li><code>grid.bin</code> - generator matrix of an optimal grid of templates (defining the parameter space; see <a href="../polgraw-allsky/grid_generation">here</a> for details).  </li>
+</ul>
+<p>An example for two LIGO detectors H1 and L1, and data frame segments <span class="arithmatex"><span class="MathJax_Preview">nnn=001-008</span><script type="math/tex">nnn=001-008</script></span> with pure Gaussian noise 2-day time segments with sampling time equal to 2s for a fiducial narrow band number <span class="arithmatex"><span class="MathJax_Preview">bbbb=1234</span><script type="math/tex">bbbb=1234</script></span> (<code>xdatc_nnn_1234.bin</code>) coresponding the the band frequency <span class="arithmatex"><span class="MathJax_Preview">fpo=308.859375</span><script type="math/tex">fpo=308.859375</script></span> is <a href="https://polgraw.camk.edu.pl/H1L1_2d_0.25.tar.gz">available here</a>. </p>
+<p>A typical directory structure is as follows: </p>
+<pre><code class="language-bash">001
+├── grid.bin
+├── H1
+│   ├── DetSSB.bin
+│   ├── grid.bin
+│   ├── starting_date
+│   └── xdatc_001_1234.bin
+└── L1
+    ├── DetSSB.bin
+    ├── grid.bin
+    ├── starting_date
+    └── xdatc_001_1234.bin
+</code></pre>
+<p>Beginning of each time frame is saved in the <code>nnn/DD/starting_date</code> file, e.g., </p>
+<pre><code>% cat 2d_0.25/001/H1/starting_date
+1.1260846080e+09
+</code></pre>
+<p>Frames <code>nnn</code> are labelled with three-digit consecutive number. For the <code>O1</code> data, the bandwidth is <code>0.25 Hz</code> (<span class="arithmatex"><span class="MathJax_Preview">dt = 2s</span><script type="math/tex">dt = 2s</script></span>). For a given <span class="arithmatex"><span class="MathJax_Preview">dt</span><script type="math/tex">dt</script></span>, the reference band frequency <code>fpo</code> is defined as</p>
+<div class="arithmatex">
+<div class="MathJax_Preview">fpo = 10 + (1 - 2^{-5})\cdot bbbb\cdot \frac{1}{2dt}\ \mathrm{[Hz]}.</div>
+<script type="math/tex; mode=display">fpo = 10 + (1 - 2^{-5})\cdot bbbb\cdot \frac{1}{2dt}\ \mathrm{[Hz]}.</script>
+</div>
+<p>Neighboring bands overlap by <span class="arithmatex"><span class="MathJax_Preview">2^{-5}/(2dt)\ \mathrm{Hz}</span><script type="math/tex">2^{-5}/(2dt)\ \mathrm{Hz}</script></span>. <code>O1</code> data in the frequency range <span class="arithmatex"><span class="MathJax_Preview">10-2000\ \mathrm{Hz}</span><script type="math/tex">10-2000\ \mathrm{Hz}</script></span> contains <span class="arithmatex"><span class="MathJax_Preview">8220</span><script type="math/tex">8220</script></span> narrow <code>0.25 Hz</code> bands. With the <span class="arithmatex"><span class="MathJax_Preview">dt = 2s</span><script type="math/tex">dt = 2s</script></span> sampling time, the total number of data points in time segments of 2 sideral day long is <code>N=86164</code>. For lower frequencies (<code>10-475 Hz</code>, see <a href="../polgraw-allsky/articles">documents and publications</a>) 6 day length segments are used (<code>N=258492</code> double-precision numbers).</p>
+<h2 id="gaussian-input-data-for-tests">Gaussian input data (for tests)</h2>
+<p>The directory <code>search/network/src-cpu</code> contains a standalone <code>gauss-xdat</code> code to generate time series drawn from the Gaussian distribution. </p>
+<h3 id="prerequisites_1">Prerequisites</h3>
+<p>C compiler and standard libraries (<code>math.h</code>, <code>sys/time.h</code> for <code>gettimeofday</code>). The code depends on the <a href="http://www.gnu.org/software/gsl/">GNU Scientific Library (GSL)</a> random number generation (<code>gsl/gsl_rng.h</code>) and random number distributions (<code>gsl/gsl_randist.h</code>; using the Marsaglia-Tsang ziggurat implementation).</p>
+<h3 id="compilation">Compilation</h3>
+<pre><code>% gcc gauss-xdat.c -o gauss-xdat -lm -lgsl -lgslcblas
+</code></pre>
+<h3 id="example_1">Example</h3>
+<p>The program takes input values from the command line: </p>
+<pre><code>% ./gauss-xdat N amplitude sigma output-file 
+</code></pre>
+<p>e.g., </p>
+<pre><code>% ./gauss-xdat 86164 1 1 ../../../testdata/2d_0.25/001/H1/xdatc_001_1234.bin
+</code></pre>
+<p>The output is a binary file containing <code>N</code> double-precision numbers. </p>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href=".." class="btn btn-neutral float-left" title="Home"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../grid_generation/" class="btn btn-neutral float-right" title="Grid generation">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+      <span><a href=".." style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../grid_generation/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script>var base_url = '..';</script>
+    <script src="../js/theme_extra.js" defer></script>
+    <script src="../js/theme.js" defer></script>
+      <script src="../javascripts/highlight.js" defer></script>
+      <script src="../javascripts/mathjax.js" defer></script>
+      <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js" defer></script>
+      <script src="../search/main.js" defer></script>
+    <script defer>
+        window.onload = function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        };
+    </script>
+
+</body>
+</html>
