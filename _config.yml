@@ -1,0 +1,7 @@
+markdown: kramdown
+remote_theme: carlosperate/jekyll-theme-rtd
+plugins:
+- jekyll-remote-theme
+
+production_url : https://polgraw.github.io/TDFstat
+BASE_PATH : https://polgraw.github.io/TDFstat

@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <link rel="shortcut icon" href="../../img/favicon.ico" />
+    <title>Local testing - TDFstat</title>
+    <link rel="stylesheet" href="../../css/theme.css" />
+    <link rel="stylesheet" href="../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+        <link href="../../extra.css" rel="stylesheet" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Local testing";
+        var mkdocs_page_input_path = "Docs_howto/testing.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/yaml.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/plaintext.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/python.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/cpp.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/bash.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/shell.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../.." class="icon icon-home"> TDFstat
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../..">Home</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Pipeline description</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../input_data/">Input data generation</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../grid_generation/">Grid generation</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../search_for_candidates/">F-statistic candidate signal search</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../coincidences/">Coincidences between candidates</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../fap_coincidences/">False alarm probablity of conicidences</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../followup/">Followup of interesting outliers</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../sensitivity_upper_limits/">Sensitivity upper limits</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../fisher/">Fisher matrix calculation</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../simple_example/">Pipeline: a minimal example</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../articles/">Documents and publications</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Docs howto</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../mkdocs_howto/">Docs howto</a>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../..">TDFstat</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../.." class="icon icon-home" aria-label="Docs"></a></li>
+      <li class="breadcrumb-item active">Local testing</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="testing-the-documentation-locally">Testing the documentation locally</h1>
+<p>Before commiting any changes to github we should test them locally.
+We'll need ruby and many required gems (including jekyll and github-pages) installed in a virtual environment using conda.</p>
+<pre><code>conda create -n jekyll-test
+conda activate jekyll-test
+
+# apparently ruby packages at conda-forge are messed, this should work
+#     conda install ruby rb-bundler
+# but in my case I needed
+conda install ruby rb-bundler c-compiler compilers cxx-compiler
+
+# now change to the directory with documentation: `&lt;somedir&gt;/TDFstat/docs` and run
+bundle install
+# (this will install all the gems)
+</code></pre>
+<p>Having the virtual environment ready it is very easy to view the documentation locally.
+Just change to <code>&lt;somedir&gt;/TDFstat/docs</code> directory and run:</p>
+<pre><code>bundle exec jekyll serve -l
+
+</code></pre>
+<p>This command generates static pages with jekyll and starts local web server hosting them at address listed in the output, usually http://127.0.0.1:4000 . Open this location in any web browser. \
+To facilitate editing, if any file in the docs directory is modified the pages will automatically rebuild and reload in the browser.</p>
+<p>The static web site is output to the _site subdirectory. Do not commit it to the repository - we keep there only sources and neccessary configurations.</p>
+              
+            </div>
+          </div><footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+    
+  </span>
+</div>
+    <script src="../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../..";</script>
+    <script src="../../js/theme_extra.js"></script>
+    <script src="../../js/theme.js"></script>
+      <script src="../../javascripts/highlight.js"></script>
+      <script src="../../javascripts/mathjax.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+      <script src="../../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

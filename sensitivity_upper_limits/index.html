@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <link rel="shortcut icon" href="../img/favicon.ico" />
+    <title>Sensitivity upper limits - TDFstat</title>
+    <link rel="stylesheet" href="../css/theme.css" />
+    <link rel="stylesheet" href="../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+        <link href="../extra.css" rel="stylesheet" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Sensitivity upper limits";
+        var mkdocs_page_input_path = "sensitivity_upper_limits.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/yaml.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/plaintext.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/python.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/cpp.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/bash.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/shell.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href=".." class="icon icon-home"> TDFstat
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="..">Home</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Pipeline description</span></p>
+              <ul class="current">
+                  <li class="toctree-l1"><a class="reference internal" href="../input_data/">Input data generation</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../grid_generation/">Grid generation</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../search_for_candidates/">F-statistic candidate signal search</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../coincidences/">Coincidences between candidates</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../fap_coincidences/">False alarm probablity of conicidences</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../followup/">Followup of interesting outliers</a>
+                  </li>
+                  <li class="toctree-l1 current"><a class="reference internal current" href="#">Sensitivity upper limits</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#prerequisites">Prerequisites</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#install-python345-locally">Install python3.4.5 locally</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#create-virtual-environment">Create virtual environment</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#running-the-scripts">Running the scripts</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#serial-stacked-version-for-longer-jobs">Serial (stacked) version for longer jobs</a>
+    </li>
+        </ul>
+    </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../fisher/">Fisher matrix calculation</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../simple_example/">Pipeline: a minimal example</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../articles/">Documents and publications</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Docs howto</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../mkdocs_howto/">Docs howto</a>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="..">TDFstat</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href=".." class="icon icon-home" aria-label="Docs"></a></li>
+          <li class="breadcrumb-item">Pipeline description</li>
+      <li class="breadcrumb-item active">Sensitivity upper limits</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="sensitivity-upper-limits">Sensitivity upper limits</h1>
+<p>This directory contains a set of scripts that prepare and run a pipeline search in a small area in the parameter space around the injected signal. </p>
+<h2 id="prerequisites">Prerequisites</h2>
+<p>The scripts require <code>python3</code>. A working solution is to install a <code>python</code> virtual environment (<code>python3</code> comes with a built-in <code>pyvenv</code> virtual environment software).  </p>
+<h3 id="install-python345-locally">Install <code>python3.4.5</code> locally</h3>
+<p>Let's assume the installation directory is  </p>
+<pre><code>installdir=/path/to/installdir
+</code></pre>
+<p>then </p>
+<pre><code>mkdir -p ${installdir}; cd ${installdir} 
+wget https://www.python.org/ftp/python/3.4.5/Python-3.4.5.tgz
+tar zxvf Python-3.4.5.tgz
+cd Python-3.4.5
+make clean
+./configure --prefix=$(dirname &quot;${PWD}&quot;) 
+make -j4
+make install
+cd ../; rm -fr Python-3.4.5*
+</code></pre>
+<h3 id="create-virtual-environment">Create virtual environment</h3>
+<p>In a selected location (<code>/path/to/venvdir</code>) type</p>
+<pre><code>${installdir}/bin/pyvenv venv
+</code></pre>
+<p>Activate the virtual environment</p>
+<pre><code>. /path/to/venvdir/bin/activate
+</code></pre>
+<p>(to leave the environment, type <code>deactivate</code>). You can now install specific packages using the <code>pip</code> installer: </p>
+<pre><code>pip install numpy
+pip install scipy
+pip install matplotlib
+pip install pandas
+</code></pre>
+<h2 id="running-the-scripts">Running the scripts</h2>
+<p>The steps of the procedure is as follows:</p>
+<ol>
+<li>Chose the GW strain amplitude <span class="arithmatex"><span class="MathJax_Preview">h_0</span><script type="math/tex">h_0</script></span>,</li>
+<li>Randomly chose other signal parameters (with signal generator <a href="https://github.com/mbejger/polgraw-allsky/blob/master/search/network/src-cpu/sigen.c">sigen</a>)</li>
+<li>Add signal to the data (with the <code>gwdetect-cpu --addsig</code> feature) to selected time segments, and perform the search for candidates in each of them (<a href="https://github.com/mbejger/polgraw-allsky/blob/master/search/network/src-cpu/main.c">gwdetect-cpu</a>),</li>
+<li>Search for coincidences (<a href="https://github.com/mbejger/polgraw-allsky/blob/master/coincidences/src/coincidences.c">coincidences</a>)</li>
+<li>Find if the signal was detected (find the highest coincidences for a given band and compare them with the number of time segments analyzed).</li>
+</ol>
+<p>The script <code>script.py</code> creates a subdirectory in which the pipeline will be launched based on the following input files:
+1. <code>config.ini</code> which contains the paths to codes and the input data, and the parameters of the search: 
+    * F-statistic threshold, 
+    * how many simulations, 
+    * which detectors to use, 
+    * size of the region to search, 
+    * how to perform the search for coincidences etc. </p>
+<ol>
+<li><code>bandlist</code> which is a list of bands with strain amplitudes, for example:  </li>
+</ol>
+<pre><code>0164 2.25e-1 
+0165 1.5e-1 2e-1 2.5e-1 3e-1
+0166 2e-1 4e-1
+</code></pre>
+<p>The call is</p>
+<pre><code>% python script.py config.ini bandlist
+</code></pre>
+<p>Two other auxiliary files are:
+1. Dummy <code>bash</code> script <code>dummy.sh</code> with the actual pipeline calls (variables replaced with actual values by <code>script.py</code> and renamed to <code>script.sh</code>),
+2. <code>PBS/Torque</code> script <code>job.sub</code>, launched into the cluster queue and running <code>script.sh</code> (modify it to fit other systems, e.g., the <code>slurm</code> scheduler). </p>
+<p>Script <code>script.py</code> creates a <code>run.sh</code> file which contains commands to send the jobs into the queue. The results are summary files (<code>.sum</code>) for the requested number of simulations. In order to process them, call the <code>summary.py</code> script</p>
+<pre><code>% python summary.py band coincidence_threshold number_of_simulations
+</code></pre>
+<p>for example </p>
+<pre><code>% python summary.py 0165 0.7 100
+</code></pre>
+<p>The result will be something as follows (columns are <code>band</code> number, amplitude <code>h</code>, upper limit <code>ul</code>): </p>
+<pre><code>band h   ul 
+0165 0.150 0.61
+0165 0.200 0.78
+0165 0.250 0.95
+0165 0.300 0.99
+</code></pre>
+<h3 id="serial-stacked-version-for-longer-jobs">Serial (stacked) version for longer jobs</h3>
+<p><code>script2.py</code> creates subdirectories and a <code>job_BAND.sub</code> file for a list of amplitudes for BAND from <code>bandlist</code>, stacked one after another (can be handy to send one band as one job to the queue). Call: </p>
+<pre><code>% python script2.py config.ini bandlist
+</code></pre>
+<p>and then (for e.g., band 0165) send it to the queue </p>
+<pre><code>% qsub -N 0165 -v howmany=100 job_0165.sub
+</code></pre>
+<p>The summary of simulations for a given band (<code>0165</code>, say) processed by the <a href="https://github.com/mbejger/polgraw-allsky/blob/master/sensitivity-scripts/summary.sh">summary.sh</a> result in the following list of <code>h0</code> amplitudes followed by the corresponding fractions of significant coincidences (<code>N_coin/N</code>):</p>
+<pre><code>band h   ul 
+0165 0.150 0.61
+0165 0.200 0.78
+0165 0.250 0.95
+0165 0.300 0.99
+</code></pre>
+<p>We are interested in a 95% upper limit i.e. the <code>h0</code> corresponding to the fraction 0.95 of significant coincidences in the simulation (<code>N_coin/N=0.95</code>). This is obtained by fitting a sigmoid function</p>
+<pre><code class="language-python">def sigmoid(x, x0, k):
+     y = 1.0 / (1.0 + np.exp(k*(x0-x)))
+     return y
+</code></pre>
+<p>to the above data. Fitting is done by <a href="https://github.com/mbejger/polgraw-allsky/blob/master/sensitivity-scripts/upper-limits/ul.py">ul.py</a>:</p>
+<pre><code>% python ul.py 0165_results 0165 0.01 test.pdf
+0165 2.7026e-01
+</code></pre>
+<p>The output is the band number and <code>h0</code> corresponding to the 95% upper limit. Last command-line option <a href="https://github.com/mbejger/polgraw-allsky/blob/master/sensitivity-scripts/upper-limits/test.pdf">test.pdf</a> is optional. It produces the auxiliary plot, with the 95% upper limit is denoted by red circle: </p>
+<p><img alt="0165 upper limits" src="../img/0165_ul.png" /></p>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../followup/" class="btn btn-neutral float-left" title="Followup of interesting outliers"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../fisher/" class="btn btn-neutral float-right" title="Fisher matrix calculation">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+      <span><a href="../followup/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../fisher/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "..";</script>
+    <script src="../js/theme_extra.js"></script>
+    <script src="../js/theme.js"></script>
+      <script src="../javascripts/highlight.js"></script>
+      <script src="../javascripts/mathjax.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+      <script src="../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>
