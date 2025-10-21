@@ -112,6 +112,163 @@ The program will proceed assuming that
 
 ## Output files
 
+HDF5 structure:
+```
+HDF5 object                  | data type
+----------------------------------------------------
+/                            | root group
+├── attr: format_version     | int
+├── attr: opts               | compound (Command_line_opts)
+├── attr: sett               | compound (Search_settings)
+├── attr: s_range            | compound (Search_ranges)
+├── attr: detectors          | string
+├── attr: t_start            | string
+├── attr: t_end              | string
+├── attr: totsgnl            | int
+├── attr: walltime           | double
+├── attr: num_threads        | int
+├── dataset "triggers"       | dataset
+│   ├── data                 | compound[] (Trigger[])
+│       ├── m                | float
+│       ├── n                | float
+│       ├── s                | float
+│       ├── ra               | float
+│       ├── dec              | float
+│       ├── fdot             | float
+│       ├── ffstat           | float[]
+├── dataset "triggers_inj_1" | dataset
+│    ├── data                | compound[] (Trigger[])
+└── ...
+```
+#### Full h5dump output example
+<details>
+<summary>Click to expand</summary>
+```
+HDF5 "triggers_013_0072_2.h5" {
+GROUP "/" {
+   ATTRIBUTE "format_version" {
+      DATATYPE  H5T_STRING {
+         STRSIZE 2;
+         STRPAD H5T_STR_NULLTERM;
+         CSET H5T_CSET_ASCII;
+         CTYPE H5T_C_S1;
+      }
+      DATASPACE  SCALAR
+   }
+   ATTRIBUTE "opts" {
+      DATATYPE  H5T_COMPOUND {
+         H5T_STD_I32LE "checkp_flag";
+         H5T_STD_I32LE "veto_flag";
+         H5T_STD_I32LE "seg";
+         H5T_STD_I32LE "band";
+         H5T_STD_I32LE "hemi";
+         H5T_STD_I32LE "nod";
+         H5T_IEEE_F64LE "thr";
+         H5T_IEEE_F64LE "narrowdown";
+         H5T_IEEE_F64LE "overlap";
+         H5T_STRING {
+            STRSIZE H5T_VARIABLE;
+            STRPAD H5T_STR_NULLTERM;
+            CSET H5T_CSET_ASCII;
+            CTYPE H5T_C_S1;
+         } "indir";
+         H5T_STRING {
+            STRSIZE H5T_VARIABLE;
+            STRPAD H5T_STR_NULLTERM;
+            CSET H5T_CSET_ASCII;
+            CTYPE H5T_C_S1;
+         } "outdir";
+         H5T_STRING {
+            STRSIZE H5T_VARIABLE;
+            STRPAD H5T_STR_NULLTERM;
+            CSET H5T_CSET_ASCII;
+            CTYPE H5T_C_S1;
+         } "range_file";
+         H5T_STRING {
+            STRSIZE H5T_VARIABLE;
+            STRPAD H5T_STR_NULLTERM;
+            CSET H5T_CSET_ASCII;
+            CTYPE H5T_C_S1;
+         } "grid_file";
+         H5T_STRING {
+            STRSIZE H5T_VARIABLE;
+            STRPAD H5T_STR_NULLTERM;
+            CSET H5T_CSET_ASCII;
+            CTYPE H5T_C_S1;
+         } "usedet";
+         H5T_STRING {
+            STRSIZE H5T_VARIABLE;
+            STRPAD H5T_STR_NULLTERM;
+            CSET H5T_CSET_ASCII;
+            CTYPE H5T_C_S1;
+         } "addsig";
+         H5T_STRING {
+            STRSIZE H5T_VARIABLE;
+            STRPAD H5T_STR_NULLTERM;
+            CSET H5T_CSET_ASCII;
+            CTYPE H5T_C_S1;
+         } "fstat_norm";
+      }
+      DATASPACE  SCALAR
+   }
+   ATTRIBUTE "sett" {
+      DATATYPE  H5T_COMPOUND {
+         H5T_IEEE_F64LE "fpo";
+         H5T_IEEE_F64LE "dt";
+         H5T_IEEE_F64LE "B";
+         H5T_IEEE_F64LE "oms";
+         H5T_IEEE_F64LE "omr";
+         H5T_IEEE_F64LE "Smin";
+         H5T_IEEE_F64LE "Smax";
+         H5T_IEEE_F64LE "sepsm";
+         H5T_IEEE_F64LE "cepsm";
+         H5T_STD_I32LE "nfft";
+         H5T_STD_I32LE "nod";
+         H5T_STD_I32LE "N";
+         H5T_STD_I32LE "nfftf";
+         H5T_STD_I32LE "nmax";
+         H5T_STD_I32LE "nmin";
+         H5T_STD_I32LE "s";
+         H5T_STD_I32LE "nd";
+         H5T_STD_I32LE "interpftpad";
+         H5T_STD_I32LE "fftpad";
+         H5T_STD_I32LE "Ninterp";
+         H5T_STD_I32LE "nifo";
+         H5T_STD_I32LE "numlines_band";
+         H5T_STD_I32LE "nvlines_all_inband";
+         H5T_STD_I32LE "bufsize";
+         H5T_STD_I32LE "dd";
+         H5T_ARRAY { [16] H5T_IEEE_F64LE } "M";
+         H5T_ARRAY { [5][2] H5T_IEEE_F64LE } "lines";
+      }
+      DATASPACE  SCALAR
+   }
+   ATTRIBUTE "t_start" {
+      DATATYPE  H5T_STRING {
+         STRSIZE 20;
+         STRPAD H5T_STR_NULLTERM;
+         CSET H5T_CSET_ASCII;
+         CTYPE H5T_C_S1;
+      }
+      DATASPACE  SCALAR
+   }
+   DATASET "triggers" {
+      DATATYPE  H5T_COMPOUND {
+         H5T_IEEE_F32LE "m";
+         H5T_IEEE_F32LE "n";
+         H5T_IEEE_F32LE "s";
+         H5T_IEEE_F32LE "ra";
+         H5T_IEEE_F32LE "dec";
+         H5T_IEEE_F32LE "fdot";
+         H5T_VLEN { H5T_IEEE_F32LE } "ffstat";
+      }
+      DATASPACE  SIMPLE { ( 4952 ) / ( H5S_UNLIMITED ) }
+   }
+}
+```
+</details>
+
+
 Binary output files, containing trigger candidate events above an arbitrary threshold (option `-threshold` for the $\mathcal{F}$-statistic, default 20), are written to the `output_dir` directory. There are two output files for every input data sequence: `triggers_nnn_bbbb_1.bin` and
 `triggers_nnn_bbbb_2.bin`,  where  `1` and  `2` correspond to the northern and southern ecliptic hemisphere. Each trigger (candidate) event occupies `40` consecutive bytes (5 double numbers), with the following meaning:
 
