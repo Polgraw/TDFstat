@@ -11,6 +11,7 @@
 #define FORMAT_VERSION "1"
 #define TRIG_DSET_NAME   "triggers"
 #define TRIG_RANK          1
+#define STR(macro) QUOTE(macro)
 
 
 int hdfout_init (char *outname, Command_line_opts *opts, Search_settings *sett, 
@@ -116,6 +117,15 @@ int hdfout_init (char *outname, Command_line_opts *opts, Search_settings *sett,
      H5Tinsert(range_tid, "sst", HOFFSET(Search_range, sst), H5T_NATIVE_FLOAT);
      H5Tinsert(range_tid, "pst", HOFFSET(Search_range, pst), H5T_NATIVE_INT);
 
+     // detector_settings data type  (Detector_settings)
+     hid_t ifo_tid = H5Tcreate(H5T_COMPOUND, sizeof(Detector_settings));
+     hid_t name_type_id = H5Tcopy(H5T_C_S1);
+     H5Tset_size(name_type_id, DETNAME_LENGTH);
+     hid_t xdat_type_id = H5Tcopy(H5T_C_S1);
+     H5Tset_size(xdat_type_id, FNAME_LENGTH);
+     H5Tinsert(ifo_tid, "name", HOFFSET(Detector_settings, name), name_type_id);
+     H5Tinsert(ifo_tid, "xdatname", HOFFSET(Detector_settings, xdatname), xdat_type_id);
+
      // ------------------------------------------------------------------------
 
      //Create the file.
@@ -123,6 +133,8 @@ int hdfout_init (char *outname, Command_line_opts *opts, Search_settings *sett,
      
      // Basic attributes
      hstat = H5LTset_attribute_string(file, "/", "format_version", FORMAT_VERSION);
+     hstat = H5LTset_attribute_string(file, "/", "git_commit", CODEVER);
+
      char datetime_str[80];
      time_t now = time(NULL);
      struct tm *t = localtime(&now);
@@ -142,6 +154,11 @@ int hdfout_init (char *outname, Command_line_opts *opts, Search_settings *sett,
 
      attr = H5Acreate2(file, "s_range", range_tid, scalar_space_id, H5P_DEFAULT, H5P_DEFAULT);
      hstat = H5Awrite(attr, range_tid, s_range);
+     H5Aclose(attr);
+
+     hid_t ifo_space_id = H5Screate_simple(1, (hsize_t[]){sett->nifo}, NULL);
+     attr = H5Acreate2(file, "ifo", ifo_tid, ifo_space_id, H5P_DEFAULT, H5P_DEFAULT);
+     hstat = H5Awrite(attr, ifo_tid, &ifo);
      H5Aclose(attr);
 
      // Write triggers dataset

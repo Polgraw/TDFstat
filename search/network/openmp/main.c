@@ -38,11 +38,7 @@ int main (int argc, char* argv[])
      Aux_arrays aux_arr;
      int i;
 
-#define QUOTE(x) #x
-#define STR(macro) QUOTE(macro)
-#define CVSTR STR(CODEVER)
-
-     printf("Code version : " CVSTR "\n");
+     printf("git commit: %s\n", CODEVER);
      if (signal(SIGUSR1, sig_handler) != SIG_ERR &&
          signal(SIGTERM, sig_handler) != SIG_ERR ){
                printf("State saved on SIGTERM or SIGUSR1\n");

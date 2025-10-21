@@ -43,7 +43,7 @@ endif
 #TARGET = gwsearch-${ARCH}-$(shell echo $(PERF) | tr A-Z a-z)-oldtrig
 TARGET = gwsearch-${ARCH}-$(shell echo $(PERF) | tr A-Z a-z)
 
-VER := $(shell git rev-parse HEAD)
+VER := "\"$(shell git rev-parse HEAD)\""
 
 CC = gcc -std=gnu17 -static-libgcc -fopenmp #-flto
 #-flto ?? speeds up a little for AVX512 but slows down for AVX2
