@@ -1,10 +1,9 @@
 # arch to compile for; min. required for SLEEF is haswell (AVX2+FMA)
 ARCH = cascadelake
-#ARCH = icelake-server
 
 # SIMD = [AVX2, AVX512, NONE] ; explicit optimizations with SIMD instructions.
 # SIMD=NONE implies usege of sincos function, otherwise the SLEEF library is used.
-# It does not affect SIMD optimizations by compiler and FFTW3 dispatchers.
+# It does not affect SIMD optimizations by the compiler and FFTW3 dispatchers.
 SIMD = AVX2
 # legacy option: USE_AVX2_SINCOS
 
@@ -14,9 +13,9 @@ PREC = FLOAT
 #FFTW_DIR = $(CONDA_PREFIX)
 FFTW_DIR = /opt/fftw/3.3.10-gcc11-mvapich2/
 
-INIPARSER_DIR = ../../../utils/iniparser
-
 #-------------------- EDIT BELOW WITH CAUTION --------------
+
+INIPARSER_DIR = ../../../utils/iniparser
 
 ifeq ($(strip $(SIMD)), NONE)
 	PERF = sincos-${PREC}
