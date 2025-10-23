@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <link rel="shortcut icon" href="../img/favicon.ico" />
+    <title>False alarm probablity of conicidences - TDFstat</title>
+    <link rel="stylesheet" href="../css/theme.css" />
+    <link rel="stylesheet" href="../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+        <link href="../extra.css" rel="stylesheet" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "False alarm probablity of conicidences";
+        var mkdocs_page_input_path = "fap_coincidences.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/yaml.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/plaintext.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/python.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/cpp.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/bash.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/shell.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href=".." class="icon icon-home"> TDFstat
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="..">Home</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Pipeline description</span></p>
+              <ul class="current">
+                  <li class="toctree-l1"><a class="reference internal" href="../input_data/">Input data generation</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../grid_generation/">Grid generation</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../search_for_candidates/">F-statistic candidate signal search</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../coincidences/">Coincidences between candidates</a>
+                  </li>
+                  <li class="toctree-l1 current"><a class="reference internal current" href="#">False alarm probablity of conicidences</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#prerequisites">Prerequisites</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#theoretical-description">Theoretical description</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#compilation">Compilation</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#full-list-of-switches">Full list of switches</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#example">Example</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#output">Output</a>
+    </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../followup/">Followup of interesting outliers</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../sensitivity_upper_limits/">Sensitivity upper limits</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../fisher/">Fisher matrix calculation</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../simple_example/">Pipeline: a minimal example</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../articles/">Documents and publications</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Docs howto</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../mkdocs_howto/">Docs howto</a>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="..">TDFstat</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href=".." class="icon icon-home" aria-label="Docs"></a></li>
+          <li class="breadcrumb-item">Pipeline description</li>
+      <li class="breadcrumb-item active">False alarm probablity of conicidences</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="false-alarm-probability-of-coincidences">False alarm probability of coincidences</h1>
+<p>A general formula for probability that is used in the estimation of significance of the coincidences is implemented. The code is available at <a href="https://github.com/mbejger/polgraw-allsky/tree/master">github</a>. Run <code>git clone https://github.com/mbejger/polgraw-allsky.git</code> to get the repository.</p>
+<h2 id="prerequisites">Prerequisites</h2>
+<p>The code is written in standard <code>C</code>. The only dependency is <a href="http://www.gnu.org/software/gsl/">GNU Scientific Library (GSL)</a>, used to manipulate the Fisher matrix (calculate the eigenvectors and eigenvalues), the <span class="arithmatex"><span class="MathJax_Preview">\Gamma</span><script type="math/tex">\Gamma</script></span> function and for the combinations. </p>
+<h2 id="theoretical-description">Theoretical description</h2>
+<p>This description is a short Appendix version of <a href="http://iopscience.iop.org/0264-9381/31/16/165014/">Implementation of an F-statistic all-sky search for continuous gravitational waves in Virgo VSR1 data</a>. </p>
+<p>For a given frequency band we analyze <span class="arithmatex"><span class="MathJax_Preview">L</span><script type="math/tex">L</script></span> non-overlapping time segments: the search in the <span class="arithmatex"><span class="MathJax_Preview">l</span><script type="math/tex">l</script></span>-th segment produces <span class="arithmatex"><span class="MathJax_Preview">N_l</span><script type="math/tex">N_l</script></span> candidates. The size of the parameter space for each time segment is the same and it can be divided into the number <span class="arithmatex"><span class="MathJax_Preview">N_{\rm cell}</span><script type="math/tex">N_{\rm cell}</script></span> of independent cells. The code tests the null hypothesis that the coincidences among candidates from <span class="arithmatex"><span class="MathJax_Preview">L</span><script type="math/tex">L</script></span> segments are accidental.
+The probability for a candidate event to fall into any given coincidence cell is equal to <span class="arithmatex"><span class="MathJax_Preview">1/N_{\rm cell}</span><script type="math/tex">1/N_{\rm cell}</script></span>. The probability <span class="arithmatex"><span class="MathJax_Preview">\epsilon_l</span><script type="math/tex">\epsilon_l</script></span> that a given coincidence cell is populated with one or more candidate events is given by <span class="arithmatex"><span class="MathJax_Preview">\epsilon_l = 1 - \Big(1 - \frac{1}{N_{\rm cell}}\Big)^{N_l}</span><script type="math/tex">\epsilon_l = 1 - \Big(1 - \frac{1}{N_{\rm cell}}\Big)^{N_l}</script></span>, 
+and for independent candidates (one candidate in one cell) it is <span class="arithmatex"><span class="MathJax_Preview">\epsilon_l = \frac{N_l}{N_{\rm cell}}</span><script type="math/tex">\epsilon_l = \frac{N_l}{N_{\rm cell}}</script></span>.</p>
+<p>For two or more candidates within a given cell we choose the one with the highest signal-to-noise ratio. The probability <span class="arithmatex"><span class="MathJax_Preview">p_F(N_{\rm cell})</span><script type="math/tex">p_F(N_{\rm cell})</script></span> that any given coincidence cell out of the total of <span class="arithmatex"><span class="MathJax_Preview">N_{\rm cell}</span><script type="math/tex">N_{\rm cell}</script></span> cells contains candidate events from <span class="arithmatex"><span class="MathJax_Preview">C_{max}</span><script type="math/tex">C_{max}</script></span> or more distinct data segments is given by a generalized binomial distribution:</p>
+<div class="arithmatex">
+<div class="MathJax_Preview">\begin{eqnarray}
+p_F(N_{\rm cell}) &amp;=&amp; \sum_{n=C_{max}}^{L} \frac{1}{n!(L-n)!} \times \sum_{\sigma\in\Pi(L)} \epsilon_{\sigma(1)}\ldots\epsilon_{\sigma(n)}(1-\epsilon_{\sigma(n+1)})\ldots(1-\epsilon_{\sigma(L)}),
+\end{eqnarray}</div>
+<script type="math/tex; mode=display">\begin{eqnarray}
+p_F(N_{\rm cell}) &=& \sum_{n=C_{max}}^{L} \frac{1}{n!(L-n)!} \times \sum_{\sigma\in\Pi(L)} \epsilon_{\sigma(1)}\ldots\epsilon_{\sigma(n)}(1-\epsilon_{\sigma(n+1)})\ldots(1-\epsilon_{\sigma(L)}),
+\end{eqnarray}</script>
+</div>
+<p>where <span class="arithmatex"><span class="MathJax_Preview">\sum_{\sigma \in \Pi(L)}</span><script type="math/tex">\sum_{\sigma \in \Pi(L)}</script></span> is the sum over all permutations of <span class="arithmatex"><span class="MathJax_Preview">L</span><script type="math/tex">L</script></span> data sequences.
+Finally the probability <span class="arithmatex"><span class="MathJax_Preview">P_F</span><script type="math/tex">P_F</script></span> that there is <span class="arithmatex"><span class="MathJax_Preview">C_{max}</span><script type="math/tex">C_{max}</script></span> or more coincidences
+in one or more of the <span class="arithmatex"><span class="MathJax_Preview">N_{\rm cell}</span><script type="math/tex">N_{\rm cell}</script></span> cells is</p>
+<div class="arithmatex">
+<div class="MathJax_Preview">\begin{equation}
+P_F = 1 - \left(1 - p_F(N_{\rm cell})\right)^{N_{\rm cell}}.
+\end{equation}</div>
+<script type="math/tex; mode=display">\begin{equation}
+P_F = 1 - \left(1 - p_F(N_{\rm cell})\right)^{N_{\rm cell}}.
+\end{equation}</script>
+</div>
+<p>In order to find coincidences the entire cell coincidence grid is shifted by half a cell width in all possible <span class="arithmatex"><span class="MathJax_Preview">2^4 = 16</span><script type="math/tex">2^4 = 16</script></span> combinations of the four parameter-space dimensions of <span class="arithmatex"><span class="MathJax_Preview">(f, \dot{f}, \delta, \alpha)</span><script type="math/tex">(f, \dot{f}, \delta, \alpha)</script></span>, and coincidences are searched in all the 16 coincidence grids. It does not account for cases when candidate events are located on opposite sides of cell borders, edges, and corners. This leads to a higher number of accidental coincidences, and consequently it underestimates the false alarm probability.</p>
+<p>In the four dimension parameter space of <span class="arithmatex"><span class="MathJax_Preview">(f, \dot{f}, \delta, \alpha)</span><script type="math/tex">(f, \dot{f}, \delta, \alpha)</script></span> the formula for the probability
+<span class="arithmatex"><span class="MathJax_Preview">P_{F}^{\rm shifts}</span><script type="math/tex">P_{F}^{\rm shifts}</script></span> that there are <span class="arithmatex"><span class="MathJax_Preview">C_{max}</span><script type="math/tex">C_{max}</script></span> or more independent coincidences in one or more of the <span class="arithmatex"><span class="MathJax_Preview">N_{\rm cell}</span><script type="math/tex">N_{\rm cell}</script></span> cells in all 16 grid shifts is</p>
+<div class="arithmatex">
+<div class="MathJax_Preview">
+\begin{eqnarray}
+\label{eq:FAPs}
+P^{\rm shifts}_F = 1 - \bigg[ 1 - \Big( 2^4 p_F(N_c) 
+- \Big( {4 \choose 1} p_F(2 N_c) + {4 \choose 2} p_F(2^2 N_c) 
++ {4 \choose 3} p_F(2^3 N_c) + {4 \choose 4} p_F(2^4 N_c)   \Big) \\ \nonumber  
+- \Big({4 \choose 2} p_F(2^2 N_c) + {4 \choose 3} p_F(2^3 N_c) 
++ {4 \choose 4} p_F(2^4 N_c) \Big) 
+- \Big( {4 \choose 3} p_F(2^3 N_c) + {4 \choose 4} p_F(2^4 N_c) \Big) 
+- {4 \choose 4} p_F(2^4 N_c)\Big)  \bigg]^{N_c}.
+\end{eqnarray}
+</div>
+<script type="math/tex; mode=display">
+\begin{eqnarray}
+\label{eq:FAPs}
+P^{\rm shifts}_F = 1 - \bigg[ 1 - \Big( 2^4 p_F(N_c) 
+- \Big( {4 \choose 1} p_F(2 N_c) + {4 \choose 2} p_F(2^2 N_c) 
++ {4 \choose 3} p_F(2^3 N_c) + {4 \choose 4} p_F(2^4 N_c)   \Big) \\ \nonumber  
+- \Big({4 \choose 2} p_F(2^2 N_c) + {4 \choose 3} p_F(2^3 N_c) 
++ {4 \choose 4} p_F(2^4 N_c) \Big) 
+- \Big( {4 \choose 3} p_F(2^3 N_c) + {4 \choose 4} p_F(2^4 N_c) \Big) 
+- {4 \choose 4} p_F(2^4 N_c)\Big)  \bigg]^{N_c}.
+\end{eqnarray}
+</script>
+</div>
+<p>By choosing a certain false alarm probability <span class="arithmatex"><span class="MathJax_Preview">P_F</span><script type="math/tex">P_F</script></span>, we can calculate the threshold number <span class="arithmatex"><span class="MathJax_Preview">C_{\mathrm{max}}</span><script type="math/tex">C_{\mathrm{max}}</script></span> of coincidences. If we obtain more than <span class="arithmatex"><span class="MathJax_Preview">C_{max}</span><script type="math/tex">C_{max}</script></span> coincidences, the null hypothesis that coincidences are accidental is rejected at the significance level of <span class="arithmatex"><span class="MathJax_Preview">P_F</span><script type="math/tex">P_F</script></span>.</p>
+<h2 id="compilation">Compilation</h2>
+<p>Run <code>make fap</code>; resulting binary is called <code>fap</code> (modify the <code>Makefile</code> to fit your system).</p>
+<h2 id="full-list-of-switches">Full list of switches</h2>
+<p>To obtain the full list of options, type </p>
+<pre><code>% ./fap --help 
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>Switch</th>
+<th style="text-align: left;">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>-band</td>
+<td style="text-align: left;">Band number</td>
+</tr>
+<tr>
+<td>-cellsize</td>
+<td style="text-align: left;">Cell size (default value: 4)</td>
+</tr>
+<tr>
+<td>-data</td>
+<td style="text-align: left;">Coincidence summary file</td>
+</tr>
+<tr>
+<td>-grid</td>
+<td style="text-align: left;">Grid matrix directory (default value: .)</td>
+</tr>
+<tr>
+<td>-dt</td>
+<td style="text-align: left;">Data sampling time dt (default value: 2)</td>
+</tr>
+<tr>
+<td>-threshold</td>
+<td style="text-align: left;">FAP threshold (default value: 0.1)</td>
+</tr>
+<tr>
+<td>-nod</td>
+<td style="text-align: left;">Number of days</td>
+</tr>
+<tr>
+<td>-vetofrac</td>
+<td style="text-align: left;">Vetoed fraction of the band (default value: 0)</td>
+</tr>
+</tbody>
+</table>
+<p>Also:</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th style="text-align: left;"></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>--help</td>
+<td style="text-align: left;">This help</td>
+</tr>
+</tbody>
+</table>
+<h2 id="example">Example</h2>
+<p>Using the software injection added to 2-day Gaussian noise data segments (see <a href="../polgraw-allsky/pipeline_script">minimal example of the pipeline</a>): </p>
+<pre><code class="language-bash">% ./fap -nod 2 -band 1234 -data &lt;(sort -gk5 -gk10 summary | tail -1) -grid ../../testdata/2d_0.25/004 -vetofrac 0.0 -cellsize 4 -threshold 1.0 
+</code></pre>
+<p>or, with the auxilary <code>fap.sh</code> script, </p>
+<pre><code class="language-bash">% band=1234; bash fap.sh &lt;(sort -gk5 -gk10 summary | tail -1) &lt;(echo $band 0.0) ../../testdata/2d_0.25/004 
+</code></pre>
+<p>Number of days in the time segment <code>nod</code> equals 2, fraction of the band vetoed <code>vetofrac</code> is 0 (no lines, Gaussian data) and the cell size scalling factor <code>cellsize</code> is 4. Directory containing the grid matrix file <code>grid.bin</code> of the reference frame (in this case frame <code>004</code>) should be given by the <code>grid</code> switch. The input data is the last line of a sorted <code>summary</code> file to select the shift giving the best coincidence with the highest signal-to-noise ratio: </p>
+<pre><code>1234_2 1111 308.859375     8     5  9.95663703e-01 -1.10830358e-09 -1.12585347e-01 1.97463002e+00 1.246469e+01 5 2040 1987 1 2483 2419 4 2384 2193 3 2247 2137 8 2408 2363 2 2249 2172 6 2305 2220 7 2226 2191 6 2 8 3 5
+</code></pre>
+<p>(see the <a href="../polgraw-allsky/coincidences">coincidences</a> section for details). </p>
+<h2 id="output">Output</h2>
+<pre><code class="language-bash">% ./fap -nod 2 -band 1234 -data &lt;(sort -gk5 -gk10 summary | tail -1) -grid ../../testdata/2d_0.25/004 -vetofrac 0.0 -cellsize 4 -threshold 1.0 
+</code></pre>
+<p>is</p>
+<pre><code class="language-bash">Number of days in time segments: 2
+Input data: /dev/fd/63
+Grid matrix data directory: ../../testdata/2d_0.25/004
+Band number: 1234 (veto fraction: 0.000000)
+The reference frequency fpo: 308.859375
+The data sampling time dt: 2.000000
+FAP threshold: 1.000000
+Cell size: 4
+1234 3.088594e+02 3.091094e+02 7.665713e-08 5 17682 9.956637e-01 -1.108304e-09 -1.125853e-01 1.974630e+00 1.246469e+01 2
+</code></pre>
+<p>The last line (in case the probability <code>PFshifts</code> is lower than the <code>threshold</code>) is printed to <code>stderr</code>. The meaning of this output is the following:  </p>
+<pre><code>#band f_min       f_max        PFshifts     noc Nkall  f s d a hemisphere 
+1234 3.088594e+02 3.091094e+02 7.665713e-08 5   17682  9.956637e-01 -1.108304e-09 -1.125853e-01 1.974630e+00 1.246469e+01 2
+</code></pre>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../coincidences/" class="btn btn-neutral float-left" title="Coincidences between candidates"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../followup/" class="btn btn-neutral float-right" title="Followup of interesting outliers">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+      <span><a href="../coincidences/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../followup/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "..";</script>
+    <script src="../js/theme_extra.js"></script>
+    <script src="../js/theme.js"></script>
+      <script src="../javascripts/highlight.js"></script>
+      <script src="../javascripts/mathjax.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+      <script src="../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

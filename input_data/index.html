@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <link rel="shortcut icon" href="../img/favicon.ico" />
+    <title>Input data generation - TDFstat</title>
+    <link rel="stylesheet" href="../css/theme.css" />
+    <link rel="stylesheet" href="../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+        <link href="../extra.css" rel="stylesheet" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Input data generation";
+        var mkdocs_page_input_path = "input_data.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/yaml.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/plaintext.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/python.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/cpp.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/bash.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/shell.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href=".." class="icon icon-home"> TDFstat
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="..">Home</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Pipeline description</span></p>
+              <ul class="current">
+                  <li class="toctree-l1 current"><a class="reference internal current" href="#">Input data generation</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#general-scheme">General scheme</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#example">Example</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#band-and-segment-numbering">Band and segment numbering</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#extract_band-code">extract_band code</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#compilation">Compilation</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#running">Running</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#helper-script">Helper script</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#output-hdf5-file-format">Output HDF5 file format</a>
+        <ul>
+    <li class="toctree-l4"><a class="reference internal" href="#oldoriginal-extract_band">Old/original extract_band</a>
+    </li>
+        </ul>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#genseg-code">genseg code</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#compilation_1">Compilation:</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#running_1">Running:</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#tdfstat-input-data-structure">TDFstat input data structure</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#gaussian-data-generator">Gaussian data generator</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#compilation_2">Compilation</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#running_2">Running</a>
+    </li>
+        </ul>
+    </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../grid_generation/">Grid generation</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../search_for_candidates/">F-statistic candidate signal search</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../coincidences/">Coincidences between candidates</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../fap_coincidences/">False alarm probablity of conicidences</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../followup/">Followup of interesting outliers</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../sensitivity_upper_limits/">Sensitivity upper limits</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../fisher/">Fisher matrix calculation</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../simple_example/">Pipeline: a minimal example</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../articles/">Documents and publications</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Docs howto</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../mkdocs_howto/">Docs howto</a>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="..">TDFstat</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href=".." class="icon icon-home" aria-label="Docs"></a></li>
+          <li class="breadcrumb-item">Pipeline description</li>
+      <li class="breadcrumb-item active">Input data generation</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="input-data-generation">Input data generation</h1>
+<h2 id="general-scheme">General scheme</h2>
+<p>The input data for TDFstat pipeline are generated from SFDB files created by the Rome Group using <a href="https://git.ligo.org/pia.astone/create_sfdb">PSS library</a> (login required). Those files contain wide-band (e.g. 2048 Hz) Short-time Fourier Transforms. Two codes are used to create long, time domain series suitable for TDFstat pipeline:</p>
+<ul>
+<li><code>extract_band_hdf_td</code> - extracts narrow band Short-Time Fourier Transforms from the SFDB, performs inverse FFT and writes Short Time Series (STS) into a HDF5 file. This code is based on the original <code>extract_band</code> code from PSS which only extracts narrow band SFTs and writes them to text files.</li>
+<li><code>genseg</code> - combines STS-es into longer time segments, applies regions mask (e.g. regions with Analysis Ready flag) and cleans the data (outliers removal). In addition the code generates ephemeris files for coresponding time segments.</li>
+</ul>
+<p>The general scheme of data generation is illustrated in the picture.</p>
+<p><a href="../img/tdfstat_data_gen-v2.png"><img alt="General scheme" src="../img/tdfstat_data_gen-v2.png" width="50%" /></a></p>
+<h3 id="example">Example</h3>
+<p>Typical All-sky search data generation workflow with O3 numbers:</p>
+<ol>
+<li>We used SFDB files with 2048 Hz bandwidth which contain STFT of length 1024 s
+   overlapped in time by half (512 s).</li>
+<li><code>extract_band</code> was used to extract narrow bands with <span class="arithmatex"><span class="MathJax_Preview">B=0.25\ Hz</span><script type="math/tex">B=0.25\ Hz</script></span>. The
+   resulting sampling interval was <span class="arithmatex"><span class="MathJax_Preview">dt = 1/(2\ B) = 2\ s</span><script type="math/tex">dt = 1/(2\ B) = 2\ s</script></span>.
+   Since STFT length is 1024 s we have 512 samples/STFT, but we use only middle
+   half of the inverse FFT which makes 256 samples per time chunk.</li>
+<li><code>genseg</code> was used to assemble short time chunks into segments of length 6
+   sidereal days which contain N samples:</li>
+</ol>
+<div class="arithmatex">
+<div class="MathJax_Preview">N = round(nod\cdot C\_SIDDAY/dt) = 258492</div>
+<script type="math/tex; mode=display">N = round(nod\cdot C\_SIDDAY/dt) = 258492</script>
+</div>
+<p>where <span class="arithmatex"><span class="MathJax_Preview">C\_SIDDAY</span><script type="math/tex">C\_SIDDAY</script></span> is the duration of sidereal day in seconds.
+   The whole O3 run time span was ~1 yr so we've got 60 segments.</p>
+<h3 id="band-and-segment-numbering">Band and segment numbering</h3>
+<p>For practical reasons we assingn integer numbers to our <strong>frequency bands</strong>
+according to this general formula:</p>
+<div class="arithmatex">
+<div class="MathJax_Preview">fpo = 10 + (1 - 2^{-ov})\cdot bbbb\cdot B \quad \mathrm{[Hz]}.</div>
+<script type="math/tex; mode=display">fpo = 10 + (1 - 2^{-ov})\cdot bbbb\cdot B \quad \mathrm{[Hz]}.</script>
+</div>
+<p>where:</p>
+<ul>
+<li><span class="arithmatex"><span class="MathJax_Preview">fpo</span><script type="math/tex">fpo</script></span> - starting/reference frequency of the band,</li>
+<li><span class="arithmatex"><span class="MathJax_Preview">bbbb</span><script type="math/tex">bbbb</script></span> - integer band number,</li>
+<li><span class="arithmatex"><span class="MathJax_Preview">B</span><script type="math/tex">B</script></span> - bandwidth,</li>
+<li><span class="arithmatex"><span class="MathJax_Preview">2^{-ov}</span><script type="math/tex">2^{-ov}</script></span> - band overlap; <span class="arithmatex"><span class="MathJax_Preview">oi</span><script type="math/tex">oi</script></span> is natural number; this form assures alignement of bands with Fourier bins in the SFDB.</li>
+</ul>
+<p>In the names of files and directories, the <strong>band number</strong>, <span class="arithmatex"><span class="MathJax_Preview">bbbb</span><script type="math/tex">bbbb</script></span> is formatted using <code>%04d</code> specifier, e.g. <code>0072</code>.</p>
+<p>The <strong>time segment</strong> (or simply 'segment') has length <span class="arithmatex"><span class="MathJax_Preview">nod</span><script type="math/tex">nod</script></span> which is INTEGER
+number of days.
+Segments are assigned subsequent natural numbers starting from 1.
+In the names of files and directories the segment number (<span class="arithmatex"><span class="MathJax_Preview">nnn</span><script type="math/tex">nnn</script></span>) is formatted using <code>%03d</code> specifier, e.g. <code>001</code>.</p>
+<hr />
+<h2 id="extract_band-code">extract_band code</h2>
+<p>This program converts Short Fourier Transformation series into time series.
+It was written by Pia Astone (INFN, Physics Department of University of Rome "La
+Sapienza") a part of the PSS package used to create SFDB. The
+<code>extract_band_hdf_td</code> code is its substantially modified version by Paweł
+Ciecieląg, used in TDFstat since run O4.
+The major differences comprise: inverse FFT to get short time series (STS) and
+output to HDF5 file.</p>
+<h3 id="compilation">Compilation</h3>
+<p>Source: currently part of a <a href="https://gitlab.camk.edu.pl/polgraw-cw/scripts">private gitlab
+repo</a>
+Prerequisities: C compiler, selected files from the PSS library (<a href="https://git.ligo.org/pia.astone/create_sfdb">PSS
+library</a>), FFTW3 &amp; HDF5 libraries.</p>
+<p>To compile, in the <code>extract_band/pss_sfdb</code> directory type</p>
+<pre><code>make extract_band_hdf_td
+</code></pre>
+<h3 id="running">Running</h3>
+<p><code>extract_band_hdf_td</code> reads following input parameters from stdin:</p>
+<pre><code>string[170] out_file: output file name
+string[170]  in_file: input file name (list of all SFDB files)
+float            fpo: reference frequency (starting frequency of the band)
+float              B: bandwidth
+</code></pre>
+<p>e.g. create file <code>0072_H1.in</code></p>
+<pre><code>sfft_0072_H1.h5
+../../sfdb_files_H1.list
+26.2
+0.25
+</code></pre>
+<p>and pass it as input:</p>
+<pre><code>./extract_band_hdf_td &lt; 0072_H1.in
+</code></pre>
+<p>Remarks:</p>
+<ul>
+<li>The file names can be specified with absolute or relative paths.</li>
+<li>The code is designed to work in an <em>incremental mode</em> - if you add more files
+  to <code>in_file</code> and <code>out_file</code> exists, the new data chunks will be <strong>appended</strong>
+  to it. For chunks already present in the HDF file only attributes mjdtime, nfft and
+  sfdb_name are verified, no actual data is read.</li>
+<li>If the out_file is corrupted (broken HDF5 structure) it will be re-created from the beginning.</li>
+<li>the code is very generic - it does not know which band number is
+  processed (but it can be encoded in the name of the input file).</li>
+</ul>
+<h3 id="helper-script">Helper script</h3>
+<p>To simplify mass data generation, e.g. for all-sky search, we provide an example
+of bash script: <code>eb2hdf.sh</code>.
+It uses <code>extract_band</code> is to create STS data for all bands and all detectors
+following certain convention. Before using the script, first edit some parameters in
+section marked "EDIT HERE":</p>
+<ul>
+<li>eb - full path to the <code>extract_band_hdf_td</code> executable</li>
+<li>B and ov - bandwidth and overlap as defined above</li>
+<li>ilist - path to file containing list of SFDB files to be processed; default: <code>./sfdb_${det}.list</code></li>
+<li>odir - path to the output directory (will be created); default: <code>sts_B${B}_ov${ov}/${det}</code></li>
+<li>fpo - check the definition of <code>fpo( &lt;band_number&gt; )</code> function</li>
+</ul>
+<p>To generate HDF file for detector <code>&lt;det_name&gt;</code> and for bands between
+<code>&lt;start_band&gt;</code> and <code>&lt;end_band&gt;</code> as follows run:</p>
+<pre><code>./eb2hdf.sh &lt;det_name&gt; &lt;start_band&gt; [&lt;end_band&gt;]
+</code></pre>
+<p>Currently det_name can be H1, L1 or V1. If <code>&lt;end_band&gt;</code> is omitted then only
+single band is generated.
+The ilist file should contain one file per line, to create use: <code>ls -1 /somedirectory/*.SFDB09</code>
+The input file for <code>extract_band</code> will be saved in:
+<code>sts_B${B}_ov${ov}/${det}/${B4}_${det}.in</code>
+The standard output from <code>extract_band</code> will be saved in: <code>sts_B${B}_ov${ov}/${det}/eb2hdf-${B4}_${det}.out</code></p>
+<h3 id="output-hdf5-file-format">Output HDF5 file format</h3>
+<p>To display contents of the HDF5 file use:</p>
+<pre><code>h5dump -q creation_order &lt;file_name&gt;
+</code></pre>
+<p><em>Our HDF files have creation_order tracking and indexing flags enabled for easier
+sorting of chucks (typically the chunks will be created in an increasing ichunk
+order).</em></p>
+<p>The internal file structure:</p>
+<pre><code>HDF5 object                  | data type
+----------------------------------------------------
+/                            | root group
+├── attr: format_version     | int
+├── attr: site               | str[3]
+├── attr: fpo                | double
+├── attr: bandwidth          | float
+├── attr: df                 | double
+├── attr: dtype              | str[4]
+├── attr: sft_overlap        | int
+├── attr: nsamples           | int
+├── attr: scaling_factor     | double
+├── attr: subsampling_factor | double
+├── attr: last_ichunk        | int
+├── dataset &quot;ichunk&quot;         | dataset
+│   ├── data                 | float data[nsamples]
+│   ├── attr: ichunk         | int
+│   ├── attr: gps_sec        | int
+│   ├── attr: gps_nsec       | int
+│   ├── attr: sft_mjdtime    | double
+│   ├── attr: sfdb_file      | str[]
+│   ├── attr: ctime          | str[]
+│   └── attr: nfft           | int
+└── dataset &quot;ichunk+1&quot;
+    ├── data
+    └── ...
+</code></pre>
+<p>Please refer to the <code>genseg</code> code for example how to read this HDF5 file in C.</p>
+<h4 id="oldoriginal-extract_band">Old/original extract_band</h4>
+<details>
+<summary>Click to expand</summary>
+Running:
+
+<pre><code>% extract_band &lt; input_file
+</code></pre>
+
+where `input_file` is an ASCII file containing the following rows:
+
+* Maximal number of SFT
+* The name of the output file
+* The list of SFT files
+* The frequency band in Hz
+* The width of frequency band in Hz
+
+e.g.,
+
+<pre><code>100000
+J0034+1612_2010-10-10.out
+J0034+1612_2010-10-10.list
+718.2480
+1
+</code></pre>
+
+Output to a text file:
+
+<pre><code>% Beginning freq- Band- Samples in one stretch- Subsampling factor- inter (overlapping, 2 if data were overlapped)- Frequency step- Scaling factor- ***The data are real and imag of the FFT
+% 908.152344 0.250000 256 8192.000000 2  0.0009766 1.000000e-20
+% FFT number in the file; Beginning mjd days; Gps s; Gps ns;
+% 100 55099.5879745370 937922816 0
+ 4.59662571e+02  2.27630825e+01
+-3.50387007e+02 -2.20005558e+02
+ 3.57587904e+02  1.01217077e+02
+ 1.74400486e+02  2.62086552e+02
+ 2.21804800e+02 -5.20278366e+02
+-3.87826732e+02 -1.55758978e+02
+</code></pre>
+
+</details>
+
+<hr />
+<h2 id="genseg-code">genseg code</h2>
+<p>This code combines STS (short time series) chunks stored in a HDF5 file
+(produced by <code>extract_band</code>) into time segments of any length. In addition:</p>
+<ul>
+<li>it applies science (analysis ready) mask (Tukey window is used to smooth edges
+  of each continuous region)</li>
+<li>removes outliers</li>
+<li>writes ephemeris files (DetSSB.bin) for the detector (requires lalsuite)</li>
+</ul>
+<h3 id="compilation_1">Compilation:</h3>
+<p><a href="https://github.com/Polgraw/TDFstat/tree/main/genseg">Source code</a>
+Prerequisities: C compiler, HDF5 library, lalsuite (if USE_LAL=yes is set in the
+Makefile - this is required to generate ephemeris)</p>
+<p>lalsuite can be installed from conda-forge repository using <a href="https://conda-forge.org/download/">miniforge installer</a>:</p>
+<pre><code>mamba create -n lal lalsuite
+mamba activate lal
+</code></pre>
+<p>To compile type <code>make genseg-hdf</code>.
+If USE_LAL=yes then the executable will use runtime library path
+<code>$CONDA_PREFIX/lib</code> (to search for lal libraries).
+The old genseg version (used before O4) is preserved in subdirectory <code>old</code>.</p>
+<h3 id="running_1">Running:</h3>
+<p><code>genseg-hdf</code> requires a configuration file in the INI format. An example config file is
+provided in the source directory
+<a href="https://github.com/Polgraw/TDFstat/blob/main/genseg/H1_0072_6d.g2d">H1_0072_6d.g2d</a>.
+All configuration parameters are explained in the comments in this file.</p>
+<ul>
+<li>To generate list of Analysis Ready segments this python script can be used:</li>
+</ul>
+<pre><code class="language-python">from gwpy.segments import DataQualityFlag, SegmentList
+import sys
+
+GPSstart = int(sys.argv[1]) # 1238166018 (O3 start - 2019-04-01T15:00:00)
+GPSend   = int(sys.argv[2]) # 1269363618 (O3 end - 2020-03-27T17:00:00 )
+det_channel_name = sys.argv[3] # e.g. 'H1:DMT-ANALYSIS_READY:1' or 'H1:DCS-ANALYSIS_READY_C01:1'
+
+dqf = DataQualityFlag.query(det_channel_name, GPSstart, GPSend)
+seg_science = SegmentList(dqf.active)
+for s in seg_science:
+    print(s.start, s.end)
+</code></pre>
+<pre><code class="language-bash">python get_sci_segment_list.py 1238166018 1269363618 H1:DMT-ANALYSIS_READY:1 &gt; O3_C00_H1_sci_segments
+python get_sci_segment_list.py 1238166018 1269363618 L1:DMT-ANALYSIS_READY:1 &gt; O3_C00_L1_sci_segments
+python get_sci_segment_list.py 1238166018 1269363618 V1:ITF_SCIENCE:1 &gt; O3_C00_V1_sci_segments
+</code></pre>
+<ul>
+<li>To calculate ephemeris the code should be run under proper conda environment
+  and two efemerid files must be specified in the config file. They can be
+  extracted from lalpulsar to te current directory this way:</li>
+</ul>
+<pre><code class="language-bash">cp $CONDA_PREFIX/share/lalpulsar/sun00-40-DE405.dat.gz .
+cp $CONDA_PREFIX/share/lalpulsar/earth00-40-DE405.dat.gz .
+gunzip sun00-40-DE405.dat.gz earth00-40-DE405.dat.gz
+</code></pre>
+<p>To generate time segments run:</p>
+<pre><code>./genseg-hdf &lt;config_file&gt; [bbbb]
+</code></pre>
+<p>The last parameter, band number written as 4 character, zero padded string <code>bbbb</code>, is optional. It is introduced to avoid creation of tousands of config files (e.g. all-sky case) which differ only by the band number. In such case, one can use single config file but two parameters, <code>infile</code> and <code>plsr</code> have to contain string <code>bbbb</code> e.g.:</p>
+<pre><code>infile = sts_B0.25_ov0.1/H1/sts_bbbb_H1.h5
+plsr = bbbb
+</code></pre>
+<p>Then the command line string will be inserted in place of <code>bbbb</code> string in those parameters, e.g.:</p>
+<pre><code>./genseg-hdf H1_bbbb_6d.g2d 0072
+</code></pre>
+<p>will generate segments for band 72.</p>
+<h2 id="tdfstat-input-data-structure">TDFstat input data structure</h2>
+<p>The TDFstat pipeline (actually the mein <code>search</code> code) assumes that input data
+have fixed directory and fileneme structure.
+The input data are divided into time segments of typically a few days length and consists - for each detector - of the input time series data, the ephemerides and the grid-generating matrix file (defining the parameter space of the search).</p>
+<p>A single <code>search</code> run requires 2 data files for each detector <code>DD</code> and segment
+<code>nnn</code>, stored in <code>data_dir/nnn/DD</code> subdirectory, where <code>DD</code> is currently either
+<code>H1</code> (Hanford), <code>L1</code> (Livingston) or <code>V1</code> (Virgo Cascina):</p>
+<ul>
+<li><code>xdat_nnn_bbbb.bin</code> - time-domain narrow-band data sequence (<code>bbbb</code> is the number of frequency band),</li>
+<li><code>DetSSB.bin</code>  -  location  of  the  detector  w.r.t. the Solar System
+  Barycenter (SSB), in Cartesian coordinates, sampled at <code>dt</code> sampling rate
+  (array of size <code>2N</code>).
+  The last two records in this file are the angle <code>phir</code>, determining the  position
+  of Earth in its diurnal motion, and the obliquity of the ecliptic <code>epsm</code>,
+  both calculated for the first sample of the data.</li>
+</ul>
+<p>Third file is the sky positions-frequency-spindown grid file in linear coordinates (common for all the detectors), stored in <code>data_dir/nnn</code> in case of the network search (one grid file is used by all the detectors) or in each detector directory separately (in case of single-detector searches):</p>
+<ul>
+<li><code>grid.bin</code> - generator matrix of an optimal grid of templates (defining the parameter space; see <a href="grid_generation">here</a> for details).</li>
+</ul>
+<p>A typical directory structure is as follows:</p>
+<pre><code>xdat_O3_C01/
+     └── 001/
+        ├── grids
+        │    └── grid_001_1234_H1L1.bin
+        ├── H1/
+        │    ├── DetSSB.bin
+        │    ├── grid.bin
+        │    ├── starting_date
+        │    └── xdat_001_1234.bin
+        └── L1/
+            ├── DetSSB.bin
+            ├── grid.bin
+            ├── starting_date
+            └── xdat_001_1234.bin
+</code></pre>
+<p>Beginning of each time frame is saved in the <code>nnn/DD/starting_date</code> file, e.g.,</p>
+<pre><code>% cat 2d_0.25/001/H1/starting_date
+1.1260846080e+09
+</code></pre>
+<p>With this structure the root directory <code>xdat_O3_C01</code> is passed to the search code
+as parameter <code>indir</code>.</p>
+<p>An example for two LIGO detectors H1 and L1, and data frame segments <span class="arithmatex"><span class="MathJax_Preview">nnn=001-008</span><script type="math/tex">nnn=001-008</script></span> with pure Gaussian noise 2-day time segments with sampling time equal to 2s for a fiducial narrow band number <span class="arithmatex"><span class="MathJax_Preview">bbbb=1234</span><script type="math/tex">bbbb=1234</script></span> (<code>xdatc_nnn_1234.bin</code>) coresponding the the band frequency <span class="arithmatex"><span class="MathJax_Preview">fpo=308.859375</span><script type="math/tex">fpo=308.859375</script></span> is <a href="https://polgraw.camk.edu.pl/H1L1_2d_0.25.tar.gz">available here</a>.</p>
+<h2 id="gaussian-data-generator">Gaussian data generator</h2>
+<p><code>genseg</code> directory contains additional code <code>gauss-xdat-mask.c</code> to generate time series drawn from the Gaussian distribution.</p>
+<h3 id="compilation_2">Compilation</h3>
+<p>Prerequisites: C compiler , GSL library</p>
+<pre><code>% gcc gauss--xdat-mask.c -o gauss-xdat-mask -lm -lgsl -lgslcblas
+</code></pre>
+<h3 id="running_2">Running</h3>
+<p>The program takes input values from the command line:</p>
+<pre><code>% ./gauss-xdat-mask N amplitude sigma output-file [xdat-template]
+</code></pre>
+<p>where N is the length of the time series (in samples), amplitude and sigma are
+Gauss function parameters, output-file is the name of the output file and
+xdat-template is an optional parameter: name of the existing xdat file from which
+only gaps (zeros) will be copied to the output (e.g. the real xdat file -
+usefull for testing).</p>
+<p>Example:</p>
+<pre><code>% ./gauss-xdat-mask 86164 1 1 xdat_001_1234.bin
+</code></pre>
+<p>The output is a binary file, <code>xdat_001_1234.bin</code> containing  86164 float-precision numbers.</p>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href=".." class="btn btn-neutral float-left" title="Home"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../grid_generation/" class="btn btn-neutral float-right" title="Grid generation">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+      <span><a href=".." style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../grid_generation/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "..";</script>
+    <script src="../js/theme_extra.js"></script>
+    <script src="../js/theme.js"></script>
+      <script src="../javascripts/highlight.js"></script>
+      <script src="../javascripts/mathjax.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+      <script src="../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

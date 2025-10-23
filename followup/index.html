@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <link rel="shortcut icon" href="../img/favicon.ico" />
+    <title>Followup of interesting outliers - TDFstat</title>
+    <link rel="stylesheet" href="../css/theme.css" />
+    <link rel="stylesheet" href="../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+        <link href="../extra.css" rel="stylesheet" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Followup of interesting outliers";
+        var mkdocs_page_input_path = "followup.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/yaml.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/plaintext.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/python.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/cpp.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/bash.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/shell.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href=".." class="icon icon-home"> TDFstat
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="..">Home</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Pipeline description</span></p>
+              <ul class="current">
+                  <li class="toctree-l1"><a class="reference internal" href="../input_data/">Input data generation</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../grid_generation/">Grid generation</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../search_for_candidates/">F-statistic candidate signal search</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../coincidences/">Coincidences between candidates</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../fap_coincidences/">False alarm probablity of conicidences</a>
+                  </li>
+                  <li class="toctree-l1 current"><a class="reference internal current" href="#">Followup of interesting outliers</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#introduction">Introduction</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#compilation">Compilation</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#switches">Switches</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#input-data">Input data</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#minimal-example-how-to-run-a-code">Minimal example how to run a code</a>
+    </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../sensitivity_upper_limits/">Sensitivity upper limits</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../fisher/">Fisher matrix calculation</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../simple_example/">Pipeline: a minimal example</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../articles/">Documents and publications</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Docs howto</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../mkdocs_howto/">Docs howto</a>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="..">TDFstat</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href=".." class="icon icon-home" aria-label="Docs"></a></li>
+          <li class="breadcrumb-item">Pipeline description</li>
+      <li class="breadcrumb-item active">Followup of interesting outliers</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="followup">Followup</h1>
+<p>Currently work in progress; for the present state of the code see <a href="https://github.com/mbejger/polgraw-allsky/tree/master/followup">here</a>. </p>
+<h2 id="introduction">Introduction</h2>
+<p>On the last stage we can precisely estimate signal parameters. At this stage we focus only on a very narrow space around a candidate. Our goal is to find the maximum of the F-statistic and the corresponding signal parameters. To increase the efficiency of the code, we use special libraries (<a href="http://www.gnu.org/software/gsl/">GNU Scientific Library (GSL)</a>, <a href="http://www.yeppp.info">YEPPP!</a>) and parallelisation (<a href="http://www.openmp.org/">OpenMP</a>). We already implemented few algorithms to do this: Simplex algorithm, Mesh Adaptive Direct Search - MADS and modified MADS (called 'inverted MADS').</p>
+<h2 id="compilation">Compilation</h2>
+<p>To compile a code, go to the <code>followup/src</code> and run: <code>make followup</code></p>
+<h2 id="switches">Switches</h2>
+<p>Run <code>./followup --help</code></p>
+<table>
+<thead>
+<tr>
+<th>Switch</th>
+<th style="text-align: left;">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>-d, -data</td>
+<td style="text-align: left;">Data directory (default is .)</td>
+</tr>
+<tr>
+<td>-o, -output</td>
+<td style="text-align: left;">Output directory (default is ./candidates)</td>
+</tr>
+<tr>
+<td>-i, -ident</td>
+<td style="text-align: left;">Frame number</td>
+</tr>
+<tr>
+<td>-b, -band</td>
+<td style="text-align: left;">Band number</td>
+</tr>
+<tr>
+<td>-l, -label</td>
+<td style="text-align: left;">Custom label for the input and output files</td>
+</tr>
+<tr>
+<td>-c, -cwd</td>
+<td style="text-align: left;">Change to directory [dir]</td>
+</tr>
+<tr>
+<td>-t, -threshold</td>
+<td style="text-align: left;">Threshold for the F-statistic (default is 20)</td>
+</tr>
+<tr>
+<td>-p, -fpo</td>
+<td style="text-align: left;">Reference band frequency fpo value</td>
+</tr>
+<tr>
+<td>-s, -dt</td>
+<td style="text-align: left;">Data sampling time dt (default value: 0.5)</td>
+</tr>
+<tr>
+<td>-u, -usedet</td>
+<td style="text-align: left;">Use only detectors from string (default is use all available)</td>
+</tr>
+<tr>
+<td>-y, -nod</td>
+<td style="text-align: left;">Number of days</td>
+</tr>
+<tr>
+<td>-x, -addsig</td>
+<td style="text-align: left;">Add signal with parameters from [file]</td>
+</tr>
+<tr>
+<td>-a, -candidates</td>
+<td style="text-align: left;">As a starting point in followup use parameters from [file]</td>
+</tr>
+<tr>
+<td>-r, -refr</td>
+<td style="text-align: left;">Reference frame number</td>
+</tr>
+</tbody>
+</table>
+<p>Also:</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th style="text-align: left;"></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>--vetolines</td>
+<td style="text-align: left;">Veto known lines from files in data directory</td>
+</tr>
+<tr>
+<td>--simplex</td>
+<td style="text-align: left;">Direct search of maximum using Nelder-Mead (simplex) algorithm</td>
+</tr>
+<tr>
+<td>--mads</td>
+<td style="text-align: left;">Direct search of maximum using MADS algorithm</td>
+</tr>
+<tr>
+<td>--gauss</td>
+<td style="text-align: left;">Generate Gaussian noise instead of reading data. Amplitude and sigma of the noise declared in init.c</td>
+</tr>
+<tr>
+<td>--neigh</td>
+<td style="text-align: left;">Function neigh() generate area as % from initial value instead of taking it from grid.bin</td>
+</tr>
+<tr>
+<td>--naive</td>
+<td style="text-align: left;">Function naive() generate area as +/- points taking it from grid.bin and divide it into smaller grid.</td>
+</tr>
+<tr>
+<td>--onepoint</td>
+<td style="text-align: left;">Calculate Fstatistic only in one point taken from file with candidates (without generating any grid).</td>
+</tr>
+<tr>
+<td>--help</td>
+<td style="text-align: left;">This help</td>
+</tr>
+</tbody>
+</table>
+<p>By default code is searching maximum of the F-statistic on the optimal, 4-dimensional grid (parameters of the grid, like e.g. minimal match, ale defined inside the code, in <code>followup.c</code>). Main idea was to search on a denser grid than in <code>search</code> code, but to focus only on a few points around candidate. Additionally, when the point (on the optimal grid) with the maximal value of the F-statistic is established, one can run one of the direct maximum search algorithm: Nelder-Mead (<code>--simplex</code> switch) or MADS (<code>--mads</code> switch), to determine parameters of the maximum more precisely. In the current version of the code, by using <code>--mads</code> switch, one will use modified, 'inverted' MADS. To skip calculations on the optimal grid and run one of the algorithms directly from the initial point, use <code>--onepoint</code> switch.</p>
+<h2 id="input-data">Input data</h2>
+<p>Files required to run the code: <code>xdatc*</code>, <code>DetSSB.bin</code> and <code>grid.bin</code>. Path to the directory is taken from <code>-data</code> switch; there directories named as <code>iii/H1</code>,<code>iii/L1</code> etc. are expected, where <code>iii</code> is a frame number taken from <code>-ident</code> switch.</p>
+<p>Initial point of the calculations (switch <code>-candidates</code>) is required. Usually the best result from coincidences (previous step of the pipeline) is taken. Parameters of the candidate need to be written into the file, as:</p>
+<p><code>frequency spin-down declination right_ascension</code></p>
+<h2 id="minimal-example-how-to-run-a-code">Minimal example how to run a code</h2>
+<p>Run: </p>
+<pre><code class="language-bash">LD_LIBRARY_PATH=../../search/network/src-cpu/lib/yeppp-1.0.0/binaries/linux/x86_64 ./followup -data data_path/ -band 0666 -dt 16 -candidates path_to_candidate/candidate.txt -ident 001 -nod 6 --mads&gt; output.txt 
+</code></pre>
+<p>As a result (last line in the output file) one can get parameters of the found maximum:</p>
+<p><code>frequency spin-down declination right_ascension F-statistic_value SNR</code></p>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../fap_coincidences/" class="btn btn-neutral float-left" title="False alarm probablity of conicidences"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../sensitivity_upper_limits/" class="btn btn-neutral float-right" title="Sensitivity upper limits">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+      <span><a href="../fap_coincidences/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../sensitivity_upper_limits/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "..";</script>
+    <script src="../js/theme_extra.js"></script>
+    <script src="../js/theme.js"></script>
+      <script src="../javascripts/highlight.js"></script>
+      <script src="../javascripts/mathjax.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+      <script src="../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

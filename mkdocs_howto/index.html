@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <link rel="shortcut icon" href="../img/favicon.ico" />
+    <title>Docs howto - TDFstat</title>
+    <link rel="stylesheet" href="../css/theme.css" />
+    <link rel="stylesheet" href="../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+        <link href="../extra.css" rel="stylesheet" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Docs howto";
+        var mkdocs_page_input_path = "mkdocs_howto/README.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/yaml.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/plaintext.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/python.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/cpp.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/bash.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/shell.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href=".." class="icon icon-home"> TDFstat
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="..">Home</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Pipeline description</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../input_data/">Input data generation</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../grid_generation/">Grid generation</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../search_for_candidates/">F-statistic candidate signal search</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../coincidences/">Coincidences between candidates</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../fap_coincidences/">False alarm probablity of conicidences</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../followup/">Followup of interesting outliers</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../sensitivity_upper_limits/">Sensitivity upper limits</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../fisher/">Fisher matrix calculation</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../simple_example/">Pipeline: a minimal example</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../articles/">Documents and publications</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Docs howto</span></p>
+              <ul class="current">
+                  <li class="toctree-l1 current"><a class="reference internal current" href="#">Docs howto</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#introduction">Introduction</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#writing-documentation">Writing documentation</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#mkdocs-configuration">MkDocs configuration</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#testing">Testing locally and pushing to Github</a>
+    </li>
+    </ul>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="..">TDFstat</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href=".." class="icon icon-home" aria-label="Docs"></a></li>
+          <li class="breadcrumb-item">Docs howto</li>
+      <li class="breadcrumb-item active">Docs howto</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="documentation-how-to">Documentation How To</h1>
+<h2 id="introduction">Introduction</h2>
+<p>This documentation is written in Markdown.
+We use the <a href="https://www.mkdocs.org/">MkDocs</a> static site generator (written in python) to create html pages.
+The documentation sources (markdown) reside in the project's <code>docs</code> subdirectory (this is the mkdocs default).
+Whenever you modify contents of this directory (and push changes to Github), Github runs our custom workflow to regenerate html pages and stores them in the gh-pages branch which is published at <a href="https://polgraw.github.io/TDFstat/">https://polgraw.github.io/TDFstat/</a>.</p>
+<h2 id="writing-documentation">Writing documentation</h2>
+<p>Some usefull documentation for authors:</p>
+<ul>
+<li><a href="https://www.markdownguide.org/">Markdown</a></li>
+<li><a href="https://www.mkdocs.org/user-guide/writing-your-docs/">MkDocs documentation for users</a></li>
+<li><a href="https://facelessuser.github.io/pymdown-extensions/extensions/arithmatex/">Math formulas</a> (<code>$</code> for inline and <code>$$</code> for block, <code>begin{equation}</code>, etc...)</li>
+<li><a href="https://highlightjs.org/usage/">Code highlighting</a> (e.g. <code>```python</code>)</li>
+<li><a href="https://python-markdown.github.io/extensions/admonition/">Admonitions</a>
+  (<code>!!! note|danger|important|highlight|blink</code>)</li>
+</ul>
+<p>Please <a href="#testing">test any changes locally</a> before pushing them to Github!</p>
+<h2 id="mkdocs-configuration">MkDocs configuration</h2>
+<p>The main configuration file for MkDocs, <code>mkdocs.yml</code>, resides in the project's root directory.</p>
+<p>The nav section defines site menu.</p>
+<p>In the theme section we enabled <a href="https://www.mkdocs.org/user-guide/choosing-your-theme/#readthedocs">Read the docs theme</a>.
+RTD theme is modified using CSS file 'extra.css' and we change there the default width of content from 800 px to 100%. <a href="https://github.com/readthedocs/sphinx_rtd_theme/issues/295">Why the width is hardcoded in RTD?</a>.<br />
+In addition we configure highlight.js package used by default in RTD. In particullar we load custom JS code from <code>javascripts/highlight.js</code>. This is the only way I have found to disable code highlighting by default in highlight.js, otherwise you get random languages detected on simple text. With this modification we have to specify the language explicitelly to enable highlighting (e.g. <code>```python</code>). Only <a href="https://highlightjs.org/static/demo/">common languages are loaded by default</a>, if you need <a href="https://github.com/highlightjs/highlight.js/blob/main/SUPPORTED_LANGUAGES.md">some other language</a> add it to the list in <code>mkdocs.yml</code>.</p>
+<p>We use MathJax along with Artihmatex extension (to preserve latex syntax with single $).
+The whole configuration is build around new MathJax 3.x.
+Following guidelines from <a href="https://facelessuser.github.io/pymdown-extensions/extensions/arithmatex/#loading-mathjax">Artihmatex documentation</a> we have:</p>
+<ul>
+<li><code>generic</code> option is set to false  </li>
+<li>we load tex-chtml combined components (for other options see <a href="https://docs.mathjax.org/en/latest/web/components/combined.html">mathjax components docs</a>)  </li>
+<li>MathJax 3.x configuration is loaded via  <code>docs/javascripts/mathjax.js</code> file</li>
+</ul>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>There is no need to load MathJax explicitelly in mkdocs.yml since Arithmatex does this</p>
+</div>
+<div class="admonition important">
+<p class="admonition-title">Important</p>
+<p><code>docs/javascripts/mathjax.js</code> must be loaded <strong>before</strong> MathJax (<code>- https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js</code>)</p>
+</div>
+<h2 id="testing">Testing locally and pushing to Github</h2>
+<p>You should install MkDocs in the conda virtual environment (with conda-forge enabled):</p>
+<pre><code>conda create -n mkdocs-test
+conda activate mkdocs-test
+conda install mkdocs pymdown-extensions pygments
+</code></pre>
+<p>Then go to the root directory of the repository, <code>&lt;some dir&gt;/TDFstat</code> and run</p>
+<pre><code>mkdocs serve -v
+</code></pre>
+<p>This should start a local webserver at address <code>http://127.0.0.1:8000/</code>. Check it in the web browser.
+The pages will regenerate and reload autonatically if there are any changes.</p>
+<p>After testing if the pages are working locally you can submit changes to master branch</p>
+<pre><code>git add &lt;some files&gt;
+git commit -a -m &quot;[docs] something&quot;
+git push origin main
+</code></pre>
+<p>Now you can go to the <a href="https://github.com/Polgraw/TDFstat/actions">repository actions</a>
+and observe two build actions being executed.
+The first one is building mkdocs site and pushing output to gh-pages branch.
+This action is defined in <a href="https://github.com/Polgraw/TDFstat/blob/main/.github/workflows/main.yml">this yml file</a>.
+Alternativelly, you can achive the same manually from your local testing environment:</p>
+<pre><code>mkdocs gh-deploy
+</code></pre>
+<p>The second action does deployment of html code to <code>https://polgraw.github.io/TDFstat</code>.</p>
+<hr />
+<p>Possible improvements:</p>
+<ul>
+<li>https://datamattsson.tumblr.com/post/612351271067893760/the-perfect-documentation-storm</li>
+<li>https://github.com/marketplace/actions/deploy-mkdocs</li>
+</ul>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../articles/" class="btn btn-neutral float-left" title="Documents and publications"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+      <span><a href="../articles/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+  </span>
+</div>
+    <script src="../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "..";</script>
+    <script src="../js/theme_extra.js"></script>
+    <script src="../js/theme.js"></script>
+      <script src="../javascripts/highlight.js"></script>
+      <script src="../javascripts/mathjax.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+      <script src="../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

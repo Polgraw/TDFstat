@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <link rel="shortcut icon" href="../img/favicon.ico" />
+    <title>Pipeline: a minimal example - TDFstat</title>
+    <link rel="stylesheet" href="../css/theme.css" />
+    <link rel="stylesheet" href="../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+        <link href="../extra.css" rel="stylesheet" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Pipeline: a minimal example";
+        var mkdocs_page_input_path = "simple_example.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/yaml.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/plaintext.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/python.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/cpp.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/bash.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/shell.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href=".." class="icon icon-home"> TDFstat
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="..">Home</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Pipeline description</span></p>
+              <ul class="current">
+                  <li class="toctree-l1"><a class="reference internal" href="../input_data/">Input data generation</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../grid_generation/">Grid generation</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../search_for_candidates/">F-statistic candidate signal search</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../coincidences/">Coincidences between candidates</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../fap_coincidences/">False alarm probablity of conicidences</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../followup/">Followup of interesting outliers</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../sensitivity_upper_limits/">Sensitivity upper limits</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../fisher/">Fisher matrix calculation</a>
+                  </li>
+                  <li class="toctree-l1 current"><a class="reference internal current" href="#">Pipeline: a minimal example</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#structure-of-the-input-data">Structure of the input data</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#generating-random-parameters-for-the-signal">Generating random parameters for the signal</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#adding-signal-to-the-gaussian-data-and-searching-for-candidates">Adding signal to the Gaussian data and searching for candidates</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#coincidences-among-these-trigger-files">Coincidences among these trigger files</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#false-alarm-probability">False alarm probability</a>
+    </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../articles/">Documents and publications</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Docs howto</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../mkdocs_howto/">Docs howto</a>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="..">TDFstat</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href=".." class="icon icon-home" aria-label="Docs"></a></li>
+          <li class="breadcrumb-item">Pipeline description</li>
+      <li class="breadcrumb-item active">Pipeline: a minimal example</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="pipeline-a-minimal-example">Pipeline: a minimal example</h1>
+<p>This is a demonstration of the pipeline using Gaussian noise test data with randomly-selected signal added to the data (software injection).  </p>
+<h2 id="structure-of-the-input-data">Structure of the input data</h2>
+<p>The generic directory structure of the input data is</p>
+<pre><code class="language-bash">001
+├── grid.bin
+├── H1
+│   ├── DetSSB.bin
+│   ├── grid.bin
+│   ├── rDet.bin
+│   ├── rSSB.bin
+│   ├── starting_date
+│   └── xdatc_001_1234.bin
+└── L1
+    ├── DetSSB.bin
+    ├── grid.bin
+    ├── rDet.bin
+    ├── rSSB.bin
+    ├── starting_date
+    └── xdatc_001_1234.bin
+</code></pre>
+<p>(here for two LIGO detectors H1 and L1, and frame <code>001</code>). Test data frames <span class="arithmatex"><span class="MathJax_Preview">nnn=001-008</span><script type="math/tex">nnn=001-008</script></span> with pure Gaussian noise 2-day time segments with sampling time equal to 2s (<code>xdatc_nnn_1234.bin</code>) are <a href="https://polgraw.camk.edu.pl/H1L1_2d_0.25.tar.gz">available here</a>. </p>
+<p>In principle, given the ephemerides (<code>DetSSB.bin</code>, <code>rDet.bin</code> and <code>rSSB.bin</code>) for each detector and frame <code>001-008</code>, one can create the grid matrices using the <a href="../polgraw-allsky/grid_generation">gridgen</a> implementation (see the <a href="https://github.com/mbejger/polgraw-allsky/tree/master/gridgen">code</a> for details): </p>
+<pre><code class="language-bash"># grid generation
+cd gridgen
+make
+for ifo in H1 L1; do for d in $(seq -f %03g 1 8); do ./gridgen -m 0.5 -p dfg -d ../testdata/2d_0.25/${d}/${ifo}/ -n 17; done; done
+
+# copying the H1 grid file one level up for the case of the network search 
+for d in $(seq -f %03g 1 8); do cp -v ../testdata/2d_0.25/${d}/H1/grid.bin ../testdata/2d_0.25/${d}; done
+</code></pre>
+<p>Test Gaussian noise time series data were created as follows:  </p>
+<pre><code class="language-bash">#!/bin/bash 
+
+band=1234
+
+# Gaussian data generation
+cd ../search/network/scr-cpu
+gcc gauss-xdat.c -o gauss-xdat -lm -lgsl -lgslcblas
+# 86164: number of points in 2-day segment with 2s sampling time 
+for ifo in H1 L1; do for d in $(seq -f %03g 1 8); do echo $d $ifo; ./gauss-xdat 86164 1 1 ../../../testdata/2d_0.25/${d}/${ifo}/xdatc_${d}_${band}.bin; done; done
+</code></pre>
+<p>Given the complete input data, this pipeline minimal example consists of </p>
+<ul>
+<li>Adding an artificial signal to the data (random parameters of the signal generated with <code>sigen</code>), </li>
+<li>Performing a search around the injection for each time segment (<code>gwsearch-cpu</code>), </li>
+<li>Looking for coincidences between the candidate signals from different time frames (<code>coincidences</code>), </li>
+<li>Establishing the false alarm probability of the best coincidence (<code>fap</code>).   </li>
+</ul>
+<h2 id="generating-random-parameters-for-the-signal">Generating random parameters for the signal</h2>
+<p>Random parameters of the signal are chosen using the <a href="https://github.com/mbejger/polgraw-allsky/blob/master/search/network/src-cpu/sigen.c">sigen</a> and added to the data time series with the <code>add_signal()</code> function in (<a href="https://github.com/mbejger/polgraw-allsky/blob/master/search/network/src-cpu/init.c">init</a>). </p>
+<pre><code class="language-bash"># Create random parameters of a signal signal
+cd search/network/src-cpu
+make sigen
+band=1234; dt=2; nod=2; ./sigen -amp 4.e-2 -band $band -dt $dt -gsize 10 -reffr 4 -nod $nod 1&gt; sig1 
+</code></pre>
+<p>Signal parameters used in this example:</p>
+<pre><code>% cat sig1 
+amp 4.000000e-02
+10
+4
+9.9791082090028898e-01
+-1.6533871297433800e-09
+-1.1821269273133420e-01
+1.9839903273071489e+00
+4.7717937494571394e-01
+7.5715524886052021e-01
+7.5154297884129850e-01
+-4.7938541489358644e-01
+</code></pre>
+<h2 id="adding-signal-to-the-gaussian-data-and-searching-for-candidates">Adding signal to the Gaussian data and searching for candidates</h2>
+<pre><code class="language-bash">band=1234; dt=2; nod=2; for d in $(seq -f %03g 1 8); do 
+
+  LD_LIBRARY_PATH=lib/yeppp-1.0.0/binaries/linux/x86_64 ./gwsearch-cpu \
+  -data ../../../testdata/2d_0.25/ \
+  -ident ${d} \
+  -band $band \
+  -dt $dt \ 
+  -nod $nod \ 
+  -addsig sig1 \  
+  -output . \
+  -threshold 14.5 \
+  --nocheckpoint \ 
+
+done
+</code></pre>
+<p>This produces trigger files for each frame (size in bytes also listed): </p>
+<pre><code>99320 triggers_001_1234_2.bin
+89960 triggers_002_1234_2.bin
+89880 triggers_003_1234_2.bin
+95360 triggers_004_1234_2.bin
+81600 triggers_005_1234_2.bin
+92200 triggers_006_1234_2.bin
+89040 triggers_007_1234_2.bin
+96320 triggers_008_1234_2.bin
+</code></pre>
+<p>First 10 triggers from <code>triggers_001_1234_2.bin</code> are </p>
+<pre><code>3.05617018e+00 -3.42376198e-08 -7.68007347e-02 2.59248668e+00 5.06667333e+00 
+1.18243015e+00 -3.20762991e-08 -7.68007347e-02 2.59248668e+00 5.05528873e+00 
+1.08103361e-01 -2.77536578e-08 -7.68007347e-02 2.59248668e+00 5.07085254e+00 
+1.90022435e+00 -2.77536578e-08 -7.68007347e-02 2.59248668e+00 5.15191593e+00 
+1.90000217e+00 -2.55923371e-08 -7.68007347e-02 2.59248668e+00 5.42638039e+00 
+2.09224664e+00 -2.34310165e-08 -7.68007347e-02 2.59248668e+00 5.20879551e+00 
+2.38731576e+00 -2.12696958e-08 -7.68007347e-02 2.59248668e+00 5.31983396e+00 
+3.00543165e+00 -1.91083751e-08 -7.68007347e-02 2.59248668e+00 5.29454616e+00 
+7.49333983e-01 -1.26244131e-08 -7.68007347e-02 2.59248668e+00 5.08724856e+00 
+2.08710778e-01  3.43510887e-10 -7.68007347e-02 2.59248668e+00 5.17537018e+00 
+</code></pre>
+<h2 id="coincidences-among-these-trigger-files">Coincidences among these trigger files</h2>
+<pre><code class="language-bash">cd ../../../coincidences/src
+make
+band=1234; dt=2; nod=2; fpo=$(echo $band $dt |awk '{printf(&quot;%.6f&quot;, 10 + 0.96875*$1/(2.0*$2))}'); for s in {0..1}{0..1}{0..1}{0..1}; do 
+
+  ./coincidences \ 
+  -data ../../search/network/src-cpu \ 
+  -output . \ 
+  -shift $s \ 
+  -scalef 4 \ 
+  -scales 4 \ 
+  -scaled 4 \ 
+  -scalea 4 \ 
+  -refr 4 \ 
+  -dt $dt \ 
+  -trigname ${band}_2 \ 
+  -refloc ../../testdata/2d_0.25/004 \ 
+  -nod $nod \ 
+  -fpo $fpo \ 
+  -snrcutoff 5 \ 
+
+  done 2&gt;&gt; summary
+
+# best shift (highest multiplicity with largest snr)
+sort -gk5 -gk10 summary | tail -1
+</code></pre>
+<p>The highest coincidence with the largest signal-to-noise ratio is  </p>
+<pre><code>1234_2 1111 308.859375     8     5  9.95663703e-01 -1.10830358e-09 -1.12585347e-01 1.97463002e+00 1.246469e+01 5 2040 1987 1 2483 2419 4 2384 2193 3 2247 2137 8 2408 2363 2 2249 2172 6 2305 2220 7 2226 2191 6 2 8 3 5
+</code></pre>
+<h2 id="false-alarm-probability">False alarm probability</h2>
+<pre><code>make fap 
+fap.sh &lt;(sort -gk5 -gk10 summary | tail -1) &lt;(echo $band 0.0) ../../testdata/2d_0.25/004
+</code></pre>
+<p>resulting in </p>
+<pre><code>Number of days in time segments: 2
+Input data: /dev/fd/63
+Grid matrix data directory: ../../testdata/2d_0.25/004
+Band number: 1234 (veto fraction: 0.000000)
+The reference frequency fpo: 308.859375
+The data sampling time dt: 2.000000
+FAP threshold: 1.000000
+Cell size: 4
+1234 3.088594e+02 3.091094e+02 7.665713e-08 5 17682 9.956637e-01 -1.108304e-09 -1.125853e-01 1.974630e+00 1.246469e+01 2
+</code></pre>
+<p>The false alarm probability in this case is <code>7.665713e-08</code>. It's low enough to be an interesting outlier for a <a href="../polgraw-allsky/followup">followup</a> procedure. </p>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../fisher/" class="btn btn-neutral float-left" title="Fisher matrix calculation"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../articles/" class="btn btn-neutral float-right" title="Documents and publications">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+      <span><a href="../fisher/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../articles/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "..";</script>
+    <script src="../js/theme_extra.js"></script>
+    <script src="../js/theme.js"></script>
+      <script src="../javascripts/highlight.js"></script>
+      <script src="../javascripts/mathjax.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+      <script src="../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

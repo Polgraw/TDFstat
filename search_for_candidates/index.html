@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <link rel="shortcut icon" href="../img/favicon.ico" />
+    <title>F-statistic candidate signal search - TDFstat</title>
+    <link rel="stylesheet" href="../css/theme.css" />
+    <link rel="stylesheet" href="../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+        <link href="../extra.css" rel="stylesheet" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "F-statistic candidate signal search";
+        var mkdocs_page_input_path = "search_for_candidates.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/yaml.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/plaintext.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/python.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/cpp.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/bash.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/shell.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href=".." class="icon icon-home"> TDFstat
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="..">Home</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Pipeline description</span></p>
+              <ul class="current">
+                  <li class="toctree-l1"><a class="reference internal" href="../input_data/">Input data generation</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../grid_generation/">Grid generation</a>
+                  </li>
+                  <li class="toctree-l1 current"><a class="reference internal current" href="#">F-statistic candidate signal search</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#algorithm-flowchart">Algorithm flowchart</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#prerequisites">Prerequisites</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#compilation">Compilation</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#configuration-file">Configuration file</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#details-of-options-concepts">Details of options / concepts</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#example-of-usage">Example of usage</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#network-of-detectors">Network of detectors</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#output-files">Output files</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#full-h5dump-output-example">Full h5dump output example</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#auxiliary-output-files">Auxiliary output files</a>
+    </li>
+        </ul>
+    </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../coincidences/">Coincidences between candidates</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../fap_coincidences/">False alarm probablity of conicidences</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../followup/">Followup of interesting outliers</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../sensitivity_upper_limits/">Sensitivity upper limits</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../fisher/">Fisher matrix calculation</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../simple_example/">Pipeline: a minimal example</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../articles/">Documents and publications</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Docs howto</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../mkdocs_howto/">Docs howto</a>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="..">TDFstat</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href=".." class="icon icon-home" aria-label="Docs"></a></li>
+          <li class="breadcrumb-item">Pipeline description</li>
+      <li class="breadcrumb-item active">F-statistic candidate signal search</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="f-statistic-candidate-signal-search">F-statistic candidate signal search</h1>
+<p>This is the main code of the pipeline that performs the search for continuous gravitational-wave signals in the data from a network of detectors using the <span class="arithmatex"><span class="MathJax_Preview">\mathcal{F}</span><script type="math/tex">\mathcal{F}</script></span>-statistic method. The search is performed over a grid of parameters covering the sky position, spindown and frequency values. Candidate signals (triggers) above a given threshold for the <span class="arithmatex"><span class="MathJax_Preview">\mathcal{F}</span><script type="math/tex">\mathcal{F}</script></span>-statistic are stored in the output HDF5 files.</p>
+<p>Since this is very time consuming part of the TDFstat all-sky search, the code is optimized for performance: vectorized and parallelized using OpenMP.</p>
+<h2 id="algorithm-flowchart">Algorithm flowchart</h2>
+<p><img alt="Code flowchart" src="../img/flowchart.png" /></p>
+<h2 id="prerequisites">Prerequisites</h2>
+<p>The code is written in <code>C</code> and compiled with gnu17 dialect of GNU C compiler (support for complex numbers).
+Required libraries: <a href="http://www.gnu.org/software/gsl/">GNU Scientific Library (GSL)</a>, <a href="http://www.fftw.org">FFTW library</a>, <a href="https://www.hdfgroup.org/solutions/hdf5">HDF5 library</a>, <a href="https://github.com/ndevilla/iniparser">iniparser</a> (included in the repository).<br />
+Opional libraries: <a href="https://sleef.org/">SLEEF vector library</a> (included in the repository).</p>
+<h2 id="compilation">Compilation</h2>
+<p>Run <code>make</code> in <code>search/network/openmp</code>. The standard Makfile is configured to produce executable named <code>gwsearch-cascadelake-avx2-float</code>. Comments in the Makefile help to modify certain compilation options.</p>
+<h2 id="configuration-file">Configuration file</h2>
+<p>The search code requires a configuration file in INI format. The repository contains example file <code>search-template.ini</code> with comments explaining each option. </p>
+<pre><code>[search]
+
+indir = /work/chuck/virgo/O3/allsky_o3_c01  # input data directory (string)
+outdir = .            # output directory (string)
+band = 72             # band number (int)
+seg = 13              # segment number (int)
+hemi = 2              # hemisphere [1,2 or 0 for both] (int)
+thr = 14.5            # fstatistic threshold of candidates (double)
+nod = 6               # length of input time series [days] (int)
+dt = 2                # input time series sampling interval [seconds] (double)
+overlap = 0.0625      # bands overlap, band frequency fpo=10+(1-overlap)*B/(2*dt) (double)
+narrowdown = -1       # limits band in f to band_center +/- [0-0.5], auto calculated if &lt; 0 (double)
+fstat_norm =          # fstatistic normalization (NULL=white noise or blocks_avg)
+grid_file = 013/grids/grid_013_0072_H1L1c.bin   
+
+# optional
+usedet =              # use only specified detectors 
+range_file =          # range.dat , limits parameter space of the search
+dump_range_file =     # name of the file to dump max. search ranges and exit
+addsig =              # name of the file with signals to be injected
+mods = read_O3        # coma separated list of modifiers: read_O3
+
+# flags
+veto_flag = 0         # veto lines: 0-no, 1-yes
+gen_vlines_flag = 0   # if 1 generate vlines file and exit
+checkp_flag = 0       # write checkpoint file on every triggers buffer flush
+</code></pre>
+<h3 id="details-of-options-concepts">Details of options / concepts</h3>
+<details class="note">
+<summary>indir, input data (click to expand)</summary>
+<p><br/>Input data must be prepared in a way outlined in the <a href="../input_data/#tdfstat-input-data-structure">genseg documentation</a>. Requied files are: xdat (time series), DetSSB (ephemeris), grid (grid generator matrix). Optional files: lines (veto lines), addsig (software injections), range file (search ranges).<br />
+Please note that same of the parameters have to match those used during input data generation (e.g., dt, overlap, nod).</p>
+</details>
+<details class="note">
+<summary>Bands, segments, overlap (click to expand)</summary>
+<p><br/> Short summary from the <a href="../input_data/">genseg documentation</a>: we analyze narrow-band (0.25-1 Hz) time segments of length being an integer multiple of sidereal day (typically 2-24 days).<br />
+Subsequent time segments are labeled by natural numbers. In some contexts (like filenames) those numbers are formatted using pattern DDD (e.g. 009).<br />
+Bands are overlapping in frequency to avoid edge effects. Bands are also labeled by natural numbers and in some contexts the 4 digit format is used (e.g., 0027). The general formula for the initial frequency of the band number b is:<br />
+<span class="arithmatex"><span class="MathJax_Preview">fpo(b) = 10 + (1 - overlap) \cdot b \frac{1}{2 \cdot dt}</span><script type="math/tex">fpo(b) = 10 + (1 - overlap) \cdot b \frac{1}{2 \cdot dt}</script></span><br />
+where bandwidth B=1/(2dt) and overlap is expressed as a fraction of B. The overlap shuld have the form of <span class="arithmatex"><span class="MathJax_Preview">2^{-n}</span><script type="math/tex">2^{-n}</script></span>, to assure that fpo is aligned with fourier bins in the SFDB database (e.g. 0.0625).</p>
+</details>
+<details class="note">
+<summary>narrowdown (click to expand)</summary>
+<p><br/> Narrowdown is used to limit the range of frequencies for which the F-statistic is computed. It should be in range [0-0.5] and we define the whole band range to be [-0.5, 0.5]. Narrowdown 0.5 means "use the whole bandwidth". Narrowdown 0.45 means that the band is narrowed by 5% on both sides. If narrowdown &lt; 0, then the frequency range is calculated from overlap in such a way that the overapping part of the band is split in the middle, effectivlly creating two sibling, non-overlapping bands.</p>
+<p><code>|&lt;------- band1 ----|---&gt;|
+                |&lt;---|---- band 2 -------&gt;|</code>  </p>
+<p>This is needed to avoid analyzing the same range of frequencies more than once when performing all-sky search over many bands.</p>
+</details>
+<details class="note">
+<summary>range_file (click to expand)</summary>
+</details>
+<details class="note">
+<summary>addsig (click to expand)</summary>
+</details>
+<h2 id="example-of-usage">Example of usage</h2>
+<p>Minimal call to <code>gwsearch-cascadelake-avx2-float</code> is as follows (code compiled with the <code>GNUSINCOS</code> option): </p>
+<pre><code>% ./gwsearch-cascadelake-avx2-float search.ini  
+</code></pre>
+<h3 id="network-of-detectors">Network of detectors</h3>
+<p>Test data frames <span class="arithmatex"><span class="MathJax_Preview">nnn=001-008</span><script type="math/tex">nnn=001-008</script></span> with pure Gaussian noise 2-day time segments with sampling time equal to 2s (<code>xdatc_nnn_1234.bin</code>) for two LIGO detectors H1 and L1 are <a href="https://polgraw.camk.edu.pl/H1L1_2d_0.25.tar.gz">available here</a>. </p>
+<p>The program will proceed assuming that </p>
+<ul>
+<li>the data directory for frame <code>001</code> is located at <code>../../../testdata/2d_0.25/001</code> and contain subdirectories with input data for H1, L1 and/or V1 detectors (all available detectors are used by default; to select specific detectors, use <code>-usedet</code> option), </li>
+<li>the grid of parameters files is expected to be in <code>../../../testdata/2d_0.25/001</code>, </li>
+<li><code>band</code> equals to <span class="arithmatex"><span class="MathJax_Preview">1234</span><script type="math/tex">1234</script></span>,  </li>
+<li>the sampling time <code>dt</code> equals <span class="arithmatex"><span class="MathJax_Preview">2 s</span><script type="math/tex">2 s</script></span>, </li>
+<li>number of days <code>nod</code> in <span class="arithmatex"><span class="MathJax_Preview">2</span><script type="math/tex">2</script></span>, </li>
+<li>the <code>-addsig</code> option is used to add a software injection to pure noise Gaussian data. The signal's parameters are randomly generated using the <code>sigen</code> code (for more details see the <a href="../polgraw-allsky/pipeline_script">minimal example</a>).  </li>
+<li>the threshold for the <span class="arithmatex"><span class="MathJax_Preview">\mathcal{F}</span><script type="math/tex">\mathcal{F}</script></span>-statistic is set to be <span class="arithmatex"><span class="MathJax_Preview">14.5</span><script type="math/tex">14.5</script></span>,</li>
+<li><code>-output</code> is the current directory, </li>
+<li><code>--nocheckpoint</code> disables the checkpointing (writing the last visited position on the grid to the <code>state</code> file), </li>
+</ul>
+<h2 id="output-files">Output files</h2>
+<p>HDF5 structure:</p>
+<pre><code>HDF5 object                  | data type
+----------------------------------------------------
+/                            | root group
+├── attr: format_version     | int
+├── attr: git_commit         | string
+├── attr: opts               | compound (struct Command_line_opts)
+├── attr: sett               | compound (struct Search_settings)
+├── attr: s_range            | compound (struct Search_ranges)
+├── attr: ifo                | compound[] (struct Detector_settings)
+├── attr: detectors          | string
+├── attr: t_start            | string
+├── attr: t_end              | string
+├── attr: totsgnl            | int
+├── attr: walltime           | double
+├── attr: num_threads        | int
+├── dataset &quot;triggers&quot;       | dataset
+│   ├── data                 | compound[] (Trigger[])
+│       ├── m                | float
+│       ├── n                | float
+│       ├── s                | float
+│       ├── ra               | float
+│       ├── dec              | float
+│       ├── fdot             | float
+│       ├── ffstat           | float[]
+├── dataset &quot;triggers_inj_1&quot; | dataset
+│    ├── data                | compound[] (Trigger[])
+└── ...
+</code></pre>
+<h4 id="full-h5dump-output-example">Full h5dump output example</h4>
+<details>
+<summary>Click to expand</summary>
+
+<pre><code>HDF5 &quot;triggers_013_0072_2.h5&quot; {
+GROUP &quot;/&quot; {
+   ATTRIBUTE &quot;format_version&quot; {
+      DATATYPE  H5T_STD_I32LE
+      DATASPACE  SIMPLE { ( 1 ) / ( 1 ) }
+   }
+   ATTRIBUTE &quot;git_commit&quot; {
+      DATATYPE  H5T_STRING {
+         STRSIZE 41;
+         STRPAD H5T_STR_NULLTERM;
+         CSET H5T_CSET_ASCII;
+         CTYPE H5T_C_S1;
+      }
+      DATASPACE  SCALAR
+   }
+   ATTRIBUTE &quot;ifo&quot; {
+      DATATYPE  H5T_COMPOUND {
+         H5T_STRING {
+            STRSIZE 2;
+            STRPAD H5T_STR_NULLTERM;
+            CSET H5T_CSET_ASCII;
+            CTYPE H5T_C_S1;
+         } &quot;name&quot;;
+         H5T_STRING {
+            STRSIZE 2048;
+            STRPAD H5T_STR_NULLTERM;
+            CSET H5T_CSET_ASCII;
+            CTYPE H5T_C_S1;
+         } &quot;xdatname&quot;;
+      }
+      DATASPACE  SIMPLE { ( 2 ) / ( 2 ) }
+   }
+   ATTRIBUTE &quot;num_threads&quot; {
+      DATATYPE  H5T_STD_I32LE
+      DATASPACE  SIMPLE { ( 1 ) / ( 1 ) }
+   }
+   ATTRIBUTE &quot;opts&quot; {
+      DATATYPE  H5T_COMPOUND {
+         H5T_STD_I32LE &quot;checkp_flag&quot;;
+         H5T_STD_I32LE &quot;veto_flag&quot;;
+         H5T_STD_I32LE &quot;seg&quot;;
+         H5T_STD_I32LE &quot;band&quot;;
+         H5T_STD_I32LE &quot;hemi&quot;;
+         H5T_STD_I32LE &quot;nod&quot;;
+         H5T_IEEE_F64LE &quot;thr&quot;;
+         H5T_IEEE_F64LE &quot;narrowdown&quot;;
+         H5T_IEEE_F64LE &quot;overlap&quot;;
+         H5T_STRING {
+            STRSIZE H5T_VARIABLE;
+            STRPAD H5T_STR_NULLTERM;
+            CSET H5T_CSET_ASCII;
+            CTYPE H5T_C_S1;
+         } &quot;indir&quot;;
+         H5T_STRING {
+            STRSIZE H5T_VARIABLE;
+            STRPAD H5T_STR_NULLTERM;
+            CSET H5T_CSET_ASCII;
+            CTYPE H5T_C_S1;
+         } &quot;outdir&quot;;
+         H5T_STRING {
+            STRSIZE H5T_VARIABLE;
+            STRPAD H5T_STR_NULLTERM;
+            CSET H5T_CSET_ASCII;
+            CTYPE H5T_C_S1;
+         } &quot;range_file&quot;;
+         H5T_STRING {
+            STRSIZE H5T_VARIABLE;
+            STRPAD H5T_STR_NULLTERM;
+            CSET H5T_CSET_ASCII;
+            CTYPE H5T_C_S1;
+         } &quot;grid_file&quot;;
+         H5T_STRING {
+            STRSIZE H5T_VARIABLE;
+            STRPAD H5T_STR_NULLTERM;
+            CSET H5T_CSET_ASCII;
+            CTYPE H5T_C_S1;
+         } &quot;usedet&quot;;
+         H5T_STRING {
+            STRSIZE H5T_VARIABLE;
+            STRPAD H5T_STR_NULLTERM;
+            CSET H5T_CSET_ASCII;
+            CTYPE H5T_C_S1;
+         } &quot;addsig&quot;;
+         H5T_STRING {
+            STRSIZE H5T_VARIABLE;
+            STRPAD H5T_STR_NULLTERM;
+            CSET H5T_CSET_ASCII;
+            CTYPE H5T_C_S1;
+         } &quot;fstat_norm&quot;;
+      }
+      DATASPACE  SCALAR
+   }
+   ATTRIBUTE &quot;s_range&quot; {
+      DATATYPE  H5T_COMPOUND {
+         H5T_ARRAY { [2] H5T_STD_I32LE } &quot;pmr&quot;;
+         H5T_ARRAY { [2] H5T_STD_I32LE } &quot;fr&quot;;
+         H5T_ARRAY { [2] H5T_IEEE_F32LE } &quot;mr&quot;;
+         H5T_ARRAY { [2] H5T_IEEE_F32LE } &quot;nr&quot;;
+         H5T_ARRAY { [2] H5T_IEEE_F32LE } &quot;spndr&quot;;
+         H5T_IEEE_F32LE &quot;mstep&quot;;
+         H5T_IEEE_F32LE &quot;nstep&quot;;
+         H5T_IEEE_F32LE &quot;sstep&quot;;
+         H5T_IEEE_F32LE &quot;mst&quot;;
+         H5T_IEEE_F32LE &quot;nst&quot;;
+         H5T_IEEE_F32LE &quot;sst&quot;;
+         H5T_STD_I32LE &quot;pst&quot;;
+      }
+      DATASPACE  SCALAR
+   }
+   ATTRIBUTE &quot;sett&quot; {
+      DATATYPE  H5T_COMPOUND {
+         H5T_IEEE_F64LE &quot;fpo&quot;;
+         H5T_IEEE_F64LE &quot;dt&quot;;
+         H5T_IEEE_F64LE &quot;B&quot;;
+         H5T_IEEE_F64LE &quot;oms&quot;;
+         H5T_IEEE_F64LE &quot;omr&quot;;
+         H5T_IEEE_F64LE &quot;Smin&quot;;
+         H5T_IEEE_F64LE &quot;Smax&quot;;
+         H5T_IEEE_F64LE &quot;sepsm&quot;;
+         H5T_IEEE_F64LE &quot;cepsm&quot;;
+         H5T_STD_I32LE &quot;nfft&quot;;
+         H5T_STD_I32LE &quot;nod&quot;;
+         H5T_STD_I32LE &quot;N&quot;;
+         H5T_STD_I32LE &quot;nfftf&quot;;
+         H5T_STD_I32LE &quot;nmax&quot;;
+         H5T_STD_I32LE &quot;nmin&quot;;
+         H5T_STD_I32LE &quot;s&quot;;
+         H5T_STD_I32LE &quot;nd&quot;;
+         H5T_STD_I32LE &quot;interpftpad&quot;;
+         H5T_STD_I32LE &quot;fftpad&quot;;
+         H5T_STD_I32LE &quot;Ninterp&quot;;
+         H5T_STD_I32LE &quot;nifo&quot;;
+         H5T_STD_I32LE &quot;numlines_band&quot;;
+         H5T_STD_I32LE &quot;nvlines_all_inband&quot;;
+         H5T_STD_I32LE &quot;bufsize&quot;;
+         H5T_STD_I32LE &quot;dd&quot;;
+         H5T_ARRAY { [16] H5T_IEEE_F64LE } &quot;M&quot;;
+         H5T_ARRAY { [5][2] H5T_IEEE_F64LE } &quot;lines&quot;;
+      }
+      DATASPACE  SCALAR
+   }
+   ATTRIBUTE &quot;t_end&quot; {
+      DATATYPE  H5T_STRING {
+         STRSIZE 20;
+         STRPAD H5T_STR_NULLTERM;
+         CSET H5T_CSET_ASCII;
+         CTYPE H5T_C_S1;
+      }
+      DATASPACE  SCALAR
+   }
+   ATTRIBUTE &quot;t_start&quot; {
+      DATATYPE  H5T_STRING {
+         STRSIZE 20;
+         STRPAD H5T_STR_NULLTERM;
+         CSET H5T_CSET_ASCII;
+         CTYPE H5T_C_S1;
+      }
+      DATASPACE  SCALAR
+   }
+   ATTRIBUTE &quot;totsgnl&quot; {
+      DATATYPE  H5T_STD_I32LE
+      DATASPACE  SIMPLE { ( 1 ) / ( 1 ) }
+   }
+   ATTRIBUTE &quot;walltime&quot; {
+      DATATYPE  H5T_IEEE_F64LE
+      DATASPACE  SIMPLE { ( 1 ) / ( 1 ) }
+   }
+   DATASET &quot;triggers&quot; {
+      DATATYPE  H5T_COMPOUND {
+         H5T_IEEE_F32LE &quot;m&quot;;
+         H5T_IEEE_F32LE &quot;n&quot;;
+         H5T_IEEE_F32LE &quot;s&quot;;
+         H5T_IEEE_F32LE &quot;ra&quot;;
+         H5T_IEEE_F32LE &quot;dec&quot;;
+         H5T_IEEE_F32LE &quot;fdot&quot;;
+         H5T_VLEN { H5T_IEEE_F32LE } &quot;ffstat&quot;;
+      }
+      DATASPACE  SIMPLE { ( 4952 ) / ( H5S_UNLIMITED ) }
+   }
+}
+}
+</code></pre>
+
+</details>
+
+<p>Binary output files, containing trigger candidate events above an arbitrary threshold (option <code>-threshold</code> for the <span class="arithmatex"><span class="MathJax_Preview">\mathcal{F}</span><script type="math/tex">\mathcal{F}</script></span>-statistic, default 20), are written to the <code>output_dir</code> directory. There are two output files for every input data sequence: <code>triggers_nnn_bbbb_1.bin</code> and
+<code>triggers_nnn_bbbb_2.bin</code>,  where  <code>1</code> and  <code>2</code> correspond to the northern and southern ecliptic hemisphere. Each trigger (candidate) event occupies <code>40</code> consecutive bytes (5 double numbers), with the following meaning:</p>
+<p>Record no.            | 
+--------------------- | ---------------------------- 
+1                     | frequency [radians, between 0 and <span class="arithmatex"><span class="MathJax_Preview">\pi</span><script type="math/tex">\pi</script></span>] above <code>fpo</code><br />
+2                     | spindown [<span class="arithmatex"><span class="MathJax_Preview">\mathrm{Hz/s}</span><script type="math/tex">\mathrm{Hz/s}</script></span>]<br />
+3                     | declination [radians, between <span class="arithmatex"><span class="MathJax_Preview">\pi/2</span><script type="math/tex">\pi/2</script></span> and <span class="arithmatex"><span class="MathJax_Preview">-\pi/2</span><script type="math/tex">-\pi/2</script></span>]
+4                     | right ascension [radians, between 0 and <span class="arithmatex"><span class="MathJax_Preview">2\pi</span><script type="math/tex">2\pi</script></span>]
+5                     | signal-to-noise ratio</p>
+<p>For the example above, the first 10 triggers from <code>triggers_001_1234_2.bin</code> are </p>
+<pre><code class="language-bash">3.05617018e+00 -3.42376198e-08 -7.68007347e-02 2.59248668e+00 5.06667333e+00 
+1.18243015e+00 -3.20762991e-08 -7.68007347e-02 2.59248668e+00 5.05528873e+00 
+1.08103361e-01 -2.77536578e-08 -7.68007347e-02 2.59248668e+00 5.07085254e+00 
+1.90022435e+00 -2.77536578e-08 -7.68007347e-02 2.59248668e+00 5.15191593e+00 
+1.90000217e+00 -2.55923371e-08 -7.68007347e-02 2.59248668e+00 5.42638039e+00 
+2.09224664e+00 -2.34310165e-08 -7.68007347e-02 2.59248668e+00 5.20879551e+00 
+2.38731576e+00 -2.12696958e-08 -7.68007347e-02 2.59248668e+00 5.31983396e+00 
+3.00543165e+00 -1.91083751e-08 -7.68007347e-02 2.59248668e+00 5.29454616e+00 
+7.49333983e-01 -1.26244131e-08 -7.68007347e-02 2.59248668e+00 5.08724856e+00 
+2.08710778e-01  3.43510887e-10 -7.68007347e-02 2.59248668e+00 5.17537018e+00 
+</code></pre>
+<h3 id="auxiliary-output-files">Auxiliary output files</h3>
+<ul>
+<li>
+<p><code>wisdom-hostname.dat</code> - performance-testing file created by the <code>FFTW</code>. The <code>hostname</code> variable is determined by a call to <code>gethostname()</code>, </p>
+</li>
+<li>
+<p><code>state_nnn_bbbb.dat</code> - checkpointing file containing the last grid point visited. The search can  be safely restarted, calculations will continue  from the last grid position saved to this file. After successful termination, checkpoint file is left empty.</p>
+</li>
+</ul>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../grid_generation/" class="btn btn-neutral float-left" title="Grid generation"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../coincidences/" class="btn btn-neutral float-right" title="Coincidences between candidates">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+      <span><a href="../grid_generation/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../coincidences/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "..";</script>
+    <script src="../js/theme_extra.js"></script>
+    <script src="../js/theme.js"></script>
+      <script src="../javascripts/highlight.js"></script>
+      <script src="../javascripts/mathjax.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+      <script src="../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

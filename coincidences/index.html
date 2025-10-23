@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <link rel="shortcut icon" href="../img/favicon.ico" />
+    <title>Coincidences between candidates - TDFstat</title>
+    <link rel="stylesheet" href="../css/theme.css" />
+    <link rel="stylesheet" href="../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+        <link href="../extra.css" rel="stylesheet" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Coincidences between candidates";
+        var mkdocs_page_input_path = "coincidences.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/yaml.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/plaintext.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/python.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/cpp.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/bash.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/shell.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href=".." class="icon icon-home"> TDFstat
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="..">Home</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Pipeline description</span></p>
+              <ul class="current">
+                  <li class="toctree-l1"><a class="reference internal" href="../input_data/">Input data generation</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../grid_generation/">Grid generation</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../search_for_candidates/">F-statistic candidate signal search</a>
+                  </li>
+                  <li class="toctree-l1 current"><a class="reference internal current" href="#">Coincidences between candidates</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#prerequisites">Prerequisites</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#the-idea-behind-coincidences">The idea behind coincidences</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#compilation">Compilation</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#full-list-of-switches">Full list of switches</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#example">Example</a>
+    </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../fap_coincidences/">False alarm probablity of conicidences</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../followup/">Followup of interesting outliers</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../sensitivity_upper_limits/">Sensitivity upper limits</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../fisher/">Fisher matrix calculation</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../simple_example/">Pipeline: a minimal example</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../articles/">Documents and publications</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Docs howto</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../mkdocs_howto/">Docs howto</a>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="..">TDFstat</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href=".." class="icon icon-home" aria-label="Docs"></a></li>
+          <li class="breadcrumb-item">Pipeline description</li>
+      <li class="breadcrumb-item active">Coincidences between candidates</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="coincidences-between-candidates">Coincidences between candidates</h1>
+<p>In order to establish the probability of detection of a real gravitational wave, after finding the candidate signals with the <a href="../polgraw-allsky/candidate_search/">F-statistic candidate signal search</a>, the pipeline searches for coincidences between candidates found in different time frames. </p>
+<p>The coincidences code is available at <a href="https://github.com/mbejger/polgraw-allsky/tree/master">github</a>. To get it, run <code>git clone https://github.com/mbejger/polgraw-allsky.git</code>.</p>
+<h2 id="prerequisites">Prerequisites</h2>
+<p>The code is written in standard <code>C</code>. The only dependency is <a href="http://www.gnu.org/software/gsl/">GNU Scientific Library (GSL)</a>, used to manipulate the Fisher matrix (calculate the eigenvectors and eigenvalues). <a href="http://www.gnu.org/software/libc/manual/html_node/Accessing-Directories.html#Accessing-Directories">GNU struct dirent</a> objects are used to read the directories. </p>
+<h2 id="the-idea-behind-coincidences">The idea behind coincidences</h2>
+<p>After finding the candidate signals in different time frames (<code>search</code>), we want to confirm the existence of signals with the same parameters along the span of time segments. to further perform a validation search for high-coincidence, or otherwise interesting candidates (the <a href="https://github.com/mbejger/polgraw-allsky/tree/master/followup">followup</a>, currently under construction). To do this, the candidates from a list of trigger files (time frames) are read, and for each trigger file</p>
+<ul>
+<li>a candidate is transformed to a well-defined time moment (frequency shifted to a reference frame), </li>
+<li>translated into linear (integer) coordinates, </li>
+<li>duplicates within each frame are removed, </li>
+<li>list of unique candidates from all the frames is created and sorted, </li>
+<li>duplicates are counted - these are the coincidences. </li>
+</ul>
+<p><em>TODO: describe cell shifts (16 different shifts in total: 0101, 0110, 0010 etc. in f, s, d, a directions) and scaling of cells (used to define the linear parameters for a given cell to subsequently compare the candidate values)</em> </p>
+<h2 id="compilation">Compilation</h2>
+<p>Run <code>make coincidences</code>; resulting binary is called <code>coincidences</code>. Modify the <code>Makefile</code> to fit your system.</p>
+<h2 id="full-list-of-switches">Full list of switches</h2>
+<p>Type </p>
+<pre><code>% ./coincidences --help 
+</code></pre>
+<p>to obtain the following description: </p>
+<table>
+<thead>
+<tr>
+<th>Switch</th>
+<th style="text-align: left;">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>-data</td>
+<td style="text-align: left;">Data directory (default is <code>./candidates</code>)</td>
+</tr>
+<tr>
+<td>-output</td>
+<td style="text-align: left;">Output directory (default is <code>./coinc-results</code>)</td>
+</tr>
+<tr>
+<td>-shift</td>
+<td style="text-align: left;">Cell shifts in <code>fsda</code> directions (4 digit number, e.g. <code>0101</code>, default <code>0000</code>)</td>
+</tr>
+<tr>
+<td>-scalef</td>
+<td style="text-align: left;">Cell scaling in f direction (a number, e.g. 32, default 1)</td>
+</tr>
+<tr>
+<td>-scales</td>
+<td style="text-align: left;">Cell scaling in s direction (a number, e.g. 8, default 1)</td>
+</tr>
+<tr>
+<td>-scaled</td>
+<td style="text-align: left;">Cell scaling in d direction (a number, e.g. 4, default 1)</td>
+</tr>
+<tr>
+<td>-scalea</td>
+<td style="text-align: left;">Cell scaling in a direction (a number, e.g. 4, default 1)</td>
+</tr>
+<tr>
+<td>-refr</td>
+<td style="text-align: left;">Reference frame number</td>
+</tr>
+<tr>
+<td>-fpo</td>
+<td style="text-align: left;">Reference band frequency <code>fpo</code> value</td>
+</tr>
+<tr>
+<td>-dt</td>
+<td style="text-align: left;">Data sampling time dt (default value: <code>0.5</code>)</td>
+</tr>
+<tr>
+<td>-trigname</td>
+<td style="text-align: left;">Part of triggers' name (for identifying files)</td>
+</tr>
+<tr>
+<td>-refloc</td>
+<td style="text-align: left;">Location of the reference grid.bin and starting_date files</td>
+</tr>
+<tr>
+<td>-mincoin</td>
+<td style="text-align: left;">Minimal number of coincidences recorded</td>
+</tr>
+<tr>
+<td>-narrowdown</td>
+<td style="text-align: left;">Narrow-down the frequency band (range [0, 0.5] +- around center)</td>
+</tr>
+<tr>
+<td>-snrcutoff</td>
+<td style="text-align: left;">Signal-to-noise threshold cutoff (default value: 6)</td>
+</tr>
+</tbody>
+</table>
+<p>Also:</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th style="text-align: left;"></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>--help</td>
+<td style="text-align: left;">This help</td>
+</tr>
+</tbody>
+</table>
+<h2 id="example">Example</h2>
+<p>Using the software injection added to 2-day Gaussian noise data segments (see <a href="../polgraw-allsky/pipeline_script">minimal example of the pipeline</a>):</p>
+<pre><code>% for s in {0..1}{0..1}{0..1}{0..1}; do ./coincidences -data ../../search/network/src-cpu -output . -shift $s -scalef 4 -scales 4 -scaled 4 -scalea 4 -refr 4 -dt 2 -trigname 1234_2 -refloc ../../testdata/2d_0.25/004 -nod 2 -fpo 308.859375 -snrcutoff 5; done 2&gt;&gt; summary
+</code></pre>
+<p>This assumes that for the band <span class="arithmatex"><span class="MathJax_Preview">bbbb=1234</span><script type="math/tex">bbbb=1234</script></span> and the sampling time <span class="arithmatex"><span class="MathJax_Preview">dt=2\ \mathrm{s}</span><script type="math/tex">dt=2\ \mathrm{s}</script></span> the band frequency <span class="arithmatex"><span class="MathJax_Preview">fpo=308.859375\ \mathrm{Hz}</span><script type="math/tex">fpo=308.859375\ \mathrm{Hz}</script></span>, because</p>
+<div class="arithmatex">
+<div class="MathJax_Preview">fpo = 10 + (1 - 2^{-5})\cdot bbbb\cdot \frac{1}{2dt}\ \mathrm{[Hz]}.</div>
+<script type="math/tex; mode=display">fpo = 10 + (1 - 2^{-5})\cdot bbbb\cdot \frac{1}{2dt}\ \mathrm{[Hz]}.</script>
+</div>
+<p>The reference grid file <code>grid.bin</code>, corresponding to the reference frame <code>004</code> (<code>-refr 4</code>) is located at the <code>-refloc</code> location. Signal-to-noise ratio cutoff is set to 5 (<code>-snrcutoff 5</code>). Some output is directed to <code>stdin</code>. For example, the output for shift <code>0000</code> is </p>
+<pre><code>Number of days is 2
+The SNR threshold cutoff is 5.000000000000, corresponding to F-statistic value of 14.500000000000
+Reading the reference grid.bin at ../../testdata/2d_0.25/004
+fftpad from the grid file: 1
+Settings dt: 2.000000, oms: 3881.241374
+Reference frame number: 4
+Cell shifts  in f, s, d, a directions: 0 0 0 0 
+Cell scaling in f, s, d, a directions: 4 4 4 4 
+Reading triggers... Frame 5: 1966/2040
+Reading triggers... Frame 1: 2409/2483
+Reading triggers... Frame 4: 2176/2384
+Reading triggers... Frame 3: 2132/2247
+Reading triggers... Frame 8: 2372/2408
+Reading triggers... Frame 2: 2197/2249
+Reading triggers... Frame 6: 2225/2305
+Reading triggers... Frame 7: 2175/2226
+Total number of candidates from all frames: 17652
+</code></pre>
+<p>The highest multiplicity coincidence for each shift is streamed to the <code>summary</code> file via the <code>stderr</code> (<code>2&gt;&gt; summary</code>). From this list of 16 lines, the highest multiplicity coincidence with the highest signal-to-noise is selected (<code>sort -gk5 -gk10 summary | tail -1</code>):</p>
+<pre><code>1234_2 1111 308.859375     8     5  9.95663703e-01 -1.10830358e-09 -1.12585347e-01 1.97463002e+00 1.246469e+01 5 2040 1987 1 2483 2419 4 2384 2193 3 2247 2137 8 2408 2363 2 2249 2172 6 2305 2220 7 2226 2191 6 2 8 3 5
+</code></pre>
+<p>This output contains the </p>
+<ul>
+<li><code>band_hemisphere</code> identifier (<span class="arithmatex"><span class="MathJax_Preview">1234\_2</span><script type="math/tex">1234\_2</script></span>), </li>
+<li>the <code>shift</code> value (<span class="arithmatex"><span class="MathJax_Preview">1111</span><script type="math/tex">1111</script></span>), </li>
+<li>the <code>fpo</code> reference band frequency (<span class="arithmatex"><span class="MathJax_Preview">308.859375\ \mathrm{Hz}</span><script type="math/tex">308.859375\ \mathrm{Hz}</script></span>), </li>
+<li>the number of triggers files read (<span class="arithmatex"><span class="MathJax_Preview">8</span><script type="math/tex">8</script></span>), </li>
+<li>the multiplicity of coincidence found (<span class="arithmatex"><span class="MathJax_Preview">N_{coin}=5</span><script type="math/tex">N_{coin}=5</script></span>), </li>
+<li>arithmetic mean values of the frequency <span class="arithmatex"><span class="MathJax_Preview">\bar{f}</span><script type="math/tex">\bar{f}</script></span> (range <span class="arithmatex"><span class="MathJax_Preview">[0:2\pi]</span><script type="math/tex">[0:2\pi]</script></span>, corresponding to the width of the band), mean frequency derivative <span class="arithmatex"><span class="MathJax_Preview">\bar{s}</span><script type="math/tex">\bar{s}</script></span> (spindown, in <span class="arithmatex"><span class="MathJax_Preview">Hz/s</span><script type="math/tex">Hz/s</script></span>), equatorial coordinate system sky positions <span class="arithmatex"><span class="MathJax_Preview">\bar{\delta}</span><script type="math/tex">\bar{\delta}</script></span> (<span class="arithmatex"><span class="MathJax_Preview">[\pi:-\pi]</span><script type="math/tex">[\pi:-\pi]</script></span>) and <span class="arithmatex"><span class="MathJax_Preview">\bar{\alpha}</span><script type="math/tex">\bar{\alpha}</script></span> (<span class="arithmatex"><span class="MathJax_Preview">[0:2\pi]</span><script type="math/tex">[0:2\pi]</script></span>), and the mean signal-to-noise ratio, <span class="arithmatex"><span class="MathJax_Preview">\widetilde{\mathrm{snr}}=\sqrt{\sum_i \mathrm{snr}_i^2}</span><script type="math/tex">\widetilde{\mathrm{snr}}=\sqrt{\sum_i \mathrm{snr}_i^2}</script></span> (<span class="arithmatex"><span class="MathJax_Preview">5</span><script type="math/tex">5</script></span> floating-point numbers), </li>
+<li>8 triplets of the frame number, number of all candidates in the corresponding triggers file, and the number of unique candidates after sorting to unique cells (<span class="arithmatex"><span class="MathJax_Preview">8\times 3</span><script type="math/tex">8\times 3</script></span> integers), </li>
+<li>frame numbers participating in the coincidence (<span class="arithmatex"><span class="MathJax_Preview">5</span><script type="math/tex">5</script></span> integers). </li>
+</ul>
+<p>Coincidences larger or equal <code>mincoin</code> (default value <code>3</code>) are recorded in binary files <code>.coi</code>, separately for each shift, in the <code>-output</code> directory. Each coincidence is a set of following numbers:  </p>
+<div class="arithmatex">
+<div class="MathJax_Preview">N_{coin},\quad\bar{f},\quad\bar{s},\quad\bar{\delta},\quad\bar{\alpha},\quad\widetilde{\mathrm{snr}},\quad\mathrm{fr}_{1},\,\dots\,\mathrm{fr}_{N_{coin}},\quad\mathrm{p}_{1},\,\dots\,\mathrm{p}_{N_{coin}}</div>
+<script type="math/tex; mode=display">N_{coin},\quad\bar{f},\quad\bar{s},\quad\bar{\delta},\quad\bar{\alpha},\quad\widetilde{\mathrm{snr}},\quad\mathrm{fr}_{1},\,\dots\,\mathrm{fr}_{N_{coin}},\quad\mathrm{p}_{1},\,\dots\,\mathrm{p}_{N_{coin}}</script>
+</div>
+<p>where </p>
+<ul>
+<li><span class="arithmatex"><span class="MathJax_Preview">N_{coin}</span><script type="math/tex">N_{coin}</script></span> is the multiplicity of coincidence (written as one <code>unsigned short int</code>), </li>
+<li><span class="arithmatex"><span class="MathJax_Preview">\bar{f}</span><script type="math/tex">\bar{f}</script></span>, <span class="arithmatex"><span class="MathJax_Preview">\bar{s}</span><script type="math/tex">\bar{s}</script></span>, <span class="arithmatex"><span class="MathJax_Preview">\bar{\delta}</span><script type="math/tex">\bar{\delta}</script></span>, <span class="arithmatex"><span class="MathJax_Preview">\bar{\alpha}</span><script type="math/tex">\bar{\alpha}</script></span> and <span class="arithmatex"><span class="MathJax_Preview">\widetilde{\mathrm{snr}}</span><script type="math/tex">\widetilde{\mathrm{snr}}</script></span> are the mean parameters of the signal (<span class="arithmatex"><span class="MathJax_Preview">5\times</span><script type="math/tex">5\times</script></span><code>float</code>),</li>
+<li><span class="arithmatex"><span class="MathJax_Preview">\mathrm{fr}_{1},\,\dots\,\mathrm{fr}_{N_{coin}}</span><script type="math/tex">\mathrm{fr}_{1},\,\dots\,\mathrm{fr}_{N_{coin}}</script></span> are the frame numbers (<span class="arithmatex"><span class="MathJax_Preview">N_{coin}\times</span><script type="math/tex">N_{coin}\times</script></span><code>unsigned short int</code>), </li>
+<li><span class="arithmatex"><span class="MathJax_Preview">\mathrm{p}_{1},\,\dots\,\mathrm{p}_{N_{coin}}</span><script type="math/tex">\mathrm{p}_{1},\,\dots\,\mathrm{p}_{N_{coin}}</script></span> are the positions of candidate signals that took part in the coincidences, in their corresponding trigger files (<span class="arithmatex"><span class="MathJax_Preview">N_{coin}\times</span><script type="math/tex">N_{coin}\times</script></span><code>int</code>) </li>
+</ul>
+<p>in order to recover the information about the original triggers for further studies. <code>.coi</code> files can be read with the auxilary <code>read_coi</code> code: </p>
+<pre><code>% gcc -o read_coi read_coi.c -lm 
+% ./read_coi 
+# num_of_coincidences    mean_val_of_pars (f, s, d, a), snr    frame_num:trigger_num_in_trigger_file
+# (see http://mbejger.github.io/polgraw-allsky/coincidences for details)
+5 9.956637e-01 -1.108304e-09 -1.125853e-01 1.974630e+00 1.246469e+01 6:777 2:708 8:968 3:701 5:603 
+3 9.972902e-01 -1.174760e-10 -1.235594e-01 1.968819e+00 9.154494e+00 8:983 3:693 1:669 
+</code></pre>
+<p>where the pairs <code>frame-number:candidate-position-in-trigger-file</code> have been arranged for readability.   </p>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../search_for_candidates/" class="btn btn-neutral float-left" title="F-statistic candidate signal search"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../fap_coincidences/" class="btn btn-neutral float-right" title="False alarm probablity of conicidences">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+      <span><a href="../search_for_candidates/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../fap_coincidences/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "..";</script>
+    <script src="../js/theme_extra.js"></script>
+    <script src="../js/theme.js"></script>
+      <script src="../javascripts/highlight.js"></script>
+      <script src="../javascripts/mathjax.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+      <script src="../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>
