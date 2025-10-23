@@ -7,7 +7,9 @@ nav_order: 3
 
 # F-statistic candidate signal search
 
-Production serial code for a network of detectors is available at [here](https://github.com/mbejger/polgraw-allsky/tree/master/search/network/src-cpu). `OpenMP` version is at [this location](https://github.com/mbejger/polgraw-allsky/tree/master/search/network/src-openmp). To get the whole pipeline, run `git clone https://github.com/mbejger/polgraw-allsky.git`. 
+This is the main code of the pipeline that performs the search for continuous gravitational-wave signals in the data from a network of detectors using the $\mathcal{F}$-statistic method. The search is performed over a grid of parameters covering the sky position, spindown and frequency values. Candidate signals (triggers) above a given threshold for the $\mathcal{F}$-statistic are stored in the output HDF5 files.
+
+Since this is very time consuming part of the TDFstat all-sky search, the code is optimized for performance: vectorized and parallelized using OpenMP.
 
 
 ## Algorithm flowchart
@@ -17,86 +19,96 @@ Production serial code for a network of detectors is available at [here](https:/
 
 ## Prerequisites
 
-The code is written in standard `C`. [GNU Scientific Library (GSL)](http://www.gnu.org/software/gsl/) and the [FFTW library](http://www.fftw.org) (version 3.0 or later) are needed to run the code. [GNU struct dirent](http://www.gnu.org/software/libc/manual/html_node/Accessing-Directories.html#Accessing-Directories) objects are used to read the directories. 
+The code is written in `C` and compiled with gnu17 dialect of GNU C compiler (support for complex numbers).
+Required libraries: [GNU Scientific Library (GSL)](http://www.gnu.org/software/gsl/), [FFTW library](http://www.fftw.org), [HDF5 library](https://www.hdfgroup.org/solutions/hdf5), [iniparser](https://github.com/ndevilla/iniparser) (included in the repository).  
+Opional libraries: [SLEEF vector library](https://sleef.org/) (included in the repository).
 
-Optionally, [SLEEF](http://shibatch.sourceforge.net) or [YEPPP!](http://www.yeppp.info), libraries for high-performance computing that are optimized for speed are used to evaluate the trigonometric functions in the search code. These libraries are ported with the source code and are located in `src/lib`. The choice which of these libraries to use has to be made at compilation time by modifying the `Makefile`. 
 
 ## Compilation 
 
-Run  `make gwsearch-cpu` or `make` in `search/network/src-cpu`, resulting  binary is called `gwsearch-cpu` (this is the default `C` version not-optimized with `openMP`; for the `openMP` version see the `search/network/src-openmp` directory). Modify the `Makefile` to fit your system. By default the `YEPPP!` library is selected. 
+Run `make` in `search/network/openmp`. The standard Makfile is configured to produce executable named `gwsearch-cascadelake-avx2-float`. Comments in the Makefile help to modify certain compilation options.
 
-## Full list of switches
+## Configuration file
 
-For the full list of options, type
+The search code requires a configuration file in INI format. The repository contains example file `search-template.ini` with comments explaining each option. 
+```
+[search]
 
-```bash 
-% ./gwsearch-cpu --help 
+indir = /work/chuck/virgo/O3/allsky_o3_c01  # input data directory (string)
+outdir = .            # output directory (string)
+band = 72             # band number (int)
+seg = 13              # segment number (int)
+hemi = 2              # hemisphere [1,2 or 0 for both] (int)
+thr = 14.5            # fstatistic threshold of candidates (double)
+nod = 6               # length of input time series [days] (int)
+dt = 2                # input time series sampling interval [seconds] (double)
+overlap = 0.0625      # bands overlap, band frequency fpo=10+(1-overlap)*B/(2*dt) (double)
+narrowdown = -1       # limits band in f to band_center +/- [0-0.5], auto calculated if < 0 (double)
+fstat_norm =          # fstatistic normalization (NULL=white noise or blocks_avg)
+grid_file = 013/grids/grid_013_0072_H1L1c.bin   
+
+# optional
+usedet =              # use only specified detectors 
+range_file =          # range.dat , limits parameter space of the search
+dump_range_file =     # name of the file to dump max. search ranges and exit
+addsig =              # name of the file with signals to be injected
+mods = read_O3        # coma separated list of modifiers: read_O3
+
+# flags
+veto_flag = 0         # veto lines: 0-no, 1-yes
+gen_vlines_flag = 0   # if 1 generate vlines file and exit
+checkp_flag = 0       # write checkpoint file on every triggers buffer flush
 ```
 
-| Switch      | Description       |
-|-------------|:------------------| 
-|-data        | Data directory (default is `.`)
-|-output      | Output directory (default is `./candidates`)
-|-ident       | Frame number
-|-band        | Band number
-|-label       | Custom label for the input and output files
-|-range       | Use file with grid range or pulsar position
-|-getrange    | Write grid ranges & save fft wisdom & exit (ignore -r)
-|-cwd         | Change to directory `<dir>`
-|-threshold   | Threshold for the $\mathcal{F}$-statistic (default is `20`)
-|-hemisphere  | Hemisphere (default is 0 - does both)
-|-fpo         | Reference band frequency `fpo` value
-|-dt          | Data sampling time dt (default value: `0.5`)
-|-usedet      | Use only detectors from string (default is `use all available`)
-|-addsig      | Add signal with parameters from `<file>`
-|-narrowdown  | Narrow-down the frequency band (range `[0, 0.5] +- around center`)
-
-Also: 
-
-|                 |             | 
-|-----------------|:------------|
-| --whitenoise    | White Gaussian noise assumed | 
-| --nospindown    | Spindowns neglected | 
-| --nocheckpoint  | State file will not be created (no checkpointing) |
-| --help          | This help | 
+### Details of options / concepts
 
 
-## Example
+??? note "indir, input data (click to expand)"
 
-Minimal call to `gwsearch-cpu` is as follows (code compiled with the `GNUSINCOS` option): 
+    <br/>Input data must be prepared in a way outlined in the [genseg documentation](../input_data/#tdfstat-input-data-structure). Requied files are: xdat (time series), DetSSB (ephemeris), grid (grid generator matrix). Optional files: lines (veto lines), addsig (software injections), range file (search ranges).  
+    Please note that same of the parameters have to match those used during input data generation (e.g., dt, overlap, nod).
+
+
+??? note "Bands, segments, overlap (click to expand)"
+
+    <br/> Short summary from the [genseg documentation](../input_data/): we analyze narrow-band (0.25-1 Hz) time segments of length being an integer multiple of sidereal day (typically 2-24 days).  
+    Subsequent time segments are labeled by natural numbers. In some contexts (like filenames) those numbers are formatted using pattern DDD (e.g. 009).  
+    Bands are overlapping in frequency to avoid edge effects. Bands are also labeled by natural numbers and in some contexts the 4 digit format is used (e.g., 0027). The general formula for the initial frequency of the band number b is:  
+    $fpo(b) = 10 + (1 - overlap) \cdot b \frac{1}{2 \cdot dt}$  
+    where bandwidth B=1/(2dt) and overlap is expressed as a fraction of B. The overlap shuld have the form of $2^{-n}$, to assure that fpo is aligned with fourier bins in the SFDB database (e.g. 0.0625).
+
+
+??? note "narrowdown (click to expand)"
+
+    <br/> Narrowdown is used to limit the range of frequencies for which the F-statistic is computed. It should be in range [0-0.5] and we define the whole band range to be [-0.5, 0.5]. Narrowdown 0.5 means "use the whole bandwidth". Narrowdown 0.45 means that the band is narrowed by 5% on both sides. If narrowdown < 0, then the frequency range is calculated from overlap in such a way that the overapping part of the band is split in the middle, effectivlly creating two sibling, non-overlapping bands.
+    
+    ```
+         |<------- band1 ----|--->|
+                    |<---|---- band 2 ------->|
+    ```  
+    
+    This is needed to avoid analyzing the same range of frequencies more than once when performing all-sky search over many bands.
+
+??? note "range_file (click to expand)"
+
+
+??? note "addsig (click to expand)"
+
+
+
+## Example of usage
+
+Minimal call to `gwsearch-cascadelake-avx2-float` is as follows (code compiled with the `GNUSINCOS` option): 
 
 ```
-% ./gwsearch-cpu -data ../../../testdata/2d_0.25 -dt 2 -output . -ident 001 -band 1234 -nod 2  
+% ./gwsearch-cascadelake-avx2-float search.ini  
 ```
 
-where
- 
-* `data` directory is the base directory of input data files,
-*  Sampling time `dt` is $2 s$, 
-* `output` directory is a directory to write the output (e.g., in current directory, . ) 
-* `ident` is the number of time frame to be analyzed ($001$),
-* `nod` number of days is $2$, 
-* `band` is the number of the frequency band (see the [input data structure](../polgraw-allsky/input_data) for details). 
 
 ### Network of detectors 
 
 Test data frames $nnn=001-008$ with pure Gaussian noise 2-day time segments with sampling time equal to 2s (`xdatc_nnn_1234.bin`) for two LIGO detectors H1 and L1 are [available here](https://polgraw.camk.edu.pl/H1L1_2d_0.25.tar.gz). 
 
-A sample call is 
-
-```bash 
-% LD_LIBRARY_PATH=lib/yeppp-1.0.0/binaries/linux/x86_64 ./gwsearch-cpu \
-  -data ../../../testdata/2d_0.25/ \
-  -ident 001 \
-  -band 1234 \
-  -dt 2 \ 
-  -nod 2 \ 
-  -addsig sig1 \  
-  -output . \
-  -threshold 14.5 \
-  --nocheckpoint
-``` 
-where the `LD_LIBRARY_PATH` points to the location of the `YEPPP!` library. 
 
 The program will proceed assuming that 
 
@@ -110,6 +122,7 @@ The program will proceed assuming that
   * `-output` is the current directory, 
   * `--nocheckpoint` disables the checkpointing (writing the last visited position on the grid to the `state` file), 
 
+
 ## Output files
 
 HDF5 structure:
@@ -118,9 +131,11 @@ HDF5 object                  | data type
 ----------------------------------------------------
 /                            | root group
 ├── attr: format_version     | int
-├── attr: opts               | compound (Command_line_opts)
-├── attr: sett               | compound (Search_settings)
-├── attr: s_range            | compound (Search_ranges)
+├── attr: git_commit         | string
+├── attr: opts               | compound (struct Command_line_opts)
+├── attr: sett               | compound (struct Search_settings)
+├── attr: s_range            | compound (struct Search_ranges)
+├── attr: ifo                | compound[] (struct Detector_settings)
 ├── attr: detectors          | string
 ├── attr: t_start            | string
 ├── attr: t_end              | string
@@ -147,13 +162,38 @@ HDF5 object                  | data type
 HDF5 "triggers_013_0072_2.h5" {
 GROUP "/" {
    ATTRIBUTE "format_version" {
+      DATATYPE  H5T_STD_I32LE
+      DATASPACE  SIMPLE { ( 1 ) / ( 1 ) }
+   }
+   ATTRIBUTE "git_commit" {
       DATATYPE  H5T_STRING {
-         STRSIZE 2;
+         STRSIZE 41;
          STRPAD H5T_STR_NULLTERM;
          CSET H5T_CSET_ASCII;
          CTYPE H5T_C_S1;
       }
       DATASPACE  SCALAR
+   }
+   ATTRIBUTE "ifo" {
+      DATATYPE  H5T_COMPOUND {
+         H5T_STRING {
+            STRSIZE 2;
+            STRPAD H5T_STR_NULLTERM;
+            CSET H5T_CSET_ASCII;
+            CTYPE H5T_C_S1;
+         } "name";
+         H5T_STRING {
+            STRSIZE 2048;
+            STRPAD H5T_STR_NULLTERM;
+            CSET H5T_CSET_ASCII;
+            CTYPE H5T_C_S1;
+         } "xdatname";
+      }
+      DATASPACE  SIMPLE { ( 2 ) / ( 2 ) }
+   }
+   ATTRIBUTE "num_threads" {
+      DATATYPE  H5T_STD_I32LE
+      DATASPACE  SIMPLE { ( 1 ) / ( 1 ) }
    }
    ATTRIBUTE "opts" {
       DATATYPE  H5T_COMPOUND {
@@ -211,6 +251,23 @@ GROUP "/" {
       }
       DATASPACE  SCALAR
    }
+   ATTRIBUTE "s_range" {
+      DATATYPE  H5T_COMPOUND {
+         H5T_ARRAY { [2] H5T_STD_I32LE } "pmr";
+         H5T_ARRAY { [2] H5T_STD_I32LE } "fr";
+         H5T_ARRAY { [2] H5T_IEEE_F32LE } "mr";
+         H5T_ARRAY { [2] H5T_IEEE_F32LE } "nr";
+         H5T_ARRAY { [2] H5T_IEEE_F32LE } "spndr";
+         H5T_IEEE_F32LE "mstep";
+         H5T_IEEE_F32LE "nstep";
+         H5T_IEEE_F32LE "sstep";
+         H5T_IEEE_F32LE "mst";
+         H5T_IEEE_F32LE "nst";
+         H5T_IEEE_F32LE "sst";
+         H5T_STD_I32LE "pst";
+      }
+      DATASPACE  SCALAR
+   }
    ATTRIBUTE "sett" {
       DATATYPE  H5T_COMPOUND {
          H5T_IEEE_F64LE "fpo";
@@ -243,6 +300,15 @@ GROUP "/" {
       }
       DATASPACE  SCALAR
    }
+   ATTRIBUTE "t_end" {
+      DATATYPE  H5T_STRING {
+         STRSIZE 20;
+         STRPAD H5T_STR_NULLTERM;
+         CSET H5T_CSET_ASCII;
+         CTYPE H5T_C_S1;
+      }
+      DATASPACE  SCALAR
+   }
    ATTRIBUTE "t_start" {
       DATATYPE  H5T_STRING {
          STRSIZE 20;
@@ -251,6 +317,14 @@ GROUP "/" {
          CTYPE H5T_C_S1;
       }
       DATASPACE  SCALAR
+   }
+   ATTRIBUTE "totsgnl" {
+      DATATYPE  H5T_STD_I32LE
+      DATASPACE  SIMPLE { ( 1 ) / ( 1 ) }
+   }
+   ATTRIBUTE "walltime" {
+      DATATYPE  H5T_IEEE_F64LE
+      DATASPACE  SIMPLE { ( 1 ) / ( 1 ) }
    }
    DATASET "triggers" {
       DATATYPE  H5T_COMPOUND {
@@ -264,6 +338,7 @@ GROUP "/" {
       }
       DATASPACE  SIMPLE { ( 4952 ) / ( H5S_UNLIMITED ) }
    }
+}
 }
 ```
 </details>

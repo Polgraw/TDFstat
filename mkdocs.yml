@@ -1,41 +1,40 @@
 site_name: TDFstat
 
 nav:
-- Home: 'README.md'
-- Pipeline description:
-    - 'Input data generation': 'input_data.md'
-    - 'Grid generation': 'grid_generation.md'
-    - 'F-statistic candidate signal search': 'search_for_candidates.md'
-    - 'Coincidences between candidates': 'coincidences.md'
-    - 'False alarm probablity of conicidences': 'fap_coincidences.md'
-    - 'Followup of interesting outliers': 'followup.md'
-    - 'Sensitivity upper limits': 'sensitivity_upper_limits.md'
-    - 'Fisher matrix calculation': 'fisher.md' 
-    - 'Pipeline: a minimal example': 'simple_example.md'
-    - 'Documents and publications': 'articles.md'
-- Docs howto:
-    - 'Docs howto': 'mkdocs_howto/README.md'
-
+     - Home: "README.md"
+     - Pipeline description:
+            - "Input data generation": "input_data.md"
+            - "Grid generation": "grid_generation.md"
+            - "F-statistic candidate signal search": "search_for_candidates.md"
+            - "Coincidences between candidates": "coincidences.md"
+            - "False alarm probablity of conicidences": "fap_coincidences.md"
+            - "Followup of interesting outliers": "followup.md"
+            - "Sensitivity upper limits": "sensitivity_upper_limits.md"
+            - "Fisher matrix calculation": "fisher.md"
+            - "Pipeline: a minimal example": "simple_example.md"
+            - "Documents and publications": "articles.md"
+     - Docs howto:
+            - "Docs howto": "mkdocs_howto/README.md"
 
 theme:
-    name: readthedocs
-    highlightjs: True
-    hljs_languages:
-      - yaml
-      - plaintext
-      - python
-      - cpp
-      - bash
-      - shell
+     name: readthedocs
+     highlightjs: True
+     hljs_languages:
+          - yaml
+          - plaintext
+          - python
+          - cpp
+          - bash
+          - shell
 extra_css: [extra.css]
-
 
 # https://squidfunk.github.io/mkdocs-material/reference/mathjax/
 markdown_extensions:
-  - pymdownx.arithmatex:
-      generic: false
-  - extra
-  - admonition
+     - pymdownx.arithmatex:
+            generic: false
+     - extra
+     - pymdownx.details
+     - admonition
 #  - footnotes    # this is included by extra
 #  - fenced_code   # this is included by extra
 #  - pymdownx.highlight:
@@ -44,12 +43,11 @@ markdown_extensions:
 #  - pymdownx.inlinehilite
 #  - codehilite
 
-
 # https://squidfunk.github.io/mkdocs-material/setup/extensions/python-markdown-extensions/
 extra_javascript:
-  - javascripts/highlight.js
-  - javascripts/mathjax.js # must be loaded before mathjax!
-  #- https://polyfill.io/v3/polyfill.min.js?features=es6 # only for old browsers compatibility (like IE11)
-  #- https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js
-  - https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js  
-  #- https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg-full.js #for svg output
+     - javascripts/highlight.js
+     - javascripts/mathjax.js # must be loaded before mathjax!
+     #- https://polyfill.io/v3/polyfill.min.js?features=es6 # only for old browsers compatibility (like IE11)
+     #- https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js
+     - https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js
+     #- https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg-full.js #for svg output
