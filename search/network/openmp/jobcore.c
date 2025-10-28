@@ -85,7 +85,7 @@ void search( Search_settings *sett,
           totsgnl = 0;
 
           hdfout_init(outname, opts, sett, s_range, sgnlv);
-          
+
           /* Two main loops over sky positions */
 
           // imm & inn allow to transform loop indices from float to int
@@ -100,7 +100,7 @@ void search( Search_settings *sett,
                     nn = s_range->nst + inn*s_range->nstep;
 
                     int fnum_old = *FNum;  // number of records already written to file
-                    
+
                     /* Loop over spindowns is inside job_core() */
                     status = job_core(
                          pm,           // hemisphere
@@ -126,9 +126,9 @@ void search( Search_settings *sett,
                          //printf("Writing [m=%g   n=%g]  nrec=%d\n", mm, nn, nrec);
                          hdfout_extend(outname, sgnlv, nrec);
                     }
-                    
+
                     sgnlc=0;
-                    
+
                     if(opts->checkp_flag) {
                          ftruncate(fileno(state), 0);
                          fprintf(state, "%d %f %f %f %d\n", pm, mm, nn+1, s_range->sst, *FNum);
@@ -156,7 +156,7 @@ void search( Search_settings *sett,
           printf("\n### Total number of triggers in %s = %ld\n\n", outname, totsgnl);
           sgnlc=0;
           hdfout_finalize(outname, totsgnl, time_elapsed, nthreads);
-          
+
      } // for pm
 
      if (opts->checkp_flag) {
@@ -172,7 +172,7 @@ void search( Search_settings *sett,
      free(sgnlv);
 
      printf("\nEND\n");
-     
+
 } //search
 
 
@@ -580,7 +580,7 @@ int job_core(
 
 #if TIMERS>2
      //printf("\nTotal spindown loop time: %e s, mean spindown cpu-time: %e s (%d runs)\n",
-     printf("  [Perf] Spindown loop cputime: %e s, <cputime/ns>: %e s (ns: %d)\n",          
+     printf("  [Perf] Spindown loop cputime: %e s, <cputime/ns>: %e s (ns: %d)\n",
           spindown_timer, spindown_timer/spindown_counter, spindown_counter);
 #endif
 

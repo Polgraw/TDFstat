@@ -1,5 +1,6 @@
 # arch to compile for; min. required for SLEEF is haswell (AVX2+FMA)
-ARCH = cascadelake
+ARCH = sapphirerapids
+#ARCH = icelake-server
 
 # SIMD = [AVX2, AVX512, NONE] ; explicit optimizations with SIMD instructions.
 # SIMD=NONE implies usege of sincos function, otherwise the SLEEF library is used.
@@ -26,7 +27,7 @@ ifeq ($(strip $(SIMD)), NONE)
 else
 	PERF = ${SIMD}-${PREC}
 	SINCOS = SLEEF
-	SPATH = lib/sleef-3.6
+	SPATH = /opt/sleef/3.6
 	VCFLAGS  = -DUSE_${SIMD} -I$(SPATH)/include
 	VLDFLAGS = -L$(SPATH)/lib64
 	VLIBS = -lsleef
@@ -89,4 +90,4 @@ uninstall: clean
 #----------------------------------------------
 
 sigen: sigen.o auxi.o settings.o
-	$(CC) -o $@ $^ -Wl,-Bdynamic -lc -lrt -lm
+	$(CC) -o $@ $^ -Wl,-Bdynamic -lc -lrt -lm -lgsl -lgslcblas

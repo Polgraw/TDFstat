@@ -43,10 +43,10 @@ int main(int argc, char **argv) {
      x = (float *)calloc(N, sizeof(float));
      zmask = (float *)calloc(N, sizeof(float));
      
-     FILE *zmask_file = fopen(argv[5], "r");
-     stat = fread(zmask, sizeof(float), N, zmask_file);
-     printf("Mask read in.\n");
-     fclose (zmask_file);
+     // FILE *zmask_file = fopen(argv[5], "r");
+     // stat = fread(zmask, sizeof(float), N, zmask_file);
+     // printf("Mask read in.\n");
+     // fclose (zmask_file);
 
      FILE *dataout;
      dataout = fopen(argv[4], "wb");
@@ -62,7 +62,7 @@ int main(int argc, char **argv) {
      // with amplitude amp and sigma)
      for(i=0; i<N; i++) {
 	  x[i] = amp*gsl_ran_gaussian_ziggurat(r, sigma);
-	  if (fabs(zmask[i]) < 1.e-30) x[i] = 0.;
+	  // if (fabs(zmask[i]) < 1.e-30) x[i] = 0.;
      }
 
      gsl_rng_free(r);

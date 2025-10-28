@@ -18,10 +18,10 @@ Detector_settings ifo[MAX_DETECTORS];
 int main(int argc, char *argv[])
 {
 
-     int i, numl=0, freq_line_check, c, pm, gsize=2, band=0, reffr, nfrinband;
+     int i, numl=0, freq_line_check, c, pm, band=0, reffr, nfrinband;
      char filename[512], dtaprefix[512], *wd=NULL ;
      double amp=0, snr=0;
-     double freql[32768], linew[32768], sgnlo[8], rrn[2],
+     double freql[32768], linew[32768], sgnlo[7], rrn[2],
           dvr, fpo_val, be1, be2, fr, lw, freqlp, freqlm,
           sepsm, cepsm, sinalt, cosalt, sindelt, cosdelt,
           iota, ph_o, psik, hop, hoc, overlap;
@@ -67,8 +67,6 @@ int main(int argc, char *argv[])
                {"cwd", required_argument, 0, 'c'},
                // fpo value
                {"fpo", required_argument, 0, 'p'},
-               // grid search range
-               {"gsize", required_argument, 0, 'g'},
                // data sampling time
                {"dt", required_argument, 0, 's'},
                // reference frame ()
@@ -91,7 +89,6 @@ int main(int argc, char *argv[])
                printf("-overlap  Band overlap\n");
                printf("-cwd      Change to directory <dir>\n");
                printf("-fpo      fpo (starting frequency) value\n");
-               printf("-gsize    Grid search range (default value: 2)\n");
                printf("-dt       Data sampling time dt (default value: 0.5)\n");
                printf("-nod      Number of days\n");
                printf("-reffr    Reference frame (default value: 1)\n");
@@ -122,9 +119,6 @@ int main(int argc, char *argv[])
                case 'c':
                wd = (char *) malloc (1+strlen(optarg));
                strcpy (wd, optarg);
-               break;
-               case 'g':
-               gsize = atoi (optarg);
                break;
                case 'p':
                fpo_val = atof(optarg);
@@ -242,11 +236,11 @@ int main(int argc, char *argv[])
      Y = 2*x2*sqrt(1 - x1*x1 - x2*x2);
      Z = 1 - 2*(x1*x1 + x2*x2);
 
-     // Sky position: declination
-     sgnlo[2] = M_PI_2 - acos(Z);
-
      // Right ascension
-     sgnlo[3] = atan2(Y, X) + M_PI;
+     sgnlo[2] = atan2(Y, X) + M_PI;
+
+     // Sky position: declination
+     sgnlo[3] = M_PI_2 - acos(Z);
 
      // Random phase and polarization of the signal
      ph_o = 2.*M_PI*get_rand();
@@ -255,20 +249,31 @@ int main(int argc, char *argv[])
      hop = (1. + hoc*hoc)/2.;
      iota = acos(hoc);
 
-     sgnlo[4] =  cos(2.*psik)*hop*cos(ph_o) - sin(2.*psik)*hoc*sin(ph_o) ;
-     sgnlo[5] =  sin(2.*psik)*hop*cos(ph_o) + cos(2.*psik)*hoc*sin(ph_o) ;
-     sgnlo[6] = -cos(2.*psik)*hop*sin(ph_o) - sin(2.*psik)*hoc*cos(ph_o) ;
-     sgnlo[7] = -sin(2.*psik)*hop*sin(ph_o) + cos(2.*psik)*hoc*cos(ph_o) ;
+     // Convert the frequency into physical Hz units
+     sgnlo[0] = sett.B*sgnlo[0]/M_PI + sett.fpo;
+
+     // Converting the spin down into physical Hz/t units
+     sgnlo[1] = sgnlo[1]/M_PI/sett.dt/sett.dt;
+
+     // Inclination
+     sgnlo[4] = iota;
+
+     // Polarisation
+     sgnlo[5] = psik;
+
+     // Phase
+     sgnlo[6] = ph_o;
+
 
      // Output (GW amplitude or signal-to-noise ratio)
      if(amp)
-          printf("amp %le\n%d\n%d\n", amp, gsize, reffr);
+          printf("amp %le\n%d\n", amp, reffr);
           else if(snr)
-               printf("snr %le\n%d\n%d\n", snr, gsize, reffr);
+               printf("snr %le\n%d\n", snr, reffr);
 
-     printf("%.16le\n%.16le\n%.16le\n%.16le\n%.16le\n%.16le\n%.16le\n%.16le\n",
+     printf("%.16le\n%.16le\n%.16le\n%.16le\n%.16le\n%.16le\n%.16le\n",
           sgnlo[0], sgnlo[1], sgnlo[2], sgnlo[3],
-          sgnlo[4], sgnlo[5], sgnlo[6], sgnlo[7]);
+          sgnlo[4], sgnlo[5], sgnlo[6]);
 
      //printf("%.16le %.16le %.16le %.16le\n", sgnlo[0], sgnlo[1], sgnlo[2], sgnlo[3]);
 

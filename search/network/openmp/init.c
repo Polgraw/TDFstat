@@ -361,7 +361,7 @@ void add_signal( Search_settings *sett,
           }
 
           // Fscanning signal parameters: f, fdot, alpha, delta (sgnlo[0], ..., sgnlo[3])
-          // Intrinsic parameters: phase, polarization, inclination  (sgnlo[4], ..., sgnlo[6])
+          // Intrinsic parameters: inclination, polarization, phase  (sgnlo[4], ..., sgnlo[6])
           // (see sigen.c and Phys. Rev. D 82, 022005 2010, Eqs. 2.13a-d)
           for(i=0; i<7; i++)
                fscanf(data, "%le",i+sgnlo);
@@ -371,6 +371,10 @@ void add_signal( Search_settings *sett,
      } else {
           perror (opts->addsig);
      }
+
+     // First convert from physical to dimensionless units (in the units of PI-E)
+     sgnlo[0] = (sgnlo[0] - sett->fpo)/sett->B * M_PI;
+     sgnlo[1] = M_PI * sgnlo[1] * sett->dt * sett->dt;
 
      // Shift the frequency based on spindown to the reference segment
      sgnlo[0] += -2.*sgnlo[1]*(sett->N)*(reffr - opts->seg);
@@ -393,9 +397,9 @@ void add_signal( Search_settings *sett,
      // Calculation of four amplitudes from polarization, phase and inclination
      // Check Eq. 32 - 35 of Phys. Rev. D 58, 063001 1998
 
-     phi = sgnlo[4];
-     psi  = sgnlo[5];
-     cosi = cos(sgnlo[6]);
+     cosi = cos(sgnlo[4]);
+     psi = sgnlo[5];
+     phi = sgnlo[6];
      cosip = (1. + cosi*cosi)/2.;
 
      amplit[0] = cos(2.*psi)*cosip*cos(phi) - sin(2.*psi)*cosi*sin(phi);
