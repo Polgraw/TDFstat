@@ -350,14 +350,38 @@ void add_signal( Search_settings *sett,
           } while ( strcmp(amporsnr, "amp")!=0 && strcmp(amporsnr, "snr")!=0 );
 
           if(!strcmp(amporsnr, "amp")) {
-               fscanf (data, "%le %d", &h0, &reffr);
-               printf("add_signal(): GW amplitude h0 is %le\n", h0);
+              fscanf (data, "%le %d %le %le %le %le %le %le %le",
+                         &h0, &reffr,
+                         &sgnlo[0], &sgnlo[1], &sgnlo[2], &sgnlo[3],
+                         &sgnlo[4], &sgnlo[5], &sgnlo[6]);
+              printf("add_signal(): GW amplitude h0 is %le\n   The reference band of the signal is %d\n"
+                     "   The signal is injected at the following parameters:\n"
+                     "   Frequency [Hz]         : %le\n"
+                     "   Spin-down [Hz/s]       : %le\n"
+                     "   Right ascension [rad]  : %le\n"
+                     "   Declination [rad]      : %le\n"
+                     "   Inclination [rad]      : %le\n"
+                     "   Polarization [rad]     : %le\n"
+                     "   Phase [rad]            : %le\n",
+                     h0, reffr, sgnlo[0], sgnlo[1], sgnlo[2], sgnlo[3], sgnlo[4], sgnlo[5], sgnlo[6]);
           } else if(!strcmp(amporsnr, "snr")) {
-               fscanf (data, "%le %d", &snr, &reffr);
-               printf("add_signal(): GW (network) signal-to-noise ratio is %le\n", snr);
+              fscanf (data, "%le %d %le %le %le %le %le %le %le",
+                         &snr, &reffr,
+                         &sgnlo[0], &sgnlo[1], &sgnlo[2], &sgnlo[3],
+                         &sgnlo[4], &sgnlo[5], &sgnlo[6]);
+              printf("add_signal(): GW (network) signal-to-noise ratio is %le\n   The reference band of the signal is %d\n"
+                     "   The signal is injected at the following parameters:\n"
+                     "   Frequency [Hz]         : %le\n"
+                     "   Spin-down [Hz/s]       : %le\n"
+                     "   Right ascension [rad]  : %le\n"
+                     "   Declination [rad]      : %le\n"
+                     "   Inclination [rad]      : %le\n"
+                     "   Polarization [rad]     : %le\n"
+                     "   Phase [rad]            : %le\n",
+                     snr, reffr, sgnlo[0], sgnlo[1], sgnlo[2], sgnlo[3], sgnlo[4], sgnlo[5], sgnlo[6]);
           } else {
-               printf("Problem with the signal file. Exiting...\n");
-               exit(0);
+              printf("Problem with the signal file. Exiting...\n");
+              exit(0);
           }
 
           // Fscanning signal parameters: f, fdot, alpha, delta (sgnlo[0], ..., sgnlo[3])
