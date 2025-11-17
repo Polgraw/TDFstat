@@ -498,7 +498,9 @@ int job_core(
 
           /* select triggers */
           int itrig=0;
-#if 0
+          
+#define MAX_ALG 3
+#if MAX_ALG == 1
           int dd = sett->dd;
           /* find the highest maximum (above trl) in each block of length dd;
           dd is set to (1/day frequency in units of F indices)-1,
@@ -507,58 +509,62 @@ int job_core(
 
           /* stay in (nmin, nmax) range! */
           for (i=sett->nmin+1; i<sett->nmax-dd; i+=dd) {
-               int ii=-1;
+               int ic=-1;
                FLOAT_TYPE Fc = opts->thr;
                for (j=i; j<i+dd; ++j) {
                     if (F[j] < Fc || F[j-1] > F[j] || F[j] < F[j+1] ) continue;
-                    ii = j;
-                    Fc = F[j];
+                    ic = j;
+                    Fc = F[ic];
                     j++;
                }
 
-               if ( ii < 0 ) continue; // no maximum in this block
-#else
+               if ( ic < 0 ) continue; // no maximum in this block
+#elif MAX_ALG == 2
+          #pragma omp parallel for default(shared) schedule(static)
           for (i=sett->nmin; i<sett->nmax; ++i) {
                if (F[i] < opts->thr) continue;
-               FLOAT_TYPE Fc;
-               int ii = i;
-               Fc = F[i];
+               int ic = i;
+               FLOAT_TYPE Fc = F[ic];
                while (++i < sett->nmax && F[i] > opts->thr) {
                     if(F[i] > Fc) {
-                         ii = i;
+                         ic = i;
                          Fc = F[i];
-                    } // if F[i]
+                    }
                } // while i
+#elif MAX_ALG == 3
+          #pragma omp parallel for default(shared) schedule(static)
+          for (i=sett->nmin+1; i<sett->nmax-1; ++i) {
+               if (F[i] < opts->thr || F[i-1] > F[i] || F[i] < F[i+1] ) continue;
+               int ic = i;
+               FLOAT_TYPE Fc = F[ic];
+               i++; // skip the next point as it can't be a local maximum
 #endif
-               // Candidate signal frequency ( ~ ii/nmax * pi ; nmax=nfftf/2 )
-               sgnlt[0] = (FLOAT_TYPE)(2*ii)/(FLOAT_TYPE)sett->nfftf * M_PI + sgnl0;
+
+               // Candidate signal frequency ( ~ ii/nmax * pi where nmax=nfftf/2 )
+               FLOAT_TYPE f_ = (FLOAT_TYPE)(2*ic)/(FLOAT_TYPE)sett->nfftf * M_PI + sgnl0;
 
                // Checking if signal is within a known instrumental line
                int k, veto_status = 0;
                for (k=0; k<sett->numlines_band; k++){
-                    if(sgnlt[0]>=sett->lines[k][0] && sgnlt[0]<=sett->lines[k][1]) {
+                    if(f_>=sett->lines[k][0] && f_<=sett->lines[k][1]) {
                          veto_status=1;
                          break;
                     }
                }
 
                if(!veto_status) {
-
-                    //sgnlt[4] = sqrtf(2.*(Fc - sett->nd));
-                    // we store fstatistics value instead of snr
-                    sgnlt[4] = Fc;
-
-                    // Add new parameters to the output buffer array
-                    ((float *)(sgnlv[iss].ffstat.p))[2*itrig] = sgnlt[0];    // frequency
-                    ((float *)(sgnlv[iss].ffstat.p))[2*itrig + 1] = sgnlt[4]; // fstat value
-                    sgnlv[iss].ffstat.len += 2;
-                    itrig++;
-                    (*sgnlc)++;
-
+#pragma omp critical
+                    {
+                         // Add candidate to the output buffer
+                         ((float *)(sgnlv[iss].ffstat.p))[2*itrig] = f_;     // frequency
+                         ((float *)(sgnlv[iss].ffstat.p))[2*itrig + 1] = Fc; // F-stat value
+                         sgnlv[iss].ffstat.len += 2;
+                         itrig++;
+                         (*sgnlc)++;
+                    }
 #ifdef VERBOSE
-                    printf ("\nSignal %d: %d %g %g %g %d snr=%.2f\n",
-                         *sgnlc, pm, mm, nn, ss, ii, sgnlt[4]);
-                    printf("aququ\n");
+                    printf ("\nSignal %d: %d %g %g %g %d fstat=%.2f\n",
+                         *sgnlc, pm, mm, nn, ss, ic, Fc);
 #endif
                } // if veto_status
           } // for i
