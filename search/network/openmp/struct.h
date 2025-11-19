@@ -19,11 +19,12 @@ typedef struct _comm_line_opts {
 
      int checkp_flag, veto_flag, gen_vlines_flag, help_flag;
      //int fftinterp;
-     int seg, band, hemi, nod;
+     int seg, band, hemi; //, nod;
      double thr;
      double fpo_val, narrowdown, overlap;
-     const char *indir, *outdir, *range_file, *grid_file, *dump_range_file,
-          *usedet, *addsig, *fstat_norm, *label, *mods;
+     const char *indir, *outdir, *grid_file, *dump_range_file,
+          *usedet, *addsig, *fstat_norm, *label, *mods,
+          *gtype, *gcenter, *gsizes, *gsteps;
      char state_file[FNAME_LENGTH];
 
 } Command_line_opts;
@@ -72,7 +73,6 @@ typedef struct _search_range {
      float mr[2], nr[2], spndr[2];
      // grid steps (default =1)
      float mstep, nstep, sstep;
-
      // initial values after restart
      float mst, nst, sst;
      int pst;

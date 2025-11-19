@@ -1,9 +1,0 @@
-range:
-(allsky|directed)
-fr fr_gsize
-sr sr_gsize sr_step
-alphar deltar  mr_gsize mr_step nr_gsize nr_step
-
-
-sig:
-amp reffr sgnlo[0:6]

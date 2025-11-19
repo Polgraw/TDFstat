@@ -43,29 +43,35 @@ int hdfout_init (char *outname, Command_line_opts *opts, Search_settings *sett,
 
      // Command line options data type  (opts)
      hid_t cmd_opts_tid = H5Tcreate (H5T_COMPOUND, sizeof(Command_line_opts));
-     H5Tinsert(cmd_opts_tid, "checkp_flag", HOFFSET(Command_line_opts, checkp_flag), H5T_NATIVE_INT);
-     H5Tinsert(cmd_opts_tid, "veto_flag", HOFFSET(Command_line_opts, veto_flag), H5T_NATIVE_INT);
-     //H5Tinsert(cmd_opts_tid, "gen_vlines_flag", HOFFSET(Command_line_opts, gen_vlines_flag), H5T_NATIVE_INT);
-     //H5Tinsert(cmd_opts_tid, "help_flag", HOFFSET(Command_line_opts, help_flag), H5T_NATIVE_INT);
-     H5Tinsert(cmd_opts_tid, "seg", HOFFSET(Command_line_opts, seg), H5T_NATIVE_INT);
-     H5Tinsert(cmd_opts_tid, "band", HOFFSET(Command_line_opts, band), H5T_NATIVE_INT);
-     H5Tinsert(cmd_opts_tid, "hemi", HOFFSET(Command_line_opts, hemi), H5T_NATIVE_INT);
-     H5Tinsert(cmd_opts_tid, "nod", HOFFSET(Command_line_opts, nod), H5T_NATIVE_INT);
-     H5Tinsert(cmd_opts_tid, "thr", HOFFSET(Command_line_opts, thr), H5T_NATIVE_DOUBLE);
-     //H5Tinsert(cmd_opts_tid, "fpo_val", HOFFSET(Command_line_opts, fpo_val), H5T_NATIVE_DOUBLE);
-     H5Tinsert(cmd_opts_tid, "narrowdown", HOFFSET(Command_line_opts, narrowdown), H5T_NATIVE_DOUBLE);
-     H5Tinsert(cmd_opts_tid, "overlap", HOFFSET(Command_line_opts, overlap), H5T_NATIVE_DOUBLE);
      H5Tinsert(cmd_opts_tid, "indir", HOFFSET(Command_line_opts, indir), vstr_type_id);
      H5Tinsert(cmd_opts_tid, "outdir", HOFFSET(Command_line_opts, outdir), vstr_type_id);
-     H5Tinsert(cmd_opts_tid, "range_file", HOFFSET(Command_line_opts, range_file), vstr_type_id);
-     H5Tinsert(cmd_opts_tid, "grid_file", HOFFSET(Command_line_opts, grid_file), vstr_type_id);
-     //H5Tinsert(cmd_opts_tid, "dump_range_file", HOFFSET(Command_line_opts, dump_range_file), H5T_C_S1);
-     H5Tinsert(cmd_opts_tid, "usedet", HOFFSET(Command_line_opts, usedet), vstr_type_id);
-     H5Tinsert(cmd_opts_tid, "addsig", HOFFSET(Command_line_opts, addsig), vstr_type_id);
+     H5Tinsert(cmd_opts_tid, "band", HOFFSET(Command_line_opts, band), H5T_NATIVE_INT);
+     H5Tinsert(cmd_opts_tid, "seg", HOFFSET(Command_line_opts, seg), H5T_NATIVE_INT);
+     H5Tinsert(cmd_opts_tid, "hemi", HOFFSET(Command_line_opts, hemi), H5T_NATIVE_INT);
+     H5Tinsert(cmd_opts_tid, "thr", HOFFSET(Command_line_opts, thr), H5T_NATIVE_DOUBLE);
+     // nod belongs to sett
+     // dt belongs to sett
+     H5Tinsert(cmd_opts_tid, "overlap", HOFFSET(Command_line_opts, overlap), H5T_NATIVE_DOUBLE);
+     H5Tinsert(cmd_opts_tid, "narrowdown", HOFFSET(Command_line_opts, narrowdown), H5T_NATIVE_DOUBLE);
      H5Tinsert(cmd_opts_tid, "fstat_norm", HOFFSET(Command_line_opts, fstat_norm), vstr_type_id);
+     H5Tinsert(cmd_opts_tid, "grid_file", HOFFSET(Command_line_opts, grid_file), vstr_type_id);
+
+     H5Tinsert(cmd_opts_tid, "usedet", HOFFSET(Command_line_opts, usedet), vstr_type_id);
+     //H5Tinsert(cmd_opts_tid, "dump_range_file", HOFFSET(Command_line_opts, dump_range_file), H5T_C_S1);
+     H5Tinsert(cmd_opts_tid, "addsig", HOFFSET(Command_line_opts, addsig), vstr_type_id);
+     H5Tinsert(cmd_opts_tid, "mods", HOFFSET(Command_line_opts, mods), vstr_type_id);
+
+     H5Tinsert(cmd_opts_tid, "veto_flag", HOFFSET(Command_line_opts, veto_flag), H5T_NATIVE_INT);     
+     //H5Tinsert(cmd_opts_tid, "gen_vlines_flag", HOFFSET(Command_line_opts, gen_vlines_flag), H5T_NATIVE_INT);
+     H5Tinsert(cmd_opts_tid, "checkp_flag", HOFFSET(Command_line_opts, checkp_flag), H5T_NATIVE_INT);
+     
      //H5Tinsert(cmd_opts_tid, "label", HOFFSET(Command_line_opts, label), H5T_C_S1);
      //H5Tinsert(cmd_opts_tid, "state_file", HOFFSET(Command_line_opts, state_file), H5T_C_S1);
-
+     H5Tinsert(cmd_opts_tid, "gtype", HOFFSET(Command_line_opts, gtype), vstr_type_id);
+     H5Tinsert(cmd_opts_tid, "gcenter", HOFFSET(Command_line_opts, gcenter), vstr_type_id);
+     H5Tinsert(cmd_opts_tid, "gsizes", HOFFSET(Command_line_opts, gsizes), vstr_type_id);
+     H5Tinsert(cmd_opts_tid, "gsteps", HOFFSET(Command_line_opts, gsteps), vstr_type_id);
+     
      // Search settings data type  (sett)
      hid_t sett_tid = H5Tcreate (H5T_COMPOUND, sizeof(Search_settings));
      H5Tinsert(sett_tid, "fpo", HOFFSET(Search_settings, fpo), H5T_NATIVE_DOUBLE);

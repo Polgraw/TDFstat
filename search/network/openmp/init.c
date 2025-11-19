@@ -80,7 +80,7 @@ void read_ini_file( Search_settings *sett,
      // path to the grid file (absolute or relative)
      opts->grid_file = iniparser_getstring(ini, "search:grid_file", "");
      // name of the range file to read
-     opts->range_file = iniparser_getstring(ini, "search:range_file", "");
+     //opts->range_file = iniparser_getstring(ini, "search:range_file", "");
      // name of the range file to dump and exit
      opts->dump_range_file = iniparser_getstring(ini, "search:dump_range_file", "");
      // name of the file with signall to add
@@ -103,6 +103,12 @@ void read_ini_file( Search_settings *sett,
      // [0, 1] generate checkpoint files at each new sky position
      opts->checkp_flag = iniparser_getint(ini, "search:checkp_flag", 0);
 
+     // grid specification
+     opts->gtype = iniparser_getstring(ini, "grid:gtype", "allsky");
+     opts->gcenter = iniparser_getstring(ini, "grid:gcenter", NULL);
+     opts->gsizes = iniparser_getstring(ini, "grid:gsizes", NULL);
+     opts->gsteps = iniparser_getstring(ini, "grid:gsteps", NULL);
+     
      // various checks
      if (! opts->indir) {
           error = 1; printf("[ERROR] missing indir !\n");
@@ -513,29 +519,38 @@ void set_search_range( Search_settings *sett,
                        Search_range *s_range)
 {
      /*
-     Sets the search range in the code units.
-     The grid is based on the allsky "integer" grid but fractional coordinates are allowed.
-     There are 3 options:
-     - no range_file specified: the whole sky is searched (=standard allsky search)
-     - range_file of "allsky" type: standard allsky grid is used but the search is performed
-                                    around the nearest "integer" grid point to the given pssition in fdot, alpha & delta,
-                                    in the integer range +/- gsize, steps are set to 1.
-     - range_file of "directed" type: the search is performed on the "fractional" grid centered exactly
-                                      around the given coordinates, with specified grid step,
-                                      and in the range +/- gsize
-     The unit of gsize and step is always 1 (= resolution of the standard allsky grid in each direction)
-     e.g. gsize=2.5 and step=0.5 results in range +/- 5 grid points
-     but the grid is twice denser than the regular "allsky" grid.
+     Sets the grid range in code units.
+     Input: opts, sett
+     Output: s_range
+     
+     The grid is formed by points in 4D search parameters space:
+                 frequency, spindown, two sky positions (m, n) which map to (ra, dec).
+     The reference grid is standard, allsky, "integer" grid with integer node coordinates and spacing of 1.
+     For allsky_range and directed_range fractional grid points are allowed.
+     Grid range is specified by three 4D vectors:
+        - gcenter: middle point of the grid in physical units (f [Hz], fdot [Hz/s], ra and dec [radians])
+        - gsizes: grid range from gcenter, so the grid span is [gcenter-gsizes, gcenter+gsizes];
+                  gsizes units = grid spacing of the reference, allsky grid (1)
+        - gsteps: spacing of grid points in units of the reference grid spacing (1)
+     Example for 1D: gsize=2.5 and gstep=0.5 results in range [gcenter-5, gcenter+5] with spacing 0.5,
+                    which means 19 grid points with density twice the density of allsky grid.
+
+     There are 3 grid types (gtype):
+          * allsky: the whole sky is searched; coordinates of grid points are integer with spacing of 1;
+                    gcenter, gsizes, gsteps are ignored; gsteps=1.
+          * allsky_range: gcenter is shifted to the nearest integer grid point;
+                          fractional grid range is +/- gsizes from gcenter;
+                          fractional grid spacing is set to gsteps.
+          * directed_range: gcenter is exactly at the specified coordinates;
+                            gsizes and gsteps can be frectional like for allsky_range.
      */
 
      float fr,
           sr, sr_gsize, sr_step,
           alphar, deltar, nr_gsize, nr_step, mr_gsize, mr_step;
-     float alpha0, delta0;
-     int fr_gsize, fmid;
+     int fr_gsize, fr_step, fmid;
      float smid, nmid, mmid;
      double sgnlol[4];
-     char gtype[16];
 
      // Hemispheres (with respect to the ecliptic)
      if(opts->hemi) {
@@ -545,58 +560,64 @@ void set_search_range( Search_settings *sett,
           s_range->pmr[0] = 1;
           s_range->pmr[1] = 2;
      }
-
+     // default grid steps
      s_range->mstep = 1.;
      s_range->nstep = 1.;
      s_range->sstep = 1.;
 
-     // If the parameter range is invoked, the search is performed
-     // within the range of grid parameters from an ascii file
-     // ("-r range_file" from the command line)
-     FILE *data = NULL;
-     if (strlen(opts->range_file)) {
-          if ((data = fopen(opts->range_file, "r")) == NULL) {
-               fflush(stdout);
-               perror (opts->range_file);
+     if ( strcmp(opts->gtype, "allsky")==0 ) {
+          // Maximum grid ranges given grid matrix M
+          gridr(sett->M, s_range->spndr, s_range->nr, s_range->mr, sett->oms, sett->Smax);
+          s_range->fr[0] = sett->nmin;
+          s_range->fr[1] = sett->nmax;
+          
+          printf("[set_search_range] gtype = allsky\n");
+          printf("[set_search_range] Hemispheres = %d %d\n", s_range->pmr[0], s_range->pmr[1]);
+          printf("[set_search_range] Maximum grid ranges:\n");
+          printf("---------------------------------------\n");
+          printf("   |          min              max\n");
+          printf("---------------------------------------\n");
+          printf("mm | %12g     %12g\n", s_range->mr[0], s_range->mr[1]);
+          printf("nn | %12g     %12g\n", s_range->nr[0], s_range->nr[1]);
+          printf("s  | %12g     %12g\n", s_range->spndr[0], s_range->spndr[1]);
+          printf("f  | %12d     %12d\n", s_range->fr[0], s_range->fr[1]);
+          printf("---------------------------------------\n\n");
+          
+     } else {
+          // setup grid center
+          if (strcmp(opts->gcenter, "injection")==0) {
+               printf("Setting grid center at the current injection point.\n");
+               // get fr, sr, alphar, deltar from from aux->injection
+               printf("This option is not implemented.\n");
+               exit(EXIT_FAILURE);
+          } else if (strncmp(opts->gcenter, "pulsar", 6) == 0) {
+               printf("Setting grid center at pulsar %s\n", opts->gcenter);
+               // set fr, sr, alphar, deltar from ???define/hash table???
+               printf("This option is not implemented.\n");
+               exit(EXIT_FAILURE);
+          } else {
+               printf("Reading grid center\n");
+               sscanf(opts->gcenter, "%f %f %f %f", &fr, &sr, &alphar, &deltar);
+          }
+          
+          // setup grid sizes
+          if (opts->gsizes) {
+               sscanf(opts->gsizes, "%d %f %f %f", &fr_gsize, &sr_gsize, &mr_gsize, &nr_gsize);
+          } else {
+               printf("[ERROR] missing gsizes!\n");
                exit(EXIT_FAILURE);
           }
 
-          // Read lines, skipping those starting with '#'
-          char line[512];
-          do {
-               if (!fgets(line, sizeof(line), data)) {
-                    printf("Unexpected end of file while reading gtype\n");
-                    exit(EXIT_FAILURE);
-               }
-          } while (line[0] == '#');
-          sscanf(line, "%s", gtype);
-
-          do {
-               if (!fgets(line, sizeof(line), data)) {
-                    printf("Unexpected end of file while reading fr and fr_gsize\n");
-                    exit(EXIT_FAILURE);
-               }
-          } while (line[0] == '#');
-          sscanf(line, "%f %d", &fr, &fr_gsize);
-
-          do {
-               if (!fgets(line, sizeof(line), data)) {
-                    printf("Unexpected end of file while reading sr, sr_gsize, sr_step\n");
-                    exit(EXIT_FAILURE);
-               }
-          } while (line[0] == '#');
-          sscanf(line, "%f %f %f", &sr, &sr_gsize, &sr_step);
-
-          do {
-               if (!fgets(line, sizeof(line), data)) {
-                    printf("Unexpected end of file while reading alphar, deltar, nr_gsize, nr_step, mr_gsize, mr_step\n");
-                    exit(EXIT_FAILURE);
-               }
-          } while (line[0] == '#');
-          sscanf(line, "%f %f %f %f %f %f", &alphar, &deltar, &nr_gsize, &nr_step, &mr_gsize, &mr_step);
-
-          fclose(data);
-
+          // setup grid steps
+          if (opts->gsteps) {
+               sscanf(opts->gsteps, "%d %f %f %f", &fr_step, &sr_step, &mr_step, &nr_step);
+          } else {
+               printf("[ERROR] missing gsteps!\n");
+               exit(EXIT_FAILURE);
+          }
+          
+          fr_step = 1; // fr_step is always 1 (just FFT bin numbers)
+      
           // convert fr, sr, alphar, deltar to fractional code units
 
           // first convert from physical to dimensionless units
@@ -614,72 +635,55 @@ void set_search_range( Search_settings *sett,
           float *sgnl_code = (float *) calloc(4, sizeof(float));
           dimless_to_code(sett->M, sgnlol, sgnl_code);
 
-          if ( strncmp(gtype, "allsky", 6) == 0) {
-
-               // Standard allsky grid centered around
-               // nearest "integer" grid point to alphar, deltar, sr.
-               // gsize will be rounded to the nearest integer
-               // steps are ignored and set to 1.
-               //
-               // nearest "integer" grid point
+          // Set the steps
+          s_range->mstep = mr_step;
+          s_range->nstep = nr_step;
+          s_range->sstep = sr_step;
+          
+          // round gsizes to integer multiples of steps
+          fr_gsize = round(fr_gsize);
+          sr_gsize = round(sr_gsize/sr_step)*sr_step;
+          nr_gsize = round(nr_gsize/nr_step)*nr_step;
+          mr_gsize = round(mr_gsize/mr_step)*mr_step;
+          
+          if ( strcmp(opts->gtype, "allsky_range") == 0) {
+               
+               // nearest "integer" grid point to alphar, deltar, sr, fr.
                fmid = round(sgnl_code[0]);
                smid = round(sgnl_code[1]);
                nmid = round(sgnl_code[2]);
                mmid = round(sgnl_code[3]);
 
-               s_range->fr[0] = fmid - fr_gsize;
-               s_range->fr[1] = fmid + fr_gsize;
-               s_range->spndr[0] = smid - round(sr_gsize);
-               s_range->spndr[1] = smid + round(sr_gsize);
-               s_range->nr[0] = nmid - round(nr_gsize);
-               s_range->nr[1] = nmid + round(nr_gsize);
-               s_range->mr[0] = mmid - round(mr_gsize);
-               s_range->mr[1] = mmid + round(mr_gsize);
+          } else if (strcmp(opts->gtype, "directed_range") == 0) {
 
-               // TODO: check for out of scale ranges
-               //
-               // steps were already set to 1 by default
-
-          } else if (strncmp(gtype, "directed", 8) == 0) {
-
-               // Standard allsky grid centered around
-               // alphar, deltar, sr.
-               // gsize and steps can be fractional
-               //
-               // nearest "integer" grid point
+               // exact position: alphar, deltar, sr, fr.
                fmid = sgnl_code[0];
                smid = sgnl_code[1];
                nmid = sgnl_code[2];
                mmid = sgnl_code[3];
 
-               s_range->fr[0] = fmid - fr_gsize;
-               s_range->fr[1] = fmid + fr_gsize;
-               s_range->spndr[0] = smid - round(sr_gsize);
-               s_range->spndr[1] = smid + round(sr_gsize);
-               s_range->nr[0] = nmid - round(nr_gsize);
-               s_range->nr[1] = nmid + round(nr_gsize);
-               s_range->mr[0] = mmid - round(mr_gsize);
-               s_range->mr[1] = mmid + round(mr_gsize);
-
-               // TODO: check for out of scale ranges
-
-               s_range->mstep = mr_step;
-               s_range->nstep = nr_step;
-               s_range->sstep = sr_step;
-
           } else {
-
-               printf("Unknown grid type %s in range file %s\n", gtype, opts->range_file);
+               printf("Unknown grid type %s \n", opts->gtype);
                exit(EXIT_FAILURE);
-
           }
 
-          free(sgnl_code);
+          s_range->fr[0] = fmid - fr_gsize;
+          s_range->fr[1] = fmid + fr_gsize;
+          s_range->spndr[0] = smid - sr_gsize;
+          s_range->spndr[1] = smid + sr_gsize;
+          s_range->nr[0] = nmid - nr_gsize;
+          s_range->nr[1] = nmid + nr_gsize;
+          s_range->mr[0] = mmid - mr_gsize;
+          s_range->mr[1] = mmid + mr_gsize;
 
-          printf("[set_search_range] gtype=%s\n", gtype);
-          printf("[set_search_range] f=%g [Hz]  fdot=%g [Hz/s]  ra=%g [rad]  de=%g [rad]\n", fr, sr, alphar, deltar);
+          free(sgnl_code);
+          
+          // TODO: check for out of scale ranges
+
+          printf("[set_search_range] gtype = %s\n", opts->gtype);
+          printf("[set_search_range] gcenter: f=%g [Hz]  fdot=%g [Hz/s]  ra=%g [rad]  de=%g [rad]\n", fr, sr, alphar, deltar);
           printf("[set_search_range] hemisphere = %d\n", s_range->pmr[0]);
-          printf("[set_search_range] Integer grid ranges:\n");
+          printf("[set_search_range] Actual, computed grid ranges:\n");
           printf("-----------------------------------------------------------------------\n");
           printf("   |            min           center              max             step \n");
           printf("-----------------------------------------------------------------------\n");
@@ -688,21 +692,6 @@ void set_search_range( Search_settings *sett,
           printf("s  |   %12g     %12g     %12g     %12g\n", s_range->spndr[0], smid, s_range->spndr[1], s_range->sstep);
           printf("f  |   %12d     %12d     %12d     %12d\n", s_range->fr[0], fmid, s_range->fr[1], 1);
           printf("-----------------------------------------------------------------------\n\n");
-
-          //printf("Smin: %le, -Smax: %le\n", sett->Smin, sett->Smax);
-
-     } else {  // grid_range not specified, use all-sky grid
-
-          // Establish the grid range in which the search will be performed
-          // with the use of the M matrix from grid.bin
-          gridr( sett->M, s_range->spndr,
-                 s_range->nr, s_range->mr,
-                 sett->oms, sett->Smax);
-
-          printf("[set_search_range] gtype=allsky, grid max ranges:\n");
-          printf("[set_search_range] spndr={%g %g} nr={%g %g} mr={%g %g} pmr={%d %d}\n",
-               s_range->spndr[0], s_range->spndr[1], s_range->nr[0], s_range->nr[1],
-               s_range->mr[0], s_range->mr[1], s_range->pmr[0], s_range->pmr[1]);
 
      }
 

@@ -377,8 +377,8 @@ int job_core(
      // or the range file is given:
      // if not, proceed with the wide range of spindowns
      // if yes, use smin = s_range->sst, smax = s_range->spndr[1]
-     if(!strcmp(opts->addsig, "") && !strcmp(opts->range_file, "")) {
-
+     //if(!strcmp(opts->addsig, "") && !strcmp(opts->range_file, "")) {
+     if( strcmp(opts->gtype, "allsky") == 0 ) {
           // Spindown range defined using Smin and Smax (settings.c)
           smin = trunc((sett->Smin - nn*sett->M[9] - mm*sett->M[13])/sett->M[5]);
           smax = trunc(-(nn*sett->M[9] + mm*sett->M[13] + sett->Smax)/sett->M[5]);
@@ -461,7 +461,7 @@ int job_core(
 
           // Computing F-statistic
 #pragma omp parallel for schedule(static)
-          for (i=sett->nmin; i<=sett->nmax; ++i){
+          for (i=s_range->fr[0]; i<=s_range->fr[1]; ++i){
                F[i] = NORM(fxa[i])/aa + NORM(fxb[i])/bb ;
           }
 
@@ -472,14 +472,14 @@ int job_core(
           // warning: use with nthreads=1
           static double *fraw;
           static int ifile=0;
-          if (!fraw) fraw = (double *) malloc((sett->nmax-sett->nmin)*sizeof(double));
-          memcpy(fraw, F+sett->nmin, (sett->nmax-sett->nmin)*sizeof(double));
+          if (!fraw) fraw = (double *) malloc((s_range->fr[1]-s_range->fr[0])*sizeof(double));
+          memcpy(fraw, F+s_range->fr[0], (s_range->fr[1]-s_range->fr[0])*sizeof(double));
           if ( (mm==-61 && nn==-32 && ss==273) ) {
                char f1name[32];
                ifile++;
                sprintf(f1name, "fraw-%d.dat", ifile);
                FILE *f1 = fopen(f1name, "w");
-               for (i=0; i<(sett->nmax-sett->nmin); i++)
+               for (i=0; i<(s_range->fr[1]-s_range->fr[0]); i++)
                     fprintf(f1, "%d   %lf   %lf  %lf  %lf  %lf %lf\n", i, fraw[i],
                          2.*M_PI*i/((double) sett->fftpad*sett->nfft) + sgnl0,
                          sqr(creal(ifo[0].sig.xDatma[2*i])),
@@ -493,7 +493,7 @@ int job_core(
 
           // Normalize F-statistics if the noise is not white noise
           if( ! strcmp(opts->fstat_norm, "blocks_avg") ) {
-               FStat(F + sett->nmin, sett->nmax - sett->nmin, NAVFSTAT, 0);
+               FStat(F + s_range->fr[0], s_range->fr[1] - s_range->fr[0], NAVFSTAT, 0);
           }
 
           /* select triggers */
@@ -508,7 +508,7 @@ int job_core(
           */
 
           /* stay in (nmin, nmax) range! */
-          for (i=sett->nmin+1; i<sett->nmax-dd; i+=dd) {
+          for (i=s_range->fr[0]+1; i<s_range->fr[1]-dd; i+=dd) {
                int ic=-1;
                FLOAT_TYPE Fc = opts->thr;
                for (j=i; j<i+dd; ++j) {
@@ -521,11 +521,11 @@ int job_core(
                if ( ic < 0 ) continue; // no maximum in this block
 #elif MAX_ALG == 2
           #pragma omp parallel for default(shared) schedule(static)
-          for (i=sett->nmin; i<sett->nmax; ++i) {
+          for (i=s_range->fr[0]; i<s_range->fr[1]; ++i) {
                if (F[i] < opts->thr) continue;
                int ic = i;
                FLOAT_TYPE Fc = F[ic];
-               while (++i < sett->nmax && F[i] > opts->thr) {
+               while (++i < s_range->fr[1] && F[i] > opts->thr) {
                     if(F[i] > Fc) {
                          ic = i;
                          Fc = F[i];
@@ -533,7 +533,7 @@ int job_core(
                } // while i
 #elif MAX_ALG == 3
           #pragma omp parallel for default(shared) schedule(static)
-          for (i=sett->nmin+1; i<sett->nmax-1; ++i) {
+          for (i=s_range->fr[0]+1; i<s_range->fr[1]-1; ++i) {
                if (F[i] < opts->thr || F[i-1] > F[i] || F[i] < F[i+1] ) continue;
                int ic = i;
                FLOAT_TYPE Fc = F[ic];
@@ -542,6 +542,7 @@ int job_core(
 
                // Candidate signal frequency ( ~ ii/nmax * pi where nmax=nfftf/2 )
                FLOAT_TYPE f_ = (FLOAT_TYPE)(2*ic)/(FLOAT_TYPE)sett->nfftf * M_PI + sgnl0;
+               //FLOAT_TYPE f_ = (FLOAT_TYPE)(2*(ic+sgnl0))/(FLOAT_TYPE)sett->nfftf * M_PI;
 
                // Checking if signal is within a known instrumental line
                int k, veto_status = 0;
