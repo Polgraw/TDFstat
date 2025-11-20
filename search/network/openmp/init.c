@@ -108,7 +108,7 @@ void read_ini_file( Search_settings *sett,
      opts->gcenter = iniparser_getstring(ini, "grid:gcenter", NULL);
      opts->gsizes = iniparser_getstring(ini, "grid:gsizes", NULL);
      opts->gsteps = iniparser_getstring(ini, "grid:gsteps", NULL);
-     
+
      // various checks
      if (! opts->indir) {
           error = 1; printf("[ERROR] missing indir !\n");
@@ -329,16 +329,16 @@ void init_arrays( Search_settings *sett,
 
 void add_signal( Search_settings *sett,
                  Command_line_opts *opts,
-                 Aux_arrays *aux_arr,
-                 Search_range *s_range)
+                 Aux_arrays *aux_arr)
 {
 
      int i, j, n, gsize, reffr;
      double snr=0, sum = 0., h0=0, cof, d1;
      double sigma_noise = 1.0;
      double be[2];
-     double sinaadd, cosaadd, sindadd, cosdadd, phaseadd, shiftadd;
-     double nSource[3], sgnlo[8], sgnlol[4];
+     double sinalt, cosalt, sindelt, cosdelt, phaseadd, shiftadd;
+     double phi, psi, cosi, cosip, iota, amplit[4];
+     double nSource[3], sgnlo[7], sgnlol[4];
 
      char amporsnr[4];
 
@@ -356,20 +356,44 @@ void add_signal( Search_settings *sett,
           } while ( strcmp(amporsnr, "amp")!=0 && strcmp(amporsnr, "snr")!=0 );
 
           if(!strcmp(amporsnr, "amp")) {
-               fscanf (data, "%le %d %d", &h0, &gsize, &reffr);
-               printf("add_signal(): GW amplitude h0 is %le\n", h0);
+              fscanf (data, "%le %d %le %le %le %le %le %le %le",
+                         &h0, &reffr,
+                         &sgnlo[0], &sgnlo[1], &sgnlo[2], &sgnlo[3],
+                         &sgnlo[4], &sgnlo[5], &sgnlo[6]);
+              printf("add_signal(): GW amplitude h0 is %le\n   The reference band of the signal is %d\n"
+                     "   The signal is injected at the following parameters:\n"
+                     "   Frequency [Hz]         : %le\n"
+                     "   Spin-down [Hz/s]       : %le\n"
+                     "   Right ascension [rad]  : %le\n"
+                     "   Declination [rad]      : %le\n"
+                     "   Inclination [rad]      : %le\n"
+                     "   Polarization [rad]     : %le\n"
+                     "   Phase [rad]            : %le\n",
+                     h0, reffr, sgnlo[0], sgnlo[1], sgnlo[2], sgnlo[3], sgnlo[4], sgnlo[5], sgnlo[6]);
           } else if(!strcmp(amporsnr, "snr")) {
-               fscanf (data, "%le %d %d", &snr, &gsize, &reffr);
-               printf("add_signal(): GW (network) signal-to-noise ratio is %le\n", snr);
+              fscanf (data, "%le %d %le %le %le %le %le %le %le",
+                         &snr, &reffr,
+                         &sgnlo[0], &sgnlo[1], &sgnlo[2], &sgnlo[3],
+                         &sgnlo[4], &sgnlo[5], &sgnlo[6]);
+              printf("add_signal(): GW (network) signal-to-noise ratio is %le\n   The reference band of the signal is %d\n"
+                     "   The signal is injected at the following parameters:\n"
+                     "   Frequency [Hz]         : %le\n"
+                     "   Spin-down [Hz/s]       : %le\n"
+                     "   Right ascension [rad]  : %le\n"
+                     "   Declination [rad]      : %le\n"
+                     "   Inclination [rad]      : %le\n"
+                     "   Polarization [rad]     : %le\n"
+                     "   Phase [rad]            : %le\n",
+                     snr, reffr, sgnlo[0], sgnlo[1], sgnlo[2], sgnlo[3], sgnlo[4], sgnlo[5], sgnlo[6]);
           } else {
-               printf("Problem with the signal file. Exiting...\n");
-               exit(0);
+              printf("Problem with the signal file. Exiting...\n");
+              exit(0);
           }
 
-          // Fscanning signal parameters: f, fdot, delta, alpha (sgnlo[0], ..., sgnlo[3])
-          // four amplitudes sgnlo[4], ..., sgnlo[7]
+          // Fscanning signal parameters: f, fdot, alpha, delta (sgnlo[0], ..., sgnlo[3])
+          // Intrinsic parameters: inclination, polarization, phase  (sgnlo[4], ..., sgnlo[6])
           // (see sigen.c and Phys. Rev. D 82, 022005 2010, Eqs. 2.13a-d)
-          for(i=0; i<8; i++)
+          for(i=0; i<7; i++)
                fscanf(data, "%le",i+sgnlo);
 
           fclose (data);
@@ -378,62 +402,20 @@ void add_signal( Search_settings *sett,
           perror (opts->addsig);
      }
 
-     // Search-specific parametrization of freq.
-     // for the software injections
-     // sgnlo[0]: frequency, sgnlo[1]: frequency. derivative
+     aux_arr->injection[0] = 1;        // number of the injection
+     aux_arr->injection[1] = reffr;    // reference band
+     for (i=0; i<7; i++) {
+            aux_arr->injection[i+3] = sgnlo[i];
+     }   // signal parameters assignment into the injection array
 
+     // First convert from physical to dimensionless units (in the units of PI-E)
+     sgnlo[0] = (sgnlo[0] - sett->fpo)/sett->B * M_PI;
+     sgnlo[1] = M_PI * sgnlo[1] * sett->dt * sett->dt;
+
+     // Shift the frequency based on spindown to the reference segment
      sgnlo[0] += -2.*sgnlo[1]*(sett->N)*(reffr - opts->seg);
 
      cof = sett->oms + sgnlo[0];
-
-     for (i=0; i<2; i++)
-          sgnlol[i] = sgnlo[i];
-
-     // Calculate the hemisphere and be vector
-     s_range->pmr[0] = ast2lin(sgnlo[3], sgnlo[2], C_EPSMA, be);
-
-     sgnlol[2] = be[0]*cof;
-     sgnlol[3] = be[1]*cof;
-
-     // solving a linear system in order to translate
-     // sky position, frequency and spindown (sgnlo parameters)
-     // into the position in the grid
-
-     double *MM ;
-     MM = (double *) calloc (16, sizeof (double));
-     for (i=0; i<16; i++) MM[i] = sett->M[i] ;
-
-     gsl_vector *x = gsl_vector_alloc (4);
-     int s;
-
-     gsl_matrix_view m = gsl_matrix_view_array (MM, 4, 4);
-     gsl_matrix_transpose (&m.matrix) ;
-     gsl_vector_view b = gsl_vector_view_array (sgnlol, 4);
-     gsl_permutation *p = gsl_permutation_alloc (4);
-
-     gsl_linalg_LU_decomp (&m.matrix, p, &s);
-
-     s_range->spndr[0] = round(gsl_vector_get(x,1));
-     s_range->nr[0]    = round(gsl_vector_get(x,2));
-     s_range->mr[0]    = round(gsl_vector_get(x,3));
-
-     gsl_permutation_free (p);
-     gsl_vector_free (x);
-     free (MM);
-
-     // Define the grid range in which the signal will be looked for
-     s_range->spndr[1] = s_range->spndr[0] + gsize;
-     s_range->spndr[0] -= gsize;
-     s_range->nr[1] = s_range->nr[0] + 1;
-     s_range->nr[0] -= 1;
-     s_range->mr[1] = s_range->mr[0] + 1;
-     s_range->mr[0] -= 1;
-     s_range->pmr[1] = s_range->pmr[0];
-
-     printf("add_signal(): following grid range is used (spndr, nr, mr, pmr pairs)\n");
-     printf("%d %d %d %d %d %d %d %d\n", \
-            s_range->spndr[0], s_range->spndr[1], s_range->nr[0], s_range->nr[1],
-            s_range->mr[0], s_range->mr[1], s_range->pmr[0], s_range->pmr[1]);
 
      // Check if the signal is in band
      if( sgnlo[0]<0 || sgnlo[0]>M_PI ) {
@@ -441,11 +423,25 @@ void add_signal( Search_settings *sett,
           return;
      }
 
-     // sgnlo[2]: declination, sgnlo[3]: right ascension
-     sindadd = sin(sgnlo[2]);
-     cosdadd = cos(sgnlo[2]);
-     sinaadd = sin(sgnlo[3]);
-     cosaadd = cos(sgnlo[3]);
+     // Calculation of sin alpha, cos alpha, sin delta, cos delta of the signal.
+     // Check Eq. 18 of Phys. Rev. D 58, 063001 1998
+     sinalt = sin(sgnlo[2]);
+     cosalt = cos(sgnlo[2]);
+     sindelt = sin(sgnlo[3]);
+     cosdelt = cos(sgnlo[3]);
+
+     // Calculation of four amplitudes from polarization, phase and inclination
+     // Check Eq. 32 - 35 of Phys. Rev. D 58, 063001 1998
+
+     cosi = cos(sgnlo[4]);
+     psi = sgnlo[5];
+     phi = sgnlo[6];
+     cosip = (1. + cosi*cosi)/2.;
+
+     amplit[0] = cos(2.*psi)*cosip*cos(phi) - sin(2.*psi)*cosi*sin(phi);
+     amplit[1] = sin(2.*psi)*cosip*cos(phi) + cos(2.*psi)*cosi*sin(phi);
+     amplit[2] = -cos(2.*psi)*cosip*sin(phi) - sin(2.*psi)*cosi*cos(phi);
+     amplit[3] = -sin(2.*psi)*cosip*sin(phi) + cos(2.*psi)*cosi*cos(phi);
 
      // To keep coherent phase between time segments
      double phaseshift = sgnlo[0]*sett->N*(reffr - opts->seg)
@@ -459,11 +455,11 @@ void add_signal( Search_settings *sett,
      // Loop for each detector - sum calculations
      for (n=0; n<sett->nifo; n++) {
 
-          modvir(sinaadd, cosaadd, sindadd, cosdadd, sett->N, &ifo[n], aux_arr);
+          modvir(sinalt, cosalt, sindelt, cosdelt, sett->N, &ifo[n], aux_arr);
 
-          nSource[0] = cosaadd*cosdadd;
-          nSource[1] = sinaadd*cosdadd;
-          nSource[2] = sindadd;
+          nSource[0] = cosalt*cosdelt;
+          nSource[1] = sinalt*cosdelt;
+          nSource[2] = sindelt;
 
           for (i=0; i<sett->N; i++) {
 
@@ -477,10 +473,10 @@ void add_signal( Search_settings *sett,
                         - phaseshift;
 
                // The whole signal with 4 amplitudes and modulations
-               signadd[n][i] = sgnlo[4]*(ifo[n].sig.aa[i])*cos(phaseadd)
-                             + sgnlo[6]*(ifo[n].sig.aa[i])*sin(phaseadd)
-                             + sgnlo[5]*(ifo[n].sig.bb[i])*cos(phaseadd)
-                             + sgnlo[7]*(ifo[n].sig.bb[i])*sin(phaseadd);
+               signadd[n][i] = amplit[0]*(ifo[n].sig.aa[i])*cos(phaseadd)
+                             + amplit[1]*(ifo[n].sig.aa[i])*sin(phaseadd)
+                             + amplit[2]*(ifo[n].sig.bb[i])*cos(phaseadd)
+                             + amplit[3]*(ifo[n].sig.bb[i])*sin(phaseadd);
 
                // Sum over signals
                sum += pow(signadd[n][i], 2.);
@@ -491,6 +487,8 @@ void add_signal( Search_settings *sett,
      // Signal amplitude h0 from the snr
      // (currently only makes sense for Gaussian noise with fixed sigma)
      if (snr) h0 = (snr*sigma_noise)/(sqrt(sum));
+
+     aux_arr->injection[2] = h0;     // amplitude assignment into the injection array
 
      // Loop for each detector - adding signal to data (point by point)
      for (n=0; n<sett->nifo; n++) {
@@ -522,7 +520,7 @@ void set_search_range( Search_settings *sett,
      Sets the grid range in code units.
      Input: opts, sett
      Output: s_range
-     
+
      The grid is formed by points in 4D search parameters space:
                  frequency, spindown, two sky positions (m, n) which map to (ra, dec).
      The reference grid is standard, allsky, "integer" grid with integer node coordinates and spacing of 1.
@@ -570,7 +568,7 @@ void set_search_range( Search_settings *sett,
           gridr(sett->M, s_range->spndr, s_range->nr, s_range->mr, sett->oms, sett->Smax);
           s_range->fr[0] = sett->nmin;
           s_range->fr[1] = sett->nmax;
-          
+
           printf("[set_search_range] gtype = allsky\n");
           printf("[set_search_range] Hemispheres = %d %d\n", s_range->pmr[0], s_range->pmr[1]);
           printf("[set_search_range] Maximum grid ranges:\n");
@@ -582,7 +580,7 @@ void set_search_range( Search_settings *sett,
           printf("s  | %12g     %12g\n", s_range->spndr[0], s_range->spndr[1]);
           printf("f  | %12d     %12d\n", s_range->fr[0], s_range->fr[1]);
           printf("---------------------------------------\n\n");
-          
+
      } else {
           // setup grid center
           if (strcmp(opts->gcenter, "injection")==0) {
@@ -599,7 +597,7 @@ void set_search_range( Search_settings *sett,
                printf("Reading grid center\n");
                sscanf(opts->gcenter, "%f %f %f %f", &fr, &sr, &alphar, &deltar);
           }
-          
+
           // setup grid sizes
           if (opts->gsizes) {
                sscanf(opts->gsizes, "%d %f %f %f", &fr_gsize, &sr_gsize, &mr_gsize, &nr_gsize);
@@ -615,9 +613,9 @@ void set_search_range( Search_settings *sett,
                printf("[ERROR] missing gsteps!\n");
                exit(EXIT_FAILURE);
           }
-          
+
           fr_step = 1; // fr_step is always 1 (just FFT bin numbers)
-      
+
           // convert fr, sr, alphar, deltar to fractional code units
 
           // first convert from physical to dimensionless units
@@ -639,15 +637,15 @@ void set_search_range( Search_settings *sett,
           s_range->mstep = mr_step;
           s_range->nstep = nr_step;
           s_range->sstep = sr_step;
-          
+
           // round gsizes to integer multiples of steps
           fr_gsize = round(fr_gsize);
           sr_gsize = round(sr_gsize/sr_step)*sr_step;
           nr_gsize = round(nr_gsize/nr_step)*nr_step;
           mr_gsize = round(mr_gsize/mr_step)*mr_step;
-          
+
           if ( strcmp(opts->gtype, "allsky_range") == 0) {
-               
+
                // nearest "integer" grid point to alphar, deltar, sr, fr.
                fmid = round(sgnl_code[0]);
                smid = round(sgnl_code[1]);
@@ -677,7 +675,7 @@ void set_search_range( Search_settings *sett,
           s_range->mr[1] = mmid + mr_gsize;
 
           free(sgnl_code);
-          
+
           // TODO: check for out of scale ranges
 
           printf("[set_search_range] gtype = %s\n", opts->gtype);

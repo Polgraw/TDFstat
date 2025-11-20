@@ -88,5 +88,5 @@ uninstall: clean
 
 #----------------------------------------------
 
-sigen: sigen.o auxi.o settings.o
-	$(CC) -o $@ $^ -Wl,-Bdynamic -lc -lrt -lm
+sigen: sigen.c auxi.c settings.c
+	$(CC) -o $@ $^ -Wl,-Bdynamic -lc -lrt -lm -lgsl -lgslcblas

@@ -87,10 +87,10 @@ int main (int argc, char* argv[])
      // Amplitude modulation functions for each detector
      for(i=0; i<sett.nifo; i++)
           rogcvir(&ifo[i]);
-     
+
      // inject signals from file
      if(strlen(opts.addsig)) {
-          add_signal(&sett, &opts, &aux_arr, &s_range);
+          add_signal(&sett, &opts, &aux_arr);
      }
 
      // establish search range (s_range)

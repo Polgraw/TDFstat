@@ -95,6 +95,7 @@ typedef struct _aux_arrays {
 
      double *sinmodf, *cosmodf; // Earth position
      double *t2;                // time^2
+     double injection[10]; // Injection array : noi, reffr, h0, f0, fdot, ra, dec, iota, psi, phi0
 
 } Aux_arrays;
 
