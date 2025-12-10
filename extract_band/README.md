@@ -12,4 +12,6 @@ Here we provide version modified by Paweł Ciecieląg (CAMK, Polish Virgo CW gro
 which in addition performs inverse FFT and writes resulting Short Time Series (STS) into HDF5 file (one file per band).
 Files in this subdirectory are minimal subset of the whole PSS library which is needed to compile extract_band.
 
-The `scripts` directory contains helper scripts to generate data suitable for the TDFstat pipeline.
+To compile, go to `pss_sfdb` subdirectory and type make.
+
+[Documentation page](https://polgraw.github.io/TDFstat/input_data/)

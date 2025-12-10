@@ -4,6 +4,7 @@
 /**** Major rewrite (HDF + Time Domain output): Paweł Ciecieląg 2025 ****/
 
 // define to output sft instead of sts (for debugging/testing)
+#include <H5Epublic.h>
 #include <H5Ipublic.h>
 #undef OUT_SFT
 
@@ -60,7 +61,6 @@ int main(void){
      hid_t ofile_id;
      herr_t hstat;
      int format_version=1;
-     int last_gps_sec=-1;
      int last_ichunk=-1;
      double scaling_factor;
 
@@ -77,8 +77,11 @@ int main(void){
      printf("Name of the output file (HDF5)\n");
      scanf("%s", fileBAND);
 
+     // temporarily disable error printing by HDF5 bacause H5Fopen is allowed to fail
+     H5Eset_auto2(H5E_DEFAULT, NULL, NULL);
      // open HDF5 file for appending, if not possible create a new one
      if ((ofile_id = H5Fopen(fileBAND, H5F_ACC_RDWR, H5P_DEFAULT)) != H5I_INVALID_HID ){
+          H5Eset_auto2(H5E_DEFAULT, (H5E_auto2_t)H5Eprint2, stderr); // re-enable error printing
           hstat = H5LTget_attribute_int(ofile_id, "/", "last_ichunk", &last_ichunk);
           if (hstat < 0) {printf("Error reading attribute last_ichunk\n"); goto fail;}
           if (last_ichunk < 0) {printf("Error: last_ichunk < 0 \n"); goto fail;}
@@ -102,6 +105,7 @@ int main(void){
                printf("Wrong link creation order flags=%u / %u!\n", flags, H5P_CRT_ORDER_TRACKED | H5P_CRT_ORDER_INDEXED); goto fail;
           }
      } else {
+          H5Eset_auto2(H5E_DEFAULT, (H5E_auto2_t)H5Eprint2, stderr);// re-enable error printing
           // set link creation tracking and indexing in hdf file
           // to enable iteration over creation time
           hid_t fcpl;
@@ -120,7 +124,6 @@ int main(void){
           ifatti = -1;
           hstat = H5LTset_attribute_int(ofile_id, "/", "last_ichunk", &ifatti, 1);
           if (hstat<0) {printf("Error creating attribute last_ichunk\n"); goto fail;}
-          last_gps_sec = -1;
           printf("Created %s\n", fileBAND);
      }
 
@@ -130,7 +133,9 @@ int main(void){
           // dataset name = SFT counter starting from 1
           int ichunk = ifatti + 1;
           int length = snprintf( NULL, 0, "%d", ichunk );
-          char* dsname = malloc( length + 1 );
+          char* dsname;
+          if (!dsname) free(dsname);
+          dsname = malloc( length + 1 );
           snprintf(dsname, length + 1, "%d", ichunk );
           int prev_gps_sec = header_param->gps_sec; // for debugging
           if (ichunk <= last_ichunk) {
@@ -154,8 +159,7 @@ int main(void){
                }
                printf("[OK]\n");
 
-               /* gps_sec is modified in the _td version due to windowing,
-               let's verify mjdtime */
+               /* we verify only mjdtime because gps_sec is modified in the _td version (due to windowing) */
                printf("    mjdtime=%f ", header_param->mjdtime);
                double mjdtime_hdf;
                hstat = H5LTget_attribute_double(ofile_id, dsname, "sft_mjdtime", &mjdtime_hdf);
@@ -205,6 +209,7 @@ int main(void){
                goto success;
           }
 
+          // some initializations if first chunk or we begin to append new data
           if ((ichunk == 1) || (ichunk == last_ichunk+1)){
                printf("First file mjdtime = %15.10f ,  gps time (s and ns) = %d %d\n",
                     header_param->mjdtime,header_param->gps_sec,header_param->gps_nsec);
@@ -238,14 +243,18 @@ int main(void){
           bandUS = (gd_band->n/2)*gd_band->dx; //really used band (for the power 2 in the FFT)
 
           // timing output
-          printf("    ichunk=%d    last_gps_sec=%d    gps_sec=%d   prev_time_diff=%d\n    file=%s\n",
-               ifatti+1, last_gps_sec, header_param->gps_sec,
-               header_param->gps_sec - prev_gps_sec, header_param->sfdbname);
+          int chunk_overlap = header_param->gps_sec - prev_gps_sec - (int)header_param->tbase/2;
+          printf("    ichunk=%d    prev_gps_sec=%d    gps_sec=%d   chunk_overlap=%d\n    file=%s\n",
+               ichunk, prev_gps_sec, header_param->gps_sec, chunk_overlap, header_param->sfdbname);
 
           // basic check if chunks are read in the increasing time order (this is required)
-          if (header_param->gps_sec <= last_gps_sec) {
-               printf("\nERROR! Current chunk's gps_sec is lower than previous!\n");
-               goto fail;
+          // start of the current chunk should be after the end of the previous chunk
+          if ( chunk_overlap < 0) {
+               printf("\n    [WARNING] Current chunk overlaps previous by %d [s]. Skipping...\n", chunk_overlap);
+               // rollback
+               ifatti--;
+               header_param->gps_sec = prev_gps_sec;
+               continue;
           }
 
           if ((ifatti == 0) || (ichunk == last_ichunk+1)){
@@ -357,8 +366,9 @@ int main(void){
           hstat = H5LTmake_dataset_float(ofile_id, dsname, 1, ts_dims, &sts[lfft4]);
           if (hstat<0) {printf("Error creating sts dataset %s\n", dsname); goto fail;}
 
-          double dt = 1./(2*bandUS);
-          double t_offset = lfft4*dt;
+          //double dt = 1./(2*bandUS);
+          //double t_offset = lfft4*dt;
+          double t_offset = header_param->tbase/4.;
           double t_gps = header_param->gps_sec + header_param->gps_nsec/1e9 + t_offset;
 
           gps_sec = (int)t_gps;
@@ -374,7 +384,6 @@ int main(void){
 
           hstat = H5LTset_attribute_int(ofile_id, dsname, "gps_sec", &gps_sec, 1);
           if (hstat<0) {printf("Error creating attribute gps_sec\n"); goto fail;}
-          last_gps_sec = gps_sec;
 
           hstat = H5LTset_attribute_int(ofile_id, dsname, "gps_nsec", &gps_nsec, 1);
           if (hstat<0) {printf("Error creating attribute gps_nsec\n"); goto fail;}
