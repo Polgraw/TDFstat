@@ -1,5 +1,5 @@
 CFLAGS = -O3 -g -Wall -W -D RELATIVE
-LDFLAGS = 
+LDFLAGS =
 
 SRC := extract_band.c \
 	../pss_lib/pss_gw.c \
@@ -32,4 +32,3 @@ extract_band_hdf_td: $(OBJ_HDF_TD)
 
 clean:
 	rm -f $(OBJ) $(OBJ_HDF_TD) extract_band_out extract_band_hdf_td
-

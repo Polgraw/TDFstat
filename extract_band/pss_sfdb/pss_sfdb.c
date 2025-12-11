@@ -2719,6 +2719,8 @@ int readfilesfdb(GD *gd, GD *gd_short, HEADER_PARAM *header_param,
      free(ps_short);
 
      /*Read the data: */
+#undef ORIG_DATA_READ
+#ifdef ORIG_DATA_READ
      kk=0;
      for(ii=0;ii< 2*howmany; ii+=2){
           errorcode=fread((void*)&rpw, sizeof(float),1,OUTH1);
@@ -2742,6 +2744,25 @@ int readfilesfdb(GD *gd, GD *gd_short, HEADER_PARAM *header_param,
           kk++;
 
      } //for ii
+#else
+     errorcode = fread((void*)gd->y, sizeof(float), howmany2, OUTH1);
+     if (errorcode != howmany2) {
+          printf("Error reading gd.y data! Read %d of %ld elements.\n", errorcode, howmany2);
+          errorcode = 0;
+          return errorcode;
+     }
+     errorcode = 1; //no error
+     //printf("No Error in reading gd.y data into SFT file! read %ld of %ld values\n", errorcode, howmany2);
+     if(k==iw) {
+          for(ii=0; ii<howmany; ii++){
+               freq=(float)(header_param->firstfreqindex+ii)*1.0/header_param->tbase;
+               rpw=gd->y[2*ii];
+               ipw=gd->y[2*ii+1];
+               sden=(rpw*rpw+ipw*ipw)*pow(header_param->normd,2)*pow(header_param->normw,2); //piapia;
+               fprintf(OUTS,"%f %e \n",freq,sden); //write the iw in a ascii file. piapia %e 18 aug 2005
+          }
+     }
+#endif
 
 finish:
      *fft_read+=1;

@@ -38,9 +38,13 @@ In alphabetic order:
 
 This repository gathers several elements of the pipeline: 
 
-* Generation of the initial data: `genseg`
+* Extraction of narrow band short time series from SFDB: `extract_band_hdf_td`
+* Creation of long duration time series: `genseg`
 * Parameter space grid generation:`gridgen` (this is a copy of external repository https://github.com/apisarski/gridgen)
 * Coherent search for candidate signals in narrowband time segments: `search`
+
+TO BE ADDED LATER
+
 * Search for coincidences among different time segments: `coincidences` 
 * Estimation of false alarm probability of coincidences: `fap`
 * Followup of interesting outliers: `followup`
@@ -52,4 +56,4 @@ We also include some external libraries in the utils directory:
 * [iniparser](https://github.com/ndevilla/iniparser) by N. Devillard & E. Leblond,
 * [Sleef vector library](https://sleef.org/) by N. Shibata et al.
 
-Many thanks for authors!
+Many thanks to the authors!
