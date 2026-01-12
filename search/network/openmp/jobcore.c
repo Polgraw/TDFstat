@@ -546,6 +546,12 @@ int job_core(
                int ic = i;
                FLOAT_TYPE Fc = F[ic];
                i++; // skip the next point as it can't be a local maximum
+#elif MAX_ALG == 4
+          #pragma omp parallel for default(shared) schedule(static)
+          for (i=s_range->fr[0]; i<=s_range->fr[1]; ++i) {
+               if (F[i] < opts->thr) continue;
+               int ic = i;
+               FLOAT_TYPE Fc = F[ic];
 #endif
 
                // Candidate signal frequency ( ~ ii/nmax * pi where nmax=nfftf/2 )
