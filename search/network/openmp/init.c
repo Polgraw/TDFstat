@@ -393,13 +393,6 @@ void add_signal( Search_settings *sett,
               printf("Problem with the signal file. Exiting...\n");
               exit(0);
           }
-
-          // Fscanning signal parameters: f, fdot, alpha, delta (sgnlo[0], ..., sgnlo[3])
-          // Intrinsic parameters: inclination, polarization, phase  (sgnlo[4], ..., sgnlo[6])
-          // (see sigen.c and Phys. Rev. D 82, 022005 2010, Eqs. 2.13a-d)
-          for(i=0; i<7; i++)
-               fscanf(data, "%le",i+sgnlo);
-
           fclose (data);
 
      } else {
