@@ -101,10 +101,12 @@ int hdfout_init (char *outname, Command_line_opts *opts, Search_settings *sett,
      H5Tinsert(sett_tid, "dd", HOFFSET(Search_settings, dd), H5T_NATIVE_INT);
      hid_t M_t = H5Tarray_create2(H5T_NATIVE_DOUBLE, 1, (hsize_t[]){16});
      H5Tinsert(sett_tid, "M", HOFFSET(Search_settings, M), M_t);
-     hsize_t dims2d[2] = {sett->nvlines_all_inband, 2};
-     hid_t lines_t = H5Tarray_create2(H5T_NATIVE_DOUBLE, 2, dims2d);
-     H5Tinsert(sett_tid, "lines", HOFFSET(Search_settings, lines), lines_t);
-
+     if (sett->nvlines_all_inband > 0){
+          hsize_t dims2d[2] = {sett->nvlines_all_inband, 2};
+          hid_t lines_t = H5Tarray_create2(H5T_NATIVE_DOUBLE, 2, dims2d);
+          H5Tinsert(sett_tid, "lines", HOFFSET(Search_settings, lines), lines_t);
+     }
+     
      // search ranges data type  (s_range)     
      hid_t range_tid = H5Tcreate (H5T_COMPOUND, sizeof(Search_range));
      hid_t t1d_int = H5Tarray_create2(H5T_NATIVE_INT, 1, (hsize_t[]){2});
