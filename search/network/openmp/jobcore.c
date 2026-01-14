@@ -216,10 +216,10 @@ int job_core(
 
      Array M[.] is related to matrix M(.,.) in the following way;
 
-     [ M[0] M[4] M[8]  M[12] ]
+                [ M[0] M[4] M[8]  M[12] ]
      M(.,.) =   [ M[1] M[5] M[9]  M[13] ]
-     [ M[2] M[6] M[10] M[14] ]
-     [ M[3] M[7] M[11] M[15] ]
+                [ M[2] M[6] M[10] M[14] ]
+                [ M[3] M[7] M[11] M[15] ]
 
      and
 
@@ -231,15 +231,15 @@ int job_core(
      al2 = nn*sett->M[11] + mm*sett->M[15];
 
      // check if the search is in an appropriate region of the grid
-     // if not, returns NULL
-     if ((sqr(al1)+sqr(al2))/sqr(sett->oms) > 1.) return 0;
+     double cof = sett->oms;
+     if ((sqr(al1)+sqr(al2))/sqr(cof) > 1.) return 0;
 
      float ss;
      double shft1, phase, cp, sp;
      complex double exph;
 
      // Change linear (grid) coordinates to real coordinates
-     lin2ast(al1/sett->oms, al2/sett->oms, pm, sett->sepsm, sett->cepsm,
+     lin2ast(al1/cof, al2/cof, pm, sett->sepsm, sett->cepsm,
           &sinalt, &cosalt, &sindelt, &cosdelt);
 
      // calculate declination and right ascention
@@ -247,7 +247,12 @@ int job_core(
      sgnlt[3] = fmod(atan2(sinalt, cosalt) + 2.*M_PI, 2.*M_PI);
 
      het0 = fmod(nn*sett->M[8] + mm*sett->M[12], sett->M[0]);
-
+     /*
+     printf("  ra=%g dec=%g\n", sgnlt[3], sgnlt[2]);
+     printf("  het0=%.8g    nnmm=%.8g      m0=%.8g   oms=%.8g\n", het0,
+     nn*sett->M[8] + mm*sett->M[12], sett->M[0], sett->oms);
+     */
+   
      // Nyquist frequency
      int nyqst = (sett->nfft)/2 + 1;
 
@@ -532,6 +537,9 @@ int job_core(
                     }
                } // while i
 #elif MAX_ALG == 3
+          //int di = (int)(sett->nfftf * sgnl0 / (2.*M_PI)); // frequency shift in bins
+          //printf("di=%d\n", di);
+          //printf("nfftf=%d   sgnl0=%g\n", sett->nfftf, sgnl0);
           #pragma omp parallel for default(shared) schedule(static)
           for (i=s_range->fr[0]+1; i<s_range->fr[1]-1; ++i) {
                if (F[i] < opts->thr || F[i-1] > F[i] || F[i] < F[i+1] ) continue;

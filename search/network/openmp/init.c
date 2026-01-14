@@ -180,6 +180,10 @@ void read_grid( Search_settings *sett, Command_line_opts *opts )
           // M: vector of 16 components consisting of 4 rows
           // of 4x4 grid-generating matrix
           fread ((void *)sett->M, sizeof (double), 16, data);
+          printf("Grid generating matrix M=\n");
+          for (i=0; i<4; i++)
+               printf("  %12.6e  %12.6e  %12.6e  %12.6e\n",
+                    sett->M[i], sett->M[4+i], sett->M[8+i], sett->M[12+i]);
           fclose (data);
      } else {
           perror (filename);
@@ -622,7 +626,7 @@ void set_search_range( Search_settings *sett,
           sgnlol[0] = (fr - sett->fpo)/sett->B * M_PI;
           sgnlol[1] = M_PI * sr * sett->dt * sett->dt;
 
-          float cof = sett->oms + sgnlol[0];
+          double cof = sett->oms; //+ sgnlol[0];
           double be[2];
           s_range->pmr[0] = ast2lin((double)alphar, (double)deltar, C_EPSMA, be);
           s_range->pmr[1] = s_range->pmr[0];
@@ -726,6 +730,8 @@ void plan_fftw( Search_settings *sett,
      FFTW_PRE(_plan_with_nthreads)(omp_get_max_threads());
 #endif
 #endif
+//#define FFTW_RIGOR FFTW_ESTIMATE
+#define FFTW_RIGOR FFTW_MEASURE
 
      gethostname(hostname, 128);
      sprintf (wfilename, "wisdom-%s.dat", hostname);
@@ -748,9 +754,9 @@ void plan_fftw( Search_settings *sett,
      printf("double plans...");
      // Change FFTW_MEASURE to FFTW_PATIENT for more optimized plan
      plans->pl_int = fftw_plan_dft_1d(sett->nfft, fftw_arr->xa, fftw_arr->xa,
-                                      FFTW_FORWARD, FFTW_MEASURE);
+                                      FFTW_FORWARD, FFTW_RIGOR);
      plans->pl_inv = fftw_plan_dft_1d(sett->Ninterp, fftw_arr->xa, fftw_arr->xa,
-                                      FFTW_BACKWARD, FFTW_MEASURE);
+                                      FFTW_BACKWARD, FFTW_RIGOR);
      printf("done\n");
 
      printf("float plans...");
@@ -758,7 +764,7 @@ void plan_fftw( Search_settings *sett,
      fftw_arr->fxb = (FFTW_PRE(_complex) *)FFTW_PRE(_malloc)(sett->nfftf*sizeof(FFTW_PRE(_complex)));
 
      plans->plan = FFTW_PRE(_plan_dft_1d)(sett->nfftf, fftw_arr->fxa, fftw_arr->fxa,
-				        FFTW_FORWARD, FFTW_MEASURE);
+				        FFTW_FORWARD, FFTW_RIGOR);
      printf("done\n");
 
      // Generates a wisdom FFT file if there is none
