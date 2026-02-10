@@ -526,7 +526,9 @@ int read_lines( Search_settings *sett,	Command_line_opts *opts )
      } // i
 
      printf("%d veto lines in band [Hz, radians, line info]:\n", j-sett->numlines_band);
-
+// disable .vlines file (to be removed in future because it is redundant with HDF)
+#undef SAVE_VLINES
+#ifdef SAVE_VLINES
      // save veto lines to a file
      sprintf(linefile, "%s/triggers_%03d_%04d%s.vlines",
           opts->outdir, opts->seg, opts->band, opts->label);
@@ -534,7 +536,7 @@ int read_lines( Search_settings *sett,	Command_line_opts *opts )
           printf("Can't open %s for writing!\n", linefile);
           exit(EXIT_FAILURE);
      }
-
+#endif
      sett->nvlines_all_inband = j;
      
      // scale veto lines to radians (narrowdown lines are already scaled)
@@ -546,13 +548,17 @@ int read_lines( Search_settings *sett,	Command_line_opts *opts )
 
           printf("   %f  %f  %f  %f  %s\n",
                fl, fr, sett->lines[i][0], sett->lines[i][1], line_aux[i]);
+#ifdef SAVE_VLINES
           fprintf(data, "   %f  %f  %f  %f  %s\n",
                fl, fr, sett->lines[i][0], sett->lines[i][1], line_aux[i]);
+#endif
      }
-
+#ifdef SAVE_VLINES
      fclose(data);
      printf("Wrote veto lines in band to: %s\n", linefile);
-
+#else
+     printf("Veto lines will be saved in the trigger file, in attribute sett.\n");
+#endif
      lines_veto_fraction(sett, sett->numlines_band, sett->nvlines_all_inband, opts->veto_flag);
 
      // set number of veto lines only if veto option is given
