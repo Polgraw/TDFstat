@@ -616,7 +616,8 @@ void set_search_range( Search_settings *sett,
           // convert fr, sr, alphar, deltar to fractional code units
 
           // first convert from physical to dimensionless units
-          sgnlol[0] = (fr - sett->fpo)/sett->B * M_PI;
+          //sgnlol[0] = (fr - sett->fpo)/sett->B * M_PI;
+          sgnlol[0] = 0.;
           sgnlol[1] = M_PI * sr * sett->dt * sett->dt;
 
           double cof = sett->oms; //+ sgnlol[0];
@@ -629,6 +630,17 @@ void set_search_range( Search_settings *sett,
           // dimensionless to code units conversion
           float *sgnl_code = (float *) calloc(4, sizeof(float));
           dimless_to_code(sett->M, sgnlol, sgnl_code);
+
+          // reverse conversions from jobcore()
+          FLOAT_TYPE sgnl0;
+          double het1, het0;
+          het0 = fmod(sgnl_code[2]*sett->M[8] + sgnl_code[3]*sett->M[12], sett->M[0]);
+          het1 = fmod(sgnl_code[1]*sett->M[4], sett->M[0]);
+          if(het1<0) het1 += sett->M[0];
+          sgnl0 = het0 + het1;
+
+          sgnl_code[0] = (fr - sett->fpo)/sett->B * sett->nfftf/2 - sgnl0*sett->nfftf/(2*M_PI);
+          //printf("di(sgnl0)=%g\n", sgnl0*sett->nfftf/(2*M_PI));
 
           // Set the steps
           s_range->mstep = mr_step;
