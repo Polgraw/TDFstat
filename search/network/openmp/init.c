@@ -716,17 +716,6 @@ void plan_fftw( Search_settings *sett,
                 Aux_arrays *aux_arr)
 {
 
-     char hostname[128], wfilename[512];
-     FILE *wisdom;
-
-     /* Imports a "wisdom file" containing information
-     * (previous tests) about how to optimally compute Fourier
-     * transforms on a given machine. If wisdom file is not present,
-     * it will be created after the test (measure) runs
-     * of the fft_plans are performed below
-     * (see http://www.fftw.org/fftw3_doc/Wisdom.html)
-     */
-
 #if defined(_OPENMP)
      fftw_init_threads();
      fftw_plan_with_nthreads(omp_get_max_threads());
@@ -735,16 +724,9 @@ void plan_fftw( Search_settings *sett,
      FFTW_PRE(_plan_with_nthreads)(omp_get_max_threads());
 #endif
 #endif
+
 //#define FFTW_RIGOR FFTW_ESTIMATE
 #define FFTW_RIGOR FFTW_MEASURE
-
-     gethostname(hostname, 128);
-     sprintf (wfilename, "wisdom-%s.dat", hostname);
-     if((wisdom = fopen (wfilename, "r")) != NULL) {
-          //fftw_import_wisdom_from_file(wisdom);
-          //if (fftwf_import_wisdom_from_file(wisdom) == 0 ) exit(1);
-          fclose (wisdom);
-     }
 
      // arrays xa,xb are used for in-place interpolation,
      // thus their length is max{fftpad*nfft, Ninterp}
@@ -771,17 +753,6 @@ void plan_fftw( Search_settings *sett,
      plans->plan = FFTW_PRE(_plan_dft_1d)(sett->nfftf, fftw_arr->fxa, fftw_arr->fxa,
 				        FFTW_FORWARD, FFTW_RIGOR);
      printf("done\n");
-
-     // Generates a wisdom FFT file if there is none
-     if((wisdom = fopen(wfilename, "r")) == NULL) {
-          wisdom = fopen(wfilename, "w");
-          fftw_export_wisdom_to_file(wisdom);
-#ifdef COMP_FLOAT
-          fftwf_export_wisdom_to_file(wisdom);
-#endif
-     }
-
-     fclose (wisdom);
 
 } // end of FFT plans
 
@@ -880,7 +851,6 @@ void cleanup( Search_settings *sett,
      fftw_destroy_plan(plans->pl_inv2);
      fftw_destroy_plan(plans->plan2);
      */
-     fftw_forget_wisdom();
      fftw_cleanup();
 
 } // end of cleanup & memory free
