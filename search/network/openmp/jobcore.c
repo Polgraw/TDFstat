@@ -63,6 +63,7 @@ void search( Search_settings *sett,
           // all F-statistic values can be saved
           sett->bufsize = sett->nfftf;
      }
+     printf("Triggers buffer size per spindown = %ld bytes\n", sett->bufsize*sizeof(float));
      
      // max buffer size for (f, fstat) pairs = 2*nfftf/2
      // sett->bufsize = sett->nfftf;
@@ -581,6 +582,11 @@ int job_core(
                if(!veto_status) {
 #pragma omp critical
                     {
+                         if (itrig >= sett->bufsize/2) {
+                              printf("\n[ERROR] Too many triggers! spindown=%g,  buffer_size=%d [triggers]\n", ss, sett->bufsize/2);
+                              printf("\nFAILURE\n");
+                              exit(EXIT_FAILURE);
+                         }
                          // Add candidate to the output buffer
                          ((float *)(sgnlv[iss].ffstat.p))[2*itrig] = f_;     // frequency
                          ((float *)(sgnlv[iss].ffstat.p))[2*itrig + 1] = Fc; // F-stat value
@@ -606,8 +612,8 @@ int job_core(
      } // for ss
 
      printf("  ntrig=%d, buffer usage: [max=%d/%d=%.2f%%] [mean=%.2f%%]\n", *sgnlc, 
-          max_triggers_per_spindown, sett->bufsize, (float)max_triggers_per_spindown*100/sett->bufsize,
-          (float)(*sgnlc)*100/(sett->bufsize*iss_size) );
+          max_triggers_per_spindown, sett->bufsize/2, (float)max_triggers_per_spindown*100/(sett->bufsize/2),
+          (float)(*sgnlc)*100/(sett->bufsize/2*iss_size) );
 #ifndef VERBOSE
      //printf("Number of signals found: %d (buffer %d%% full)\n", *sgnlc, (*sgnlc)*100/(sett->bufsize/2) );
 #endif
