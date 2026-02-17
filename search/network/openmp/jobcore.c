@@ -54,8 +54,18 @@ void search( Search_settings *sett,
      int max_spindowns = (s_range->spndr[1]-s_range->spndr[0])/s_range->sstep + 1;
      sgnlv = (Trigger *)calloc(max_spindowns, sizeof(Trigger));
 
-     // max buffer size for (f, fstat) pairs = 2*nfft/2
-     sett->bufsize = sett->nfft;
+     // buffer size for (f, fstat) pairs in sgnlv structure per one spindown
+     // whole F-statistic arrays can be saved if bufsize = 2*nfftf/2
+     if ( strcmp(opts->gtype, "allsky")==0 ) {
+          // reduce buffer by 16 to avoid large memory usage and large output files
+          sett->bufsize = sett->nfftf / 16;
+     } else {
+          // all F-statistic values can be saved
+          sett->bufsize = sett->nfftf;
+     }
+     
+     // max buffer size for (f, fstat) pairs = 2*nfftf/2
+     // sett->bufsize = sett->nfftf;
      // initialize ffstat
      for (i=0; i<max_spindowns; i++) {
           sgnlv[i].ffstat.len = 0;
@@ -201,6 +211,7 @@ int job_core(
      struct timespec tstart, tend;
      double spindown_timer = 0;
      int spindown_counter  = 0;
+     int max_triggers_per_spindown = 0;
 
      /*
      Matrix	M(.,.) (defined on page 22 of PolGrawCWAllSkyReview1.pdf file)
@@ -583,7 +594,7 @@ int job_core(
 #endif
                } // if veto_status
           } // for i
-
+          if (itrig > max_triggers_per_spindown) max_triggers_per_spindown = itrig;
 
 #if TIMERS>2
           //tend = get_current_time(CLOCK_PROCESS_CPUTIME_ID);
@@ -594,7 +605,9 @@ int job_core(
 
      } // for ss
 
-     printf("  ntrig=%d, buffer %d%% full\n", *sgnlc, (*sgnlc)*100/(sett->bufsize/2) );
+     printf("  ntrig=%d, buffer usage: [max=%d/%d=%.2f%%] [mean=%.2f%%]\n", *sgnlc, 
+          max_triggers_per_spindown, sett->bufsize, (float)max_triggers_per_spindown*100/sett->bufsize,
+          (float)(*sgnlc)*100/(sett->bufsize*iss_size) );
 #ifndef VERBOSE
      //printf("Number of signals found: %d (buffer %d%% full)\n", *sgnlc, (*sgnlc)*100/(sett->bufsize/2) );
 #endif
