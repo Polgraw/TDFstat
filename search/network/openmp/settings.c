@@ -559,8 +559,18 @@ int read_lines( Search_settings *sett,	Command_line_opts *opts )
 #else
      printf("Veto lines will be saved in the trigger file, in attribute sett.\n");
 #endif
-     lines_veto_fraction(sett, sett->numlines_band, sett->nvlines_all_inband, opts->veto_flag);
-
+     // calculate veto fraction of the band
+     float vf;
+     vf = lines_veto_fraction(sett, sett->numlines_band, sett->nvlines_all_inband);
+     if( (vf > 0.999999) && opts->veto_flag) {
+          printf("This band is fully vetoed. My work here is done, exiting...\n");
+          exit(EXIT_SUCCESS);
+     }
+     if( (vf > 0.9) && (strcmp(opts->gtype, "allsky")==0) ){
+          printf("Band veto fraction > 90%% in allsky mode. Exiting...\n");
+          exit(EXIT_SUCCESS);
+     }
+     
      // set number of veto lines only if veto option is given
      if (opts->veto_flag) {
           printf("Veto lines will be applied!\n");
@@ -614,12 +624,13 @@ void narrow_down_band(Search_settings* sett, Command_line_opts *opts)
 }
 
 
-void lines_veto_fraction(Search_settings* sett, int lf, int le, int vflag)
+float lines_veto_fraction(Search_settings* sett, int lf, int le)
 {
 
      // lf - index of first line, le - index of last line
      int i;
      double ll=0., gap=0.;
+     float vf;
 
      // Sorting veto lines in band (1st then 2nd column)
      qsort(&sett->lines[lf], le-lf, 2*sizeof(double), compared2c);
@@ -636,11 +647,17 @@ void lines_veto_fraction(Search_settings* sett, int lf, int le, int vflag)
      }
      if ( ll < M_PI) gap += M_PI - ll;
 
-     printf("Band veto fraction = %6.4f\n", (M_PI-gap)/M_PI);
-
+     vf = (float)(M_PI-gap)/M_PI;     
+     printf("Band veto fraction = %6.4f\n", vf);
+     /*
      if( (gap <= 1.e-10) && vflag) {
           printf("This band is fully vetoed. My work here is done, exiting...\n");
           exit(EXIT_SUCCESS);
      }
-
+     if( (gap <= 0.1) && (strcmp(opts->gtype, "allsky")==0) ){
+          printf("Band veto fraction is > 90% in allsky mode. Exiting...\n");
+          exit(EXIT_SUCCESS);
+     }
+      */
+     return(vf);
 }
