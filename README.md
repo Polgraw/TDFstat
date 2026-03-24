@@ -17,6 +17,13 @@ git submodule init
 git submodule update
 ```
 
+To update the submodule to the latest version:
+```
+git submodule update --remote
+git commit gridgen -m "[gridgen] update to latest version"
+git push
+```
+
 ## Contributors
 
 In alphabetic order: 
