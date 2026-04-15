@@ -14,7 +14,7 @@
 
 
 int hdfout_init (char *outname, Command_line_opts *opts, Search_settings *sett, 
-     Search_range *s_range, Trigger *sgnlv)
+     Search_range *s_range, Trigger *sgnlv, Signal_params *sgnl_params)
 {
      int       i, j;
      hid_t     file, t_dataset, t_space, t_prop, filespace, memspace, space_scalar;
@@ -123,6 +123,19 @@ int hdfout_init (char *outname, Command_line_opts *opts, Search_settings *sett,
      H5Tinsert(range_tid, "nst", HOFFSET(Search_range, nst), H5T_NATIVE_FLOAT);
      H5Tinsert(range_tid, "sst", HOFFSET(Search_range, sst), H5T_NATIVE_FLOAT);
      H5Tinsert(range_tid, "pst", HOFFSET(Search_range, pst), H5T_NATIVE_INT);
+     
+     // signal parameters data type  (sgnl_params)
+     hid_t sgnl_params_tid = H5Tcreate (H5T_COMPOUND, sizeof(Signal_params));
+     H5Tinsert(sgnl_params_tid, "reffr", HOFFSET(Signal_params, reffr), H5T_NATIVE_INT);
+     H5Tinsert(sgnl_params_tid, "h0", HOFFSET(Signal_params, h0), H5T_NATIVE_DOUBLE);
+     H5Tinsert(sgnl_params_tid, "snr", HOFFSET(Signal_params, snr), H5T_NATIVE_DOUBLE);
+     H5Tinsert(sgnl_params_tid, "frequency", HOFFSET(Signal_params, freq), H5T_NATIVE_DOUBLE);
+     H5Tinsert(sgnl_params_tid, "fdot", HOFFSET(Signal_params, fdot), H5T_NATIVE_DOUBLE);
+     H5Tinsert(sgnl_params_tid, "ra", HOFFSET(Signal_params, ra), H5T_NATIVE_DOUBLE);
+     H5Tinsert(sgnl_params_tid, "dec", HOFFSET(Signal_params, dec), H5T_NATIVE_DOUBLE);
+     H5Tinsert(sgnl_params_tid, "iota", HOFFSET(Signal_params, iota), H5T_NATIVE_DOUBLE);
+     H5Tinsert(sgnl_params_tid, "psi", HOFFSET(Signal_params, psi), H5T_NATIVE_DOUBLE);
+     H5Tinsert(sgnl_params_tid, "phase", HOFFSET(Signal_params, phase), H5T_NATIVE_DOUBLE);
 
      // ifo data type  (Detector_settings)
      hid_t ifo_tid = H5Tcreate(H5T_COMPOUND, sizeof(Detector_settings));
@@ -162,6 +175,10 @@ int hdfout_init (char *outname, Command_line_opts *opts, Search_settings *sett,
 
      attr = H5Acreate2(file, "s_range", range_tid, scalar_space_id, H5P_DEFAULT, H5P_DEFAULT);
      hstat = H5Awrite(attr, range_tid, s_range);
+     H5Aclose(attr);
+     
+     attr = H5Acreate2(file, "signal_params", sgnl_params_tid, scalar_space_id, H5P_DEFAULT, H5P_DEFAULT);
+     hstat = H5Awrite(attr, sgnl_params_tid, sgnl_params);
      H5Aclose(attr);
 
      hid_t ifo_space_id = H5Screate_simple(1, (hsize_t[]){sett->nifo}, NULL);

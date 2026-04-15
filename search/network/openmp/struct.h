@@ -95,7 +95,6 @@ typedef struct _aux_arrays {
 
      double *sinmodf, *cosmodf; // Earth position
      double *t2;                // time^2
-     double injection[10]; // Injection array : noi, reffr, h0, f0, fdot, ra, dec, iota, psi, phi0
 
 } Aux_arrays;
 
@@ -210,5 +209,13 @@ typedef struct _trigger {
           float  ra, dec, fdot;
           hvl_t  ffstat;
 } Trigger;
+
+typedef struct _signal_params {
+    int reffr;                   // Reference frame number
+    double h0, snr, freq, fdot;  // Intrinsic signal parameters
+    double iota, psi, phase;     // Amplitude modulation parameters
+    double ra, dec;              // sky position
+    char amporsnr[4];                 // String of 3 characters + null terminator
+} Signal_params;
 
 #endif

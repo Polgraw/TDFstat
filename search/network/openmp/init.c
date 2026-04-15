@@ -329,110 +329,120 @@ void init_arrays( Search_settings *sett,
 
 
 
+/* Read signal parameters from a file */
+
+void read_signal_file( Signal_params *sgnl_params,
+                       Command_line_opts *opts)
+{
+     FILE *data;
+     char amporsnr[4];
+     
+     if ((data=fopen (opts->addsig, "r")) != NULL) {
+         // Fscanning for the GW amplitude h0 or signal-to-noise,
+         // the grid size and the reference frame
+         // (for which the signal freq. is not spun-down/up)
+         
+         do {
+             fscanf (data, "%s", amporsnr);
+         } while ( strcmp(amporsnr, "amp")!=0 && strcmp(amporsnr, "snr")!=0 );
+         
+         strcpy(sgnl_params->amporsnr, amporsnr);
+         if(!strcmp(amporsnr, "amp")) {
+             fscanf (data, "%le %d %le %le %le %le %le %le %le",
+                                  &sgnl_params->h0, &sgnl_params->reffr,
+                                  &sgnl_params->freq, &sgnl_params->fdot, &sgnl_params->ra, &sgnl_params->dec,
+                                  &sgnl_params->iota, &sgnl_params->psi, &sgnl_params->phase);
+             
+             printf("add_signal(): GW amplitude h0 is %le\n   The reference band of the signal is %d\n"
+                    "   The signal is injected at the following parameters:\n"
+                    "   Frequency [Hz]         : %le\n"
+                    "   Spin-down [Hz/s]       : %le\n"
+                    "   Right ascension [rad]  : %le\n"
+                    "   Declination [rad]      : %le\n"
+                    "   Inclination [rad]      : %le\n"
+                    "   Polarization [rad]     : %le\n"
+                    "   Phase [rad]            : %le\n",
+                    sgnl_params->h0, sgnl_params->reffr, sgnl_params->freq, sgnl_params->fdot, sgnl_params->ra, sgnl_params->dec,
+                    sgnl_params->iota, sgnl_params->psi, sgnl_params->phase);
+         } else if (!strcmp(amporsnr, "snr")) {
+             fscanf (data, "%le %d %le %le %le %le %le %le %le",
+                                  &sgnl_params->snr, &sgnl_params->reffr,
+                                  &sgnl_params->freq, &sgnl_params->fdot, &sgnl_params->ra, &sgnl_params->dec,
+                                  &sgnl_params->iota, &sgnl_params->psi, &sgnl_params->phase);
+             
+             printf("add_signal(): GW (network) signal-to-noise ratio is %le\n   The reference band of the signal is %d\n"
+                    "   The signal is injected at the following parameters:\n"
+                    "   Frequency [Hz]         : %le\n"
+                    "   Spin-down [Hz/s]       : %le\n"
+                    "   Right ascension [rad]  : %le\n"
+                    "   Declination [rad]      : %le\n"
+                    "   Inclination [rad]      : %le\n"
+                    "   Polarization [rad]     : %le\n"
+                    "   Phase [rad]            : %le\n",
+                    sgnl_params->snr, sgnl_params->reffr, sgnl_params->freq, sgnl_params->fdot, sgnl_params->ra, sgnl_params->dec,
+                    sgnl_params->iota, sgnl_params->psi, sgnl_params->phase);
+         } else {
+             printf("Invalid format in signal file. First column of signals should start with 'amp' or 'snr'.\n");
+             exit(0);
+         }
+         fclose (data);
+         
+     } else {
+         perror (opts->addsig);
+     }
+} // end of read_signal_file
+
+
+
 /* Add signal to data */
 
 void add_signal( Search_settings *sett,
                  Command_line_opts *opts,
-                 Aux_arrays *aux_arr)
+                 Aux_arrays *aux_arr,
+                 Signal_params *sgnl_params)
 {
 
      int i, j, n, gsize, reffr;
-     double snr=0, sum = 0., h0=0, cof, d1;
+     double sum = 0., cof, d1;
      double sigma_noise = 1.0;
      double be[2];
      double sinalt, cosalt, sindelt, cosdelt, phaseadd, shiftadd;
      double phi, psi, cosi, cosip, iota, amplit[4];
-     double nSource[3], sgnlo[7], sgnlol[4];
+     double nSource[3], freqo[2];
 
      char amporsnr[4];
-
-     FILE *data;
-
-     // Signal parameters are read
-     if ((data=fopen (opts->addsig, "r")) != NULL) {
-
-          // Fscanning for the GW amplitude h0 or signal-to-noise,
-          // the grid size and the reference frame
-          // (for which the signal freq. is not spun-down/up)
-
-          do {
-               fscanf (data, "%s", amporsnr);
-          } while ( strcmp(amporsnr, "amp")!=0 && strcmp(amporsnr, "snr")!=0 );
-
-          if(!strcmp(amporsnr, "amp")) {
-              fscanf (data, "%le %d %le %le %le %le %le %le %le",
-                         &h0, &reffr,
-                         &sgnlo[0], &sgnlo[1], &sgnlo[2], &sgnlo[3],
-                         &sgnlo[4], &sgnlo[5], &sgnlo[6]);
-              printf("add_signal(): GW amplitude h0 is %le\n   The reference band of the signal is %d\n"
-                     "   The signal is injected at the following parameters:\n"
-                     "   Frequency [Hz]         : %le\n"
-                     "   Spin-down [Hz/s]       : %le\n"
-                     "   Right ascension [rad]  : %le\n"
-                     "   Declination [rad]      : %le\n"
-                     "   Inclination [rad]      : %le\n"
-                     "   Polarization [rad]     : %le\n"
-                     "   Phase [rad]            : %le\n",
-                     h0, reffr, sgnlo[0], sgnlo[1], sgnlo[2], sgnlo[3], sgnlo[4], sgnlo[5], sgnlo[6]);
-          } else if(!strcmp(amporsnr, "snr")) {
-              fscanf (data, "%le %d %le %le %le %le %le %le %le",
-                         &snr, &reffr,
-                         &sgnlo[0], &sgnlo[1], &sgnlo[2], &sgnlo[3],
-                         &sgnlo[4], &sgnlo[5], &sgnlo[6]);
-              printf("add_signal(): GW (network) signal-to-noise ratio is %le\n   The reference band of the signal is %d\n"
-                     "   The signal is injected at the following parameters:\n"
-                     "   Frequency [Hz]         : %le\n"
-                     "   Spin-down [Hz/s]       : %le\n"
-                     "   Right ascension [rad]  : %le\n"
-                     "   Declination [rad]      : %le\n"
-                     "   Inclination [rad]      : %le\n"
-                     "   Polarization [rad]     : %le\n"
-                     "   Phase [rad]            : %le\n",
-                     snr, reffr, sgnlo[0], sgnlo[1], sgnlo[2], sgnlo[3], sgnlo[4], sgnlo[5], sgnlo[6]);
-          } else {
-              printf("Problem with the signal file. Exiting...\n");
-              exit(0);
-          }
-          fclose (data);
-
-     } else {
-          perror (opts->addsig);
-     }
-
-     aux_arr->injection[0] = 1;        // number of the injection
-     aux_arr->injection[1] = reffr;    // reference band
-     for (i=0; i<7; i++) {
-            aux_arr->injection[i+3] = sgnlo[i];
-     }   // signal parameters assignment into the injection array
+     
+     // Setting the reference frame
+     reffr = sgnl_params->reffr;
 
      // First convert from physical to dimensionless units (in the units of PI-E)
-     sgnlo[0] = (sgnlo[0] - sett->fpo)/sett->B * M_PI;
-     sgnlo[1] = M_PI * sgnlo[1] * sett->dt * sett->dt;
+     freqo[0] = (sgnl_params->freq - sett->fpo)/sett->B * M_PI;
+     freqo[1] = M_PI * sgnl_params->fdot * sett->dt * sett->dt;
 
      // Shift the frequency based on spindown to the reference segment
-     sgnlo[0] += -2.*sgnlo[1]*(sett->N)*(reffr - opts->seg);
+     freqo[0] += -2.*freqo[1]*(sett->N)*(reffr - opts->seg);
 
-     cof = sett->oms + sgnlo[0];
+     cof = sett->oms + freqo[0];
 
      // Check if the signal is in band
-     if( sgnlo[0]<0 || sgnlo[0]>M_PI ) {
-          printf("add_signal(): signal out of band f=%le s=%le\n", sgnlo[0], sgnlo[1]);
+     if( freqo[0]<0 || freqo[0]>M_PI ) {
+          printf("add_signal(): signal out of band f=%le s=%le\n", freqo[0], freqo[1]);
           return;
      }
 
      // Calculation of sin alpha, cos alpha, sin delta, cos delta of the signal.
      // Check Eq. 18 of Phys. Rev. D 58, 063001 1998
-     sinalt = sin(sgnlo[2]);
-     cosalt = cos(sgnlo[2]);
-     sindelt = sin(sgnlo[3]);
-     cosdelt = cos(sgnlo[3]);
+     sinalt = sin(sgnl_params->ra);
+     cosalt = cos(sgnl_params->ra);
+     sindelt = sin(sgnl_params->dec);
+     cosdelt = cos(sgnl_params->dec);
 
      // Calculation of four amplitudes from polarization, phase and inclination
      // Check Eq. 32 - 35 of Phys. Rev. D 58, 063001 1998
 
-     cosi = cos(sgnlo[4]);
-     psi = sgnlo[5];
-     phi = sgnlo[6];
+     cosi = cos(sgnl_params->iota);
+     psi = sgnl_params->psi;
+     phi = sgnl_params->phase;
      cosip = (1. + cosi*cosi)/2.;
 
      amplit[0] = cos(2.*psi)*cosip*cos(phi) - sin(2.*psi)*cosi*sin(phi);
@@ -441,8 +451,8 @@ void add_signal( Search_settings *sett,
      amplit[3] = -sin(2.*psi)*cosip*sin(phi) + cos(2.*psi)*cosi*cos(phi);
 
      // To keep coherent phase between time segments
-     double phaseshift = sgnlo[0]*sett->N*(reffr - opts->seg)
-                       + sgnlo[1]*pow(sett->N*(reffr - opts->seg), 2);
+     double phaseshift = freqo[0]*sett->N*(reffr - opts->seg)
+                       + freqo[1]*pow(sett->N*(reffr - opts->seg), 2);
 
      // Allocate arrays for added signal, for each detector
      double **signadd = malloc((sett->nifo)*sizeof(double *));
@@ -465,8 +475,8 @@ void add_signal( Search_settings *sett,
                    	shiftadd += nSource[j]*ifo[n].sig.DetSSB[i*3+j];
 
                // Phase
-               phaseadd = sgnlo[0]*i + sgnlo[1]*aux_arr->t2[i]
-                        + (cof + 2.*sgnlo[1]*i)*shiftadd
+               phaseadd = freqo[0]*i + freqo[1]*aux_arr->t2[i]
+                        + (cof + 2.*freqo[1]*i)*shiftadd
                         - phaseshift;
 
                // The whole signal with 4 amplitudes and modulations
@@ -482,17 +492,17 @@ void add_signal( Search_settings *sett,
      } // detector loop
 
      // Signal amplitude h0 from the snr
-     // (currently only makes sense for Gaussian noise with fixed sigma)
-     if (snr) h0 = (snr*sigma_noise)/(sqrt(sum));
-
-     aux_arr->injection[2] = h0;     // amplitude assignment into the injection array
+     // (currently only makes sense for Gaussian noise with fixed sigma and one detector, but can be generalized)
+     if (!strcmp(sgnl_params->amporsnr, "snr")) {
+         sgnl_params->h0 = (sgnl_params->snr * sqrt(ifo[n].sig.sig2)) / (sqrt(sum));
+     }
 
      // Loop for each detector - adding signal to data (point by point)
      for (n=0; n<sett->nifo; n++) {
           for (i=0; i<sett->N; i++) {
                // Adding the signal to the data vector
                if (ifo[n].sig.xDat[i])
-                    ifo[n].sig.xDat[i] += h0*signadd[n][i];
+                    ifo[n].sig.xDat[i] += sgnl_params->h0*signadd[n][i];
           } // data loop
      } // detector loop
 
