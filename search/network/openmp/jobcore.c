@@ -31,6 +31,7 @@ void search( Search_settings *sett,
              FFTW_plans *plans,
              FFTW_arrays *fftw_arr,
              Aux_arrays *aux,
+             Signal_params *sgnl_params,
              int *FNum )
 {
 
@@ -95,7 +96,7 @@ void search( Search_settings *sett,
           if (! opts->checkp_flag) remove(outname);
           totsgnl = 0;
 
-          hdfout_init(outname, opts, sett, s_range, sgnlv);
+          hdfout_init(outname, opts, sett, s_range, sgnlv, sgnl_params);
           
           /* Two main loops over sky positions */
 

@@ -2,7 +2,7 @@
 #include "struct.h"
 
 int hdfout_init (char *outname, Command_line_opts *opts, Search_settings *sett,
-     Search_range *s_range, Trigger *sgnlv);
+     Search_range *s_range, Trigger *sgnlv, Signal_params *sgnl_params);
 
 int hdfout_extend(char *outname, Trigger *sgnlv, int sgnlv_size);
 

@@ -11,6 +11,7 @@ void search(
                FFTW_plans *plans,
                FFTW_arrays *fftw_arr,
                Aux_arrays *aux,
+               Signal_params *sgnl_params,
                int *Fnum);
 
 /* Main job function
