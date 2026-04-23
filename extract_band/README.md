@@ -2,7 +2,7 @@ extract_band
 ============
 
 This code extracts narrow band Short Fourier Transforms from SFDB files, performs inverse FFT and writes Short Time Series (STS)
-into HDF5 file (one file per band). The STS's from HDF files are concatenated into long time series and cleaned later by genseg code.
+into HDF5 file (one file per band). The STS's from HDF files are later concatenated into long time series and cleaned by genseg code.
 
 The original version of extract_band is part of the [PSS library](https://dcc.ligo.org/LIGO-T1900140/public)
 authored by Pia Astone et al. from Virgo Rome CW group (INFN, Physics Department of University of Rome "La Sapienza").

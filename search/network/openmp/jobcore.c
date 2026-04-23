@@ -135,6 +135,7 @@ void search( Search_settings *sett,
                     int nrec = *FNum - fnum_old;  // number of records to write
                     if (nrec>0) {
                          //printf("Writing [m=%g   n=%g]  nrec=%d\n", mm, nn, nrec);
+                         //exit(EXIT_SUCCESS);
                          hdfout_extend(outname, sgnlv, nrec);
                     }
                     
