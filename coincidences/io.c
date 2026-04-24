@@ -32,13 +32,14 @@ typedef struct {
 
 
 size_t read_triggers_file(const char *filename, const char *t_dset_name,
-                          Trigger **sgnlv, search_params *sparams)
+                          Trigger **sgnlv, Search_params *search_par)
 {
      size_t sgnlv_size = 0;
 
      hid_t   file, t_dataset, t_space;
      hsize_t t_dim[TRIG_RANK];
      herr_t  hstat;
+     bool init_search_par = (search_par->grid_file == NULL);
 
      /* ------------------------------------------------------------------ */
      /* Define compound type matching the write side (hdfout_init/extend)   */
@@ -71,49 +72,65 @@ size_t read_triggers_file(const char *filename, const char *t_dset_name,
      /*   overlap, narrowdown  (double)                                     */
      /*   grid_file  (variable-length string)                               */
      /* ------------------------------------------------------------------ */
-     if (sparams != NULL) {
-          hid_t vstr_t = H5Tcopy(H5T_C_S1);
-          H5Tset_size(vstr_t, H5T_VARIABLE);
 
-          hid_t opts_tid = H5Tcreate(H5T_COMPOUND, sizeof(Opts_partial));
-          H5Tinsert(opts_tid, "band", offsetof(Opts_partial, band),       H5T_NATIVE_INT);
-          H5Tinsert(opts_tid, "seg", offsetof(Opts_partial, seg),        H5T_NATIVE_INT);
-          H5Tinsert(opts_tid, "hemi", offsetof(Opts_partial, hemi),       H5T_NATIVE_INT);
-          H5Tinsert(opts_tid, "overlap", offsetof(Opts_partial, overlap),    H5T_NATIVE_DOUBLE);
-          H5Tinsert(opts_tid, "narrowdown", offsetof(Opts_partial, narrowdown), H5T_NATIVE_DOUBLE);
-          H5Tinsert(opts_tid, "grid_file", offsetof(Opts_partial, grid_file),  vstr_t);
+     hid_t vstr_t = H5Tcopy(H5T_C_S1);
+     H5Tset_size(vstr_t, H5T_VARIABLE);
 
-          Opts_partial op = {0};
-          hid_t opts_attr = H5Aopen(file, "opts", H5P_DEFAULT);
-          if (opts_attr >= 0) {
-               hstat = H5Aread(opts_attr, opts_tid, &op);
-               H5Aclose(opts_attr);
-               if (hstat >= 0) {
-                    sparams->band       = op.band;
-                    sparams->seg        = op.seg;
-                    sparams->hemi       = op.hemi;
-                    sparams->overlap    = op.overlap;
-                    sparams->narrowdown = op.narrowdown;
-                    sparams->grid_file  = op.grid_file ? strdup(op.grid_file)
-                                                       : NULL;
-                    /* Reclaim HDF5-allocated variable-length string memory */
-                    hid_t scalar_sp = H5Screate(H5S_SCALAR);
-                    H5Treclaim(opts_tid, scalar_sp, H5P_DEFAULT, &op);
-                    H5Sclose(scalar_sp);
-               } else {
-                    fprintf(stderr,
-                            "Warning: cannot read 'opts' attribute from %s\n",
-                            filename);
-               }
-          } else {
-               fprintf(stderr,
-                       "Warning: cannot open 'opts' attribute in %s\n",
-                       filename);
+     hid_t opts_tid = H5Tcreate(H5T_COMPOUND, sizeof(Opts_partial));
+     H5Tinsert(opts_tid, "band", offsetof(Opts_partial, band), H5T_NATIVE_INT);
+     H5Tinsert(opts_tid, "seg", offsetof(Opts_partial, seg), H5T_NATIVE_INT);
+     H5Tinsert(opts_tid, "hemi", offsetof(Opts_partial, hemi), H5T_NATIVE_INT);
+     H5Tinsert(opts_tid, "overlap", offsetof(Opts_partial, overlap), H5T_NATIVE_DOUBLE);
+     H5Tinsert(opts_tid, "narrowdown", offsetof(Opts_partial, narrowdown), H5T_NATIVE_DOUBLE);
+     H5Tinsert(opts_tid, "grid_file", offsetof(Opts_partial, grid_file),  vstr_t);
+
+     printf("> Reading file %s\n", filename);
+     Opts_partial op = {0};
+     hid_t opts_attr = H5Aopen(file, "opts", H5P_DEFAULT);
+     if (opts_attr >= 0) {
+          hstat = H5Aread(opts_attr, opts_tid, &op);
+          H5Aclose(opts_attr);
+          if (hstat < 0) {
+               fprintf(stderr,"Warning: cannot read 'opts' attribute from %s\n", filename);
+               exit(EXIT_FAILURE);
           }
-
-          H5Tclose(opts_tid);
-          H5Tclose(vstr_t);
+          if (init_search_par) {
+               search_par->band       = op.band;
+               search_par->seg        = op.seg;
+               search_par->hemi       = op.hemi;
+               search_par->overlap    = op.overlap;
+               search_par->narrowdown = op.narrowdown;
+               search_par->grid_file  = op.grid_file ? strdup(op.grid_file) : NULL;
+               printf ("    [getting params: band=%d, seg=%d, hemi=%d, overlap=%.2f, narrowdown=%.2f, grid_file=%s]\n",
+                       search_par->band, search_par->seg, search_par->hemi,
+                       search_par->overlap, search_par->narrowdown,
+                       search_par->grid_file ? search_par->grid_file : "NULL");
+          } else {
+               // compare op with searh par
+               if (search_par->band != op.band ||
+                   search_par->hemi != op.hemi || search_par->overlap != op.overlap ||
+                   search_par->narrowdown != op.narrowdown ||
+                   strcmp(search_par->grid_file, op.grid_file) != 0)
+               {
+                    fprintf(stderr, "search_par->grid_file=%s\n", search_par->grid_file);
+                    fprintf(stderr, "op.grid_file=%s\n", op.grid_file);
+                    fprintf(stderr, "Error: 'opts' attribute in %s does not match expected values\n", filename);
+                    exit(EXIT_FAILURE);
+               } else {
+                    printf("    [params match]\n");
+               }
+          }
+          /* Reclaim HDF5-allocated variable-length string memory */
+          hid_t scalar_sp = H5Screate(H5S_SCALAR);
+          H5Treclaim(opts_tid, scalar_sp, H5P_DEFAULT, &op);
+          H5Sclose(scalar_sp);
+     } else {
+          fprintf(stderr, "Warning: cannot open 'opts' attribute in %s\n", filename);
+          exit(EXIT_FAILURE);
      }
+
+     H5Tclose(opts_tid);
+     H5Tclose(vstr_t);
 
      /* ------------------------------------------------------------------ */
      /* Open the triggers dataset                                           */
@@ -136,6 +153,13 @@ size_t read_triggers_file(const char *filename, const char *t_dset_name,
      hstat   = H5Sget_simple_extent_dims(t_space, t_dim, NULL);
      sgnlv_size = (size_t)t_dim[0];
 
+     if (init_search_par) search_par->sgnlv_size = sgnlv_size;
+     if (sgnlv_size != search_par->sgnlv_size) {
+          fprintf(stderr, "Error! sgnlv_size mismatch: read %zu, but expected %zu \n",
+               sgnlv_size, search_par->sgnlv_size);
+          exit(EXIT_FAILURE);
+     }
+     
      if (sgnlv_size == 0) {
           *sgnlv = NULL;
           H5Sclose(t_space);
@@ -174,8 +198,15 @@ size_t read_triggers_file(const char *filename, const char *t_dset_name,
           free(*sgnlv);
           *sgnlv     = NULL;
           sgnlv_size = 0;
+          exit(EXIT_FAILURE);
      }
 
+     printf("    [sgnlv_size: %zu]", sgnlv_size);
+     float *ffp = (float *)sgnlv[0]->ffstat.p;
+     for (size_t k = 0; k < (sgnlv[0]->ffstat.len+1)/2; k++) {
+          printf("  p[%zu]=(%f,%f)  ", k, ffp[2*k], ffp[2*k+1]);
+     }
+     printf("\n");
      /* ------------------------------------------------------------------ */
      /* Release HDF5 resources (caller owns *sgnlv)                        */
      /* ------------------------------------------------------------------ */
@@ -250,9 +281,9 @@ void read_coinc_ini(char *ini_fname, Coinc_opts *copts)
      }
 
      copts->n_trig_files = count;
-     printf("Trigger files (%zu):\n", copts->n_trig_files);
-     for (size_t i = 0; i < copts->n_trig_files; i++)
-          puts(copts->trig_files[i]);
+     printf("Number of files to search for coincidences: %zu\n", copts->n_trig_files);
+     //for (size_t i = 0; i < copts->n_trig_files; i++)
+     //     puts(copts->trig_files[i]);
 
      //iniparser_freedict(ini);
 

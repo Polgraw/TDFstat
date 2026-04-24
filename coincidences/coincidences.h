@@ -31,6 +31,8 @@ typedef struct {
           nfftf,   // Number of FFT bins to calculate fbin
           nvlines_all_inband; // Number of lines in band
 
+     size_t  sgnlv_size; // Size of sgnlv array
+
      double
           overlap,    // Overlap between bands
           narrowdown, // Narrowdown factor for bandpass filtering
@@ -39,9 +41,10 @@ typedef struct {
 
      char *grid_file; //just to verify it doesn't change
 
-} search_params;
+} Search_params;
 
 
 
 void read_coinc_ini(char *ini_fname, Coinc_opts *copts);
-size_t read_triggers_file(const char *filename, const char *t_dset_name, Trigger **sgnlv, search_params *sparams);
+size_t read_triggers_file(const char *filename, const char *t_dset_name,
+     Trigger **sgnlv, Search_params *search_par);
