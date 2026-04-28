@@ -1,4 +1,4 @@
-typedef struct _coinc_opts {
+typedef struct {
 
      int
           refr,     // Reference frame
@@ -17,7 +17,7 @@ typedef struct _coinc_opts {
      const char *trig_dset, *coinc_dset_pre;
      const char *out_dir;
      char *trig_files[MAX_TRIG_FILES];
-     size_t n_trig_files;
+     size_t nseg;
 
 } Coinc_opts;
 
@@ -47,8 +47,7 @@ typedef struct {
 typedef struct {
           float  m, n, s;
           float  ra, dec, fdot;
-          int seg;
-          hvl_t  ffstat;
+          hvl_t  *ffstat;
 } Coinc_Trigger;
 
 

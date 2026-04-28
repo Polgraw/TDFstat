@@ -92,8 +92,8 @@ void read_coinc_ini(char *ini_fname, Coinc_opts *copts)
           }
      }
 
-     copts->n_trig_files = count;
-     printf("Number of files to search for coincidences: %zu\n", copts->n_trig_files);
+     copts->nseg = count;
+     printf("Number of files to search for coincidences: %zu\n", copts->nseg);
      //for (size_t i = 0; i < copts->n_trig_files; i++)
      //     puts(copts->trig_files[i]);
 
