@@ -28,7 +28,7 @@ typedef struct {
           nod,     // Number of days
           seg,     // Segment
           hemi,    // Hemisphere
-          nfftf,   // Number of FFT bins to calculate fbin
+          nfftf,   // Number of FFT bins (to calculate fbin)
           nvlines_all_inband; // Number of lines in band
 
      size_t  sgnlv_size; // Size of sgnlv array
@@ -44,7 +44,17 @@ typedef struct {
 } Search_params;
 
 
+typedef struct {
+          float  m, n, s;
+          float  ra, dec, fdot;
+          int seg;
+          hvl_t  ffstat;
+} Coinc_Trigger;
+
 
 void read_coinc_ini(char *ini_fname, Coinc_opts *copts);
 size_t read_triggers_file(const char *filename, const char *t_dset_name,
      Trigger **sgnlv, Search_params *search_par);
+
+void filter_to_allcands(Coinc_opts *copts, Search_params *search_par,
+     Trigger **sgnlv, Coinc_Trigger **allcands);

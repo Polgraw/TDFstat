@@ -31,6 +31,77 @@ typedef struct {
 } Opts_partial;
 
 
+
+void read_coinc_ini(char *ini_fname, Coinc_opts *copts)
+{
+     dictionary *ini;
+     char *tlist;
+     int error = 0;
+
+     printf("Loading config file %s\n", ini_fname);
+     if ((ini = iniparser_load(ini_fname)) == NULL) {
+          perror(ini_fname);
+          exit(EXIT_FAILURE);
+     }
+     printf("-- INI file contents --\n");
+     iniparser_dump(ini, stdout);
+     printf("-----------------------\n");
+
+     copts->refr         = iniparser_getint   (ini, "coincidences:refr",          -1);
+     copts->cthr         = iniparser_getdouble(ini, "coincidences:cthr",          -1.);
+     copts->hemi         = iniparser_getint   (ini, "coincidences:hemi",           1);
+     copts->scalef       = iniparser_getint   (ini, "coincidences:scalef",         1);
+     copts->scales       = iniparser_getint   (ini, "coincidences:scales",         1);
+     copts->scalem       = iniparser_getint   (ini, "coincidences:scalem",         1);
+     copts->scalen       = iniparser_getint   (ini, "coincidences:scalen",         1);
+     copts->shift        = iniparser_getint   (ini, "coincidences:shift",       0000);
+     copts->mincoin      = iniparser_getint   (ini, "coincidences:mincoin",        3);
+     copts->out_dir      = iniparser_getstring(ini, "coincidences:out_dir",       ".");
+     copts->trig_dset    = iniparser_getstring(ini, "coincidences:trig_dset", "triggers");
+     copts->coinc_dset_pre = iniparser_getstring(ini, "coincidences:trig_dset_pre", "coinc");
+     tlist               = (char *)iniparser_getstring(ini, "coincidences:trig_file_list", NULL);
+
+     /* various checks */
+     if (copts->refr < 0) {
+          error = 1; printf("[ERROR] missing refr !\n");
+     }
+     if (copts->cthr < 0) {
+          error = 1; printf("[ERROR] missing cthr !\n");
+     }
+     if (!tlist) {
+          error = 1; printf("[ERROR] trig_file_list !\n");
+     }
+
+     if (error) {
+          fprintf(stderr, "Error: invalid or missing parameters in %s\n", ini_fname);
+          iniparser_freedict(ini);
+          exit(EXIT_FAILURE);
+     }
+
+     size_t count = 0;
+     for (char *token = strtok(tlist, " "); token != NULL; token = strtok(NULL, " ")) {
+          copts->trig_files[count] = (char *)malloc((strlen(token) + 1) * sizeof(char));
+          strcpy(copts->trig_files[count], token);
+          count++;
+          if (count >= MAX_TRIG_FILES) {
+               fprintf(stderr,
+                       "Error: too many trigger files specified in %s (max %d)\n",
+                       ini_fname, MAX_TRIG_FILES);
+               iniparser_freedict(ini);
+               exit(EXIT_FAILURE);
+          }
+     }
+
+     copts->n_trig_files = count;
+     printf("Number of files to search for coincidences: %zu\n", copts->n_trig_files);
+     //for (size_t i = 0; i < copts->n_trig_files; i++)
+     //     puts(copts->trig_files[i]);
+
+     //iniparser_freedict(ini);
+
+} /* read_coinc_ini */
+
+
 size_t read_triggers_file(const char *filename, const char *t_dset_name,
                           Trigger **sgnlv, Search_params *search_par)
 {
@@ -218,73 +289,3 @@ size_t read_triggers_file(const char *filename, const char *t_dset_name,
 
      return sgnlv_size;
 }
-
-
-void read_coinc_ini(char *ini_fname, Coinc_opts *copts)
-{
-     dictionary *ini;
-     char *tlist;
-     int error = 0;
-
-     printf("Loading config file %s\n", ini_fname);
-     if ((ini = iniparser_load(ini_fname)) == NULL) {
-          perror(ini_fname);
-          exit(EXIT_FAILURE);
-     }
-     printf("-- INI file contents --\n");
-     iniparser_dump(ini, stdout);
-     printf("-----------------------\n");
-
-     copts->refr         = iniparser_getint   (ini, "coincidences:refr",          -1);
-     copts->cthr         = iniparser_getdouble(ini, "coincidences:cthr",          -1.);
-     copts->hemi         = iniparser_getint   (ini, "coincidences:hemi",           1);
-     copts->scalef       = iniparser_getint   (ini, "coincidences:scalef",         1);
-     copts->scales       = iniparser_getint   (ini, "coincidences:scales",         1);
-     copts->scalem       = iniparser_getint   (ini, "coincidences:scalem",         1);
-     copts->scalen       = iniparser_getint   (ini, "coincidences:scalen",         1);
-     copts->shift        = iniparser_getint   (ini, "coincidences:shift",       0000);
-     copts->mincoin      = iniparser_getint   (ini, "coincidences:mincoin",        3);
-     copts->out_dir      = iniparser_getstring(ini, "coincidences:out_dir",       ".");
-     copts->trig_dset    = iniparser_getstring(ini, "coincidences:trig_dset", "triggers");
-     copts->coinc_dset_pre = iniparser_getstring(ini, "coincidences:trig_dset_pre", "coinc");
-     tlist               = (char *)iniparser_getstring(ini, "coincidences:trig_file_list", NULL);
-
-     /* various checks */
-     if (copts->refr < 0) {
-          error = 1; printf("[ERROR] missing refr !\n");
-     }
-     if (copts->cthr < 0) {
-          error = 1; printf("[ERROR] missing cthr !\n");
-     }
-     if (!tlist) {
-          error = 1; printf("[ERROR] trig_file_list !\n");
-     }
-
-     if (error) {
-          fprintf(stderr, "Error: invalid or missing parameters in %s\n", ini_fname);
-          iniparser_freedict(ini);
-          exit(EXIT_FAILURE);
-     }
-
-     size_t count = 0;
-     for (char *token = strtok(tlist, " "); token != NULL; token = strtok(NULL, " ")) {
-          copts->trig_files[count] = (char *)malloc((strlen(token) + 1) * sizeof(char));
-          strcpy(copts->trig_files[count], token);
-          count++;
-          if (count >= MAX_TRIG_FILES) {
-               fprintf(stderr,
-                       "Error: too many trigger files specified in %s (max %d)\n",
-                       ini_fname, MAX_TRIG_FILES);
-               iniparser_freedict(ini);
-               exit(EXIT_FAILURE);
-          }
-     }
-
-     copts->n_trig_files = count;
-     printf("Number of files to search for coincidences: %zu\n", copts->n_trig_files);
-     //for (size_t i = 0; i < copts->n_trig_files; i++)
-     //     puts(copts->trig_files[i]);
-
-     //iniparser_freedict(ini);
-
-} /* read_coinc_ini */
