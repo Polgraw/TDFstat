@@ -55,5 +55,5 @@ void read_coinc_ini(char *ini_fname, Coinc_opts *copts);
 size_t read_triggers_file(const char *filename, const char *t_dset_name,
      Trigger **sgnlv, Search_params *search_par);
 
-void filter_to_allcands(Coinc_opts *copts, Search_params *search_par,
-     Trigger **sgnlv, Coinc_Trigger **allcands);
+void filter_to_allcands(int iseg, Coinc_opts *copts, Search_params *search_par,
+     Trigger *sgnlv, Coinc_Trigger *allcands);

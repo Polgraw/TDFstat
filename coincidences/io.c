@@ -272,12 +272,16 @@ size_t read_triggers_file(const char *filename, const char *t_dset_name,
           exit(EXIT_FAILURE);
      }
 
-     printf("    [sgnlv_size: %zu]", sgnlv_size);
-     float *ffp = (float *)sgnlv[0]->ffstat.p;
-     for (size_t k = 0; k < (sgnlv[0]->ffstat.len+1)/2; k++) {
+#if 1     
+     //printf("    [sgnlv_size: %zu]", sgnlv_size);
+     int itest = sgnlv_size-1;
+     printf("    [sgnlv[%d].ffstat. ]", itest);
+     float *ffp = (float *)(*sgnlv)[itest].ffstat.p;
+     for (size_t k = 0; k < ((*sgnlv)[itest].ffstat.len+1)/2; k++) {
           printf("  p[%zu]=(%f,%f)  ", k, ffp[2*k], ffp[2*k+1]);
      }
      printf("\n");
+#endif
      /* ------------------------------------------------------------------ */
      /* Release HDF5 resources (caller owns *sgnlv)                        */
      /* ------------------------------------------------------------------ */
