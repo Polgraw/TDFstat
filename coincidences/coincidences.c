@@ -114,7 +114,7 @@ int main (int argc, char* argv[]) {
      // search for coincidences between segments 
      //coincidences_on_cgrid(&copts, &search_par, ctrigs, coinc);     
 
-     return EXIT_SUCCESS;     
+     return EXIT_SUCCESS;
 }
 
 
@@ -160,7 +160,14 @@ int select_goodcands(int iseg, Coinc_opts *copts, Search_params *search_par,
                if( (f <= M_PI_2 - search_par->narrowdown) ||
                     (f >= M_PI_2 + search_par->narrowdown) )  continue;
                // check if f is in the search_par->lines
-               
+               int isline = 0;
+               for(int il=0; il<search_par->nvlines_all_inband; il++){
+                    if( f >= search_par->lines[il][0] && f <= search_par->lines[il][1] ) {
+                         isline = 1;
+                         break;
+                    }
+               }
+               if (isline) continue;
                // spindown in linear units
                float fdot_lin = M_PI*sgnlv[j].fdot*pow(search_par->dt,2);
                // shifting f to the reference segment (copts->refr) due to spindown 

@@ -205,6 +205,7 @@ size_t read_triggers_file(const char *filename, const char *t_dset_name,
      H5Tinsert(sett_tid, "N", offsetof(Sett_partial, N), H5T_NATIVE_INT);
      H5Tinsert(sett_tid, "numlines_band", offsetof(Sett_partial, numlines_band), H5T_NATIVE_INT);
      H5Tinsert(sett_tid, "nvlines_all_inband", offsetof(Sett_partial, nvlines_all_inband), H5T_NATIVE_INT);
+
      
      printf("   [file %s]\n", filename);
      
@@ -295,8 +296,43 @@ size_t read_triggers_file(const char *filename, const char *t_dset_name,
 
      H5Tclose(sett_tid);
 
+     //Read 'lines' from 'sett' (only present when nvlines_all_inband > 0 )
+     if (init_search_par && search_par->nvlines_all_inband > 0) {
+          hsize_t lines_dims[2] = {(hsize_t)search_par->nvlines_all_inband, 2};
+          hid_t lines_arr_t = H5Tarray_create2(H5T_NATIVE_DOUBLE, 2, lines_dims);
 
-     
+          /* Compound of exactly one field "lines" at offset 0.            */
+          /* Size = nvlines_all_inband * 2 * sizeof(double), so reading    */
+          /* directly into search_par->lines (double[MAXL][2]) is safe.   */
+          size_t lines_mem_size = (size_t)search_par->nvlines_all_inband
+                                  * 2 * sizeof(double);
+          hid_t lines_tid = H5Tcreate(H5T_COMPOUND, lines_mem_size);
+          H5Tinsert(lines_tid, "lines", 0, lines_arr_t);
+          H5Tclose(lines_arr_t);
+
+          hid_t sett_attr2 = H5Aopen(file, "sett", H5P_DEFAULT);
+          if (sett_attr2 >= 0) {
+               hstat = H5Aread(sett_attr2, lines_tid, search_par->lines);
+               H5Aclose(sett_attr2);
+               if (hstat < 0) {
+                    fprintf(stderr, "Error: cannot read 'lines' from 'sett' in %s\n",
+                            filename);
+                    exit(EXIT_FAILURE);
+               }
+               printf("   [");
+               for(size_t i = 0; i < (size_t)search_par->nvlines_all_inband; i++) {
+                    printf(" line[%zu]=(%f, %f) ", i,
+                           search_par->lines[i][0], search_par->lines[i][1]);
+               }
+               printf("]\n");
+          } else {
+               fprintf(stderr, "Error: cannot re-open 'sett' attribute for lines in %s\n",
+                       filename);
+               exit(EXIT_FAILURE);
+          }
+          H5Tclose(lines_tid);
+     }
+
      /* ------------------------------------------------------------------ */
      /* Open the triggers dataset                                           */
      /* ------------------------------------------------------------------ */
