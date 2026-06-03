@@ -273,7 +273,20 @@ void init_arrays( Search_settings *sett,
                status = fread((void *)(&ifo[i].sig.epsm), sizeof(double), 1, data);
                fclose (data);
 
-               printf("Using %s as detector %s ephemerids...\n", filename, ifo[i].name);
+               printf("[%s] Using %s as ephemerids...\n", ifo[i].name, filename);
+          } else {
+               perror (filename);
+               return ;
+          }
+
+          // Start time reading
+          sprintf (filename, "%s/%03d/%s/starting_date", opts->indir, opts->seg, ifo[i].name);
+
+          if ((data = fopen(filename, "r")) != NULL) {
+               // Start time of the data segment in GPS seconds
+               status = fscanf(data, "%lf", &ifo[i].start_time);
+               fclose (data);
+               printf("[%s] Using %s as detector starting time = %f\n", ifo[i].name, filename, ifo[i].start_time);
           } else {
                perror (filename);
                return ;
@@ -298,6 +311,16 @@ void init_arrays( Search_settings *sett,
           ifo[i].sig.shftf = (double *) calloc(sett->N, sizeof(double));
 
      } // end loop for detectors
+
+     // Safe check for the start time
+     double st_temp = ifo[0].start_time;
+     for (i=1; i<sett->nifo; i++) {
+          if (ifo[i].start_time != st_temp) {
+              printf("Start time doesn't match between detectors %s and %s. Aborting...\n", ifo[0].name, ifo[i].name);
+              exit(EXIT_FAILURE);   
+          }
+     }
+      
 
      // Check if the ephemerids have the same epsm parameter
      for(i=1; i<sett->nifo; i++) {

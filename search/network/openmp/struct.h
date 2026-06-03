@@ -166,6 +166,8 @@ typedef struct _detector {
      Ampl_mod_coeff amod;
      Signals sig;
 
+     double start_time;  // Start time of the detector
+     
 } Detector_settings;
 
 /* Global array of detectors (network) */

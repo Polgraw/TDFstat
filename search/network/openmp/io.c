@@ -132,6 +132,7 @@ int hdfout_init (char *outname, Command_line_opts *opts, Search_settings *sett,
      H5Tset_size(xdat_type_id, FNAME_LENGTH);
      H5Tinsert(ifo_tid, "name", HOFFSET(Detector_settings, name), name_type_id);
      H5Tinsert(ifo_tid, "xdatname", HOFFSET(Detector_settings, xdatname), xdat_type_id);
+     H5Tinsert(ifo_tid, "start_time", HOFFSET(Detector_settings, start_time), H5T_NATIVE_DOUBLE);
 
      // ------------------------------------------------------------------------
 
