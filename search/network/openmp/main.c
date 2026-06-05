@@ -36,6 +36,7 @@ int main (int argc, char* argv[])
      Search_settings sett;
      Search_range s_range;
      Aux_arrays aux_arr;
+     Signal_params sgnl_params;
      int i;
 
      printf("git commit: %s\n", CODEVER);
@@ -90,7 +91,8 @@ int main (int argc, char* argv[])
 
      // inject signals from file
      if(strlen(opts.addsig)) {
-          add_signal(&sett, &opts, &aux_arr);
+         read_signal_file(&sgnl_params, &opts);
+         add_signal(&sett, &opts, &aux_arr, &sgnl_params);
      }
 
      // establish search range (s_range)
