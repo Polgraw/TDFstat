@@ -86,8 +86,13 @@ void read_ini_file( Search_settings *sett,
      // name of the file with signall to add
      // TODO: single line signals to enable multiple signals, more flexible gsize
      opts->addsig = iniparser_getstring(ini, "search:addsig", "");
-     // optional label of input and output files
+     // optional label of output files
      opts->label = iniparser_getstring(ini, "search:label", "");
+     if (strlen(opts->label)) {
+         const char *tmp = opts->label;
+         opts->label = malloc(strlen(tmp) + 2);
+         sprintf((char*)opts->label, "_%s", tmp);
+     }
      // runtime modifiers, supported values are: {read_O3}
      opts->mods = iniparser_getstring(ini, "search:mods", "");
 
@@ -537,8 +542,8 @@ void add_signal( Search_settings *sett,
                char filename[1124];
                sprintf(dirname, "%s/injections", opts->outdir);
                mkdir(dirname, 0755);
-               sprintf(filename, "%s/signal_%03d_%04d_%s.h5",
-                    dirname, opts->seg, opts->band, opts->label);
+               sprintf(filename, "%s/signal_%03d_%04d_%s%s",
+                    dirname, opts->seg, opts->band, ifo[n].name, opts->label);
                FILE *out = fopen(filename, "w");
                if (out == NULL) {
                     perror(filename);
