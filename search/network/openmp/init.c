@@ -273,7 +273,7 @@ void init_arrays( Search_settings *sett,
                status = fread((void *)(&ifo[i].sig.epsm), sizeof(double), 1, data);
                fclose (data);
 
-               printf("[%s] Using %s as ephemerids...\n", ifo[i].name, filename);
+               // printf("[%s] Using %s as ephemerids...\n", ifo[i].name, filename);
           } else {
                perror (filename);
                return ;
@@ -286,7 +286,7 @@ void init_arrays( Search_settings *sett,
                // Start time of the data segment in GPS seconds
                status = fscanf(data, "%lf", &ifo[i].start_time);
                fclose (data);
-               printf("[%s] Using %s as detector starting time = %f\n", ifo[i].name, filename, ifo[i].start_time);
+               printf("[%s] Starting time = %.3f\n", ifo[i].name, ifo[i].start_time);
           } else {
                perror (filename);
                return ;
