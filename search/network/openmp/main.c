@@ -108,7 +108,7 @@ int main (int argc, char* argv[])
      read_checkpoints(&opts, &s_range, &Fnum);
 
      // main search job
-     search(&sett, &opts, &s_range, &fftw_plans, &fftw_arr, &aux_arr, &Fnum);
+     search(&sett, &opts, &s_range, &fftw_plans, &fftw_arr, &aux_arr, &sgnl_params, &Fnum);
 
      // Cleanup & memory free
      cleanup(&sett, &opts, &s_range, &fftw_plans, &fftw_arr, &aux_arr);
