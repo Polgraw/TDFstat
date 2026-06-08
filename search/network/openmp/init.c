@@ -529,7 +529,29 @@ void add_signal( Search_settings *sett,
           } // data loop
      } // detector loop
 
-     // printf("snr=%le h0=%le\n", snr, h0);
+     // Saving the data points if opts->mods has "write_signal"
+     int write_signal = (opts->mods && strstr(opts->mods, "write_signal") != NULL);
+     if (write_signal) {
+          for (n=0; n<sett->nifo; n++) {
+               char dirname[562];
+               char filename[1124];
+               sprintf(dirname, "%s/injections", opts->outdir);
+               mkdir(dirname, 0755);
+               sprintf(filename, "%s/signal_%03d_%04d_%s.h5",
+                    dirname, opts->seg, opts->band, opts->label);
+               FILE *out = fopen(filename, "w");
+               if (out == NULL) {
+                    perror(filename);
+                    exit(EXIT_FAILURE);
+               }
+
+               for (i=0; i<sett->N; i++) {
+                    fprintf(out, "%e\n", sgnl_params->h0*signadd[n][i]);
+               }
+
+               fclose(out);
+          } // detector loop
+     } // writting signal
 
      // Free auxiliary 2d array
      for (n=0; n<sett->nifo; n++)
