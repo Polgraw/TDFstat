@@ -33,6 +33,7 @@ typedef struct {
 typedef struct {
      int    nod;
      int    N;
+     int    nfftf;
      int    numlines_band;
      int    nvlines_all_inband;
      double fpo;
@@ -203,6 +204,7 @@ size_t read_triggers_file(const char *filename, const char *t_dset_name,
      H5Tinsert(sett_tid, "B", offsetof(Sett_partial, B), H5T_NATIVE_DOUBLE);
      H5Tinsert(sett_tid, "nod", offsetof(Sett_partial, nod), H5T_NATIVE_INT);
      H5Tinsert(sett_tid, "N", offsetof(Sett_partial, N), H5T_NATIVE_INT);
+     H5Tinsert(sett_tid, "nfftf", offsetof(Sett_partial, nfftf), H5T_NATIVE_INT);
      H5Tinsert(sett_tid, "numlines_band", offsetof(Sett_partial, numlines_band), H5T_NATIVE_INT);
      H5Tinsert(sett_tid, "nvlines_all_inband", offsetof(Sett_partial, nvlines_all_inband), H5T_NATIVE_INT);
 
@@ -271,6 +273,7 @@ size_t read_triggers_file(const char *filename, const char *t_dset_name,
                search_par->B                  = sp.B;
                search_par->nod                = sp.nod;
                search_par->N                  = sp.N;
+               search_par->nfftf              = sp.nfftf;
                search_par->numlines_band      = sp.numlines_band;
                search_par->nvlines_all_inband = sp.nvlines_all_inband;
                printf ("   [getting sett: nod=%d, N=%d, B=%f, fpo=%f, nvlines_all_inband=%d]\n",
