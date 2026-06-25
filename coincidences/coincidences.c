@@ -13,6 +13,14 @@
 #include "../search/network/openmp/struct.h"
 #include "coincidences.h"
 
+typedef struct { int mc, nc, sc, orig; } TrigKey;
+static int cmp_trig_key(const void *a, const void *b) {
+    const TrigKey *ka = a, *kb = b;
+    if (ka->mc != kb->mc) return (ka->mc > kb->mc) - (ka->mc < kb->mc);
+    if (ka->nc != kb->nc) return (ka->nc > kb->nc) - (ka->nc < kb->nc);
+    return (ka->sc > kb->sc) - (ka->sc < kb->sc);
+}
+
 
 int main (int argc, char* argv[]) {
 
@@ -27,7 +35,7 @@ int main (int argc, char* argv[]) {
                                 // [2] unique triggers, max. one per coincidence cell at reference time
 
      int i, j, k, iseg;
-
+     
      if (argc > 1) {
           strcpy (ini_fname, argv[1]);
      } else if (argc > 2) {
@@ -39,22 +47,19 @@ int main (int argc, char* argv[]) {
      
      read_coinc_ini(ini_fname, &copts);
      
-     // read triggers from input files,
-     // filter: apply Fstat threshold, shift in frequency,
-     // store selected triggers in a new data structure: allcands
-     // search sibling bands for out of band triggers (filter and append to allcands)
-
      if (ctrigs != NULL) {
           free(ctrigs);
           ctrigs = NULL;
      }
-     
-     //copts.nseg = 2; // for testing, should be read from ini file
+
+     // read triggers from input files,
+     // select good candidates, and store them in ctrigs
+     // TODO: search sibling bands for out of band triggers
      for(iseg=0; iseg<copts.nseg; iseg++) {
           printf("> segment %d\n", iseg);
           read_triggers_file(copts.trig_files[iseg], copts.trig_dset, &sgnlv, &search_par);
 
-#if 1     
+#if 0
           {
                int itest = search_par.sgnlv_size-1;
                printf("   [select_goodcands: sgnlv[%d].ffstat. len=%zu]", itest, sgnlv[itest].ffstat.len);
@@ -88,7 +93,7 @@ int main (int argc, char* argv[]) {
           // return the number of good candidates in the segment
           seginfo[iseg][1] = select_goodcands(iseg, &copts, &search_par, sgnlv, ctrigs);
 
-#if 1
+#if 0
           int itest = search_par.sgnlv_size-1;
           printf("   [ctrigs[%d].ffstat[%d].  ", itest, iseg);
           float *ffp = (float *)ctrigs[itest].ffstat[iseg].p;
@@ -123,6 +128,13 @@ int main (int argc, char* argv[]) {
      int scs = copts.scales;
      int scf = copts.scalef;
 
+     // shift in m,n,s,f directions 
+     int shift[4] = {0, 1, 1, 1};
+     float shiftm = shift[0]*0.5;
+     float shiftn = shift[1]*0.5;
+     float shifts = shift[2]*0.5;
+     float shiftf = shift[3]*0.5;
+     
      // max number of ctrigs elements in a coincidences cell
      int ictrigs_size = scm*scn*scs;
      // number of cells in the coincidences grid mc,nc,sc; 
@@ -134,6 +146,8 @@ int main (int argc, char* argv[]) {
           s2c_mns[i].ictrigs = (int *) malloc(sizeof(int) * ictrigs_size);
 
      int iccell = 0; // coincidence cell counter
+     
+#if 0     
      for(j=0; j<search_par.sgnlv_size; j++) {
           int mc = (int)round(ctrigs[j].m/scm);
           int nc = (int)round(ctrigs[j].n/scn);
@@ -178,11 +192,45 @@ int main (int argc, char* argv[]) {
                iccell++;
           } // if not found
      } // for j
+#else
+     //sort triggers by (mc,nc,sc), then group in a single linear pass — O(N log N)
+     TrigKey *keys = malloc(search_par.sgnlv_size * sizeof(TrigKey));
+     for (j=0; j<search_par.sgnlv_size; j++) {
+          keys[j].mc   = (int)floorf(ctrigs[j].m / scm - shiftm);
+          keys[j].nc   = (int)floorf(ctrigs[j].n / scn - shiftn);
+          keys[j].sc   = (int)floorf(ctrigs[j].s / scs - shifts);
+          keys[j].orig = j;
+     }
+     qsort(keys, search_par.sgnlv_size, sizeof(TrigKey), cmp_trig_key);
 
+     for (int jstart=0; jstart<search_par.sgnlv_size; ) {
+          int jend = jstart + 1;
+          while (jend < search_par.sgnlv_size &&
+               keys[jend].mc == keys[jstart].mc &&
+               keys[jend].nc == keys[jstart].nc &&
+               keys[jend].sc == keys[jstart].sc)
+               jend++;
+          int ncell = jend - jstart;
+          if (iccell >= maxccells) {
+               maxccells = (int)(1.3 * maxccells) + 1;
+               s2c_mns = realloc(s2c_mns, sizeof(Search2coi_mns) * maxccells);
+               for (int ic=iccell; ic<maxccells; ic++)
+                    s2c_mns[ic].ictrigs = malloc(sizeof(int) * ictrigs_size);
+          }
+          s2c_mns[iccell].mc = keys[jstart].mc;
+          s2c_mns[iccell].nc = keys[jstart].nc;
+          s2c_mns[iccell].sc = keys[jstart].sc;
+          s2c_mns[iccell].nctrigs = ncell;
+          for (int jj=0; jj<ncell; jj++)
+               s2c_mns[iccell].ictrigs[jj] = keys[jstart+jj].orig;
+          iccell++;
+          jstart = jend;
+     }
+     free(keys);
+#endif
      int nccells = iccell;
      printf("Number of coincidence cells: %d/%d (sgnlv_size=%ld)\n", nccells, maxccells, search_par.sgnlv_size);
-     // print trig2coi
-     /*
+     
      for(int ic=0; ic<nccells; ic++) {
           printf("Cell %d: mc=%d, nc=%d, sc=%d, nctrigs=%d, ictrigs=", 
                ic, s2c_mns[ic].mc, s2c_mns[ic].nc, s2c_mns[ic].sc, s2c_mns[ic].nctrigs);
@@ -190,8 +238,10 @@ int main (int argc, char* argv[]) {
                printf("%d ", s2c_mns[ic].ictrigs[j]);
           printf("\n");
      }
-     */
      
+
+     // TODO: save s2c_mns to HDF file for ccells visualization
+
      /* -------------------------------------------------------------------------
       * search for coincidences between segments
       * -------------------------------------------------------------------------*/
@@ -211,6 +261,122 @@ int main (int argc, char* argv[]) {
      int icoi = 0; // coincidence counter
      int nfccells = search_par.nfftf/scf; // number of frequency cells in the coincidences grid
 
+     // Working arrays: best trigger per (iseg, fic) cell.
+     // Allocated once and reset via dirty list – never memset entirely.
+     int   *best_cidx_cell = malloc(copts.nseg * nfccells * sizeof(int));
+     float *best_snr_cell  = malloc(copts.nseg * nfccells * sizeof(float));
+     float *best_f_cell    = malloc(copts.nseg * nfccells * sizeof(float));
+     short *n_trigs_cell   = calloc(copts.nseg * nfccells,  sizeof(short));
+     for (int ii=0; ii<copts.nseg*nfccells; ii++)
+          best_cidx_cell[ii] = -1;
+     // Dirty list: touched (iseg*nfccells + fic) indices this mns cell.
+     // Upper bound per cell: nseg * nctrigs_per_cell * nfpairs_avg (small).
+     int *dirty = malloc(copts.nseg * nfccells * sizeof(int));
+
+     short tmp_cseg[MAX_NSEG];
+     int   tmp_trig_mns[MAX_NSEG];
+     short tmp_n_ccell_trigs[MAX_NSEG];
+
+     const float inv_fbin = (float)nfccells / (float)M_PI;
+
+     // loop over mns cells
+     for (int imns=0; imns<nccells; imns++) {
+          int ndirty = 0;
+
+          /* ---- Pass 1: bin every (f,fstat) pair into its fic cell ---- */
+          for (int jj=0; jj<s2c_mns[imns].nctrigs; jj++) {
+               int cidx = s2c_mns[imns].ictrigs[jj];
+               for (iseg=0; iseg<copts.nseg; iseg++) {
+                    if (ctrigs[cidx].ffstat[iseg].len == 0) continue;
+                    float *ffp  = (float *)ctrigs[cidx].ffstat[iseg].p;
+                    int nfpairs = (int)ctrigs[cidx].ffstat[iseg].len / 2;
+                    for (int k=0; k<nfpairs; k++) {
+                         float f     = ffp[2*k];
+                         float fstat = ffp[2*k+1];
+                         //int fic = (int)(f * inv_fbin);
+                         int fic = (int)floorf(f/(M_PI/search_par.nfftf)/scf - shiftf);
+                         if ((unsigned)fic >= (unsigned)nfccells) continue;
+                         int idx = iseg * nfccells + fic;
+                         if (best_cidx_cell[idx] < 0)   // first touch: mark dirty
+                              dirty[ndirty++] = idx;
+                         n_trigs_cell[idx]++;
+                         if (fstat > best_snr_cell[idx]) {
+                              best_snr_cell[idx]  = fstat;
+                              best_cidx_cell[idx] = cidx;
+                              best_f_cell[idx]    = f;
+                         }
+                    }
+               }
+          } // for jj
+
+          /* ---- Pass 2: scan fic cells for coincidences ---- */
+          for (int fic=0; fic<nfccells; fic++) {
+               int   w       = 0;
+               float sum_snr = 0.f, sum_f = 0.f, sum_fdot = 0.f;
+               float sum_ra  = 0.f, sum_dec = 0.f;
+
+               for (iseg=0; iseg<copts.nseg; iseg++) {
+                    int idx  = iseg * nfccells + fic;
+                    int cidx = best_cidx_cell[idx];
+                    if (cidx < 0) continue;
+                    tmp_cseg[w]          = (short)iseg;
+                    tmp_trig_mns[w]      = cidx;
+                    tmp_n_ccell_trigs[w] = n_trigs_cell[idx];
+                    sum_snr  += best_snr_cell[idx];
+                    sum_f    += best_f_cell[idx];
+                    sum_fdot += ctrigs[cidx].fdot;
+                    sum_ra   += ctrigs[cidx].ra;
+                    sum_dec  += ctrigs[cidx].dec;
+                    w++;
+               }
+               if (w < copts.mincoin) continue;
+
+               if (icoi >= ncoi) {
+                    ncoi = (int)(1.3 * ncoi) + 1;
+                    coi  = (Coincidence *) realloc(coi, sizeof(Coincidence) * ncoi);
+               }
+               coi[icoi].w     = (short)w;
+               coi[icoi].shift = (short)copts.shift;
+               coi[icoi].cseg          = (short *) malloc(sizeof(short) * w);
+               coi[icoi].trig_mns      = (int *)   malloc(sizeof(int)   * w);
+               coi[icoi].n_ccell_trigs = (short *) malloc(sizeof(short) * w);
+               memcpy(coi[icoi].cseg,          tmp_cseg,          sizeof(short) * w);
+               memcpy(coi[icoi].trig_mns,      tmp_trig_mns,      sizeof(int)   * w);
+               memcpy(coi[icoi].n_ccell_trigs, tmp_n_ccell_trigs, sizeof(short) * w);
+               coi[icoi].avg_snr  = sum_snr  / w;
+               coi[icoi].avg_f    = sum_f    / w;
+               coi[icoi].avg_fdot = sum_fdot / w;
+               coi[icoi].avg_ra   = sum_ra   / w;
+               coi[icoi].avg_dec  = sum_dec  / w;
+
+               if (w > max_coi.w ||
+                   (w == max_coi.w && coi[icoi].avg_snr > max_coi.avg_snr)) {
+                    max_coi.w = (short)w; max_coi.shift = coi[icoi].shift;
+                    memcpy(max_coi.cseg,          tmp_cseg,          sizeof(short)*w);
+                    memcpy(max_coi.trig_mns,      tmp_trig_mns,      sizeof(int)*w);
+                    memcpy(max_coi.n_ccell_trigs, tmp_n_ccell_trigs, sizeof(short)*w);
+                    max_coi.avg_snr  = coi[icoi].avg_snr;
+                    max_coi.avg_f    = coi[icoi].avg_f;
+                    max_coi.avg_fdot = coi[icoi].avg_fdot;
+                    max_coi.avg_ra   = coi[icoi].avg_ra;
+                    max_coi.avg_dec  = coi[icoi].avg_dec;
+               }
+               icoi++;
+          } // for fic
+
+          /* ---- Reset only touched entries (not the full array) ---- */
+          for (int ii=0; ii<ndirty; ii++) {
+               int idx = dirty[ii];
+               best_cidx_cell[idx] = -1;
+               best_snr_cell[idx]  = 0.f;
+               best_f_cell[idx]    = 0.f;
+               n_trigs_cell[idx]   = 0;
+          }
+     } // for imns
+
+     free(best_cidx_cell); free(best_snr_cell);
+     free(best_f_cell); free(n_trigs_cell); free(dirty);
+#if 0
      // Temporary per-segment accumulators for one (imns, fic) cell.
      // MAX_NSEG stack arrays avoid per-cell heap allocation.
      short tmp_cseg[MAX_NSEG];
@@ -310,6 +476,7 @@ int main (int argc, char* argv[]) {
                icoi++;
           } // for fic
      } // for imns
+#endif
 
      printf("\nTotal coincidences found (w>=%d): %d\n", copts.mincoin, icoi);
      if (max_coi.w > 0) {
