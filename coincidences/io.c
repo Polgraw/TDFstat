@@ -65,6 +65,7 @@ typedef struct {
 /* Scalar-only fields of Coinc_Trigger for the "ctrigs" compound dataset  */
 typedef struct {
      float m, n, s, ra, dec, fdot;
+     int iccell;
 } Ctrig_base;
 
 
@@ -220,9 +221,9 @@ size_t read_triggers_file(const char *filename, const char *t_dset_name,
                fprintf(stderr,"Warning: cannot read 'opts' attribute from %s\n", filename);
                exit(EXIT_FAILURE);
           }
+          search_par->seg        = op.seg;
           if (init_search_par) {
                search_par->band       = op.band;
-               search_par->seg        = op.seg;
                search_par->hemi       = op.hemi;
                search_par->overlap    = op.overlap;
                search_par->narrowdown = op.narrowdown;
@@ -442,11 +443,16 @@ size_t read_triggers_file(const char *filename, const char *t_dset_name,
  *     "ctrigs"  – compound (m,n,s,ra,dec,fdot), shape (sgnlv_size,)
  *     "ffstat"  – vlen float,                   shape (sgnlv_size, nseg)
  *                 element [j][iseg] = ctrigs[j].ffstat[iseg]
+ *     "seginfo" – int,                          shape (nseg, 3)
+ *                 [iseg][0] = frame number (search_par.seg)
+ *                 [iseg][1] = good inband triggers at reference time
+ *                 [iseg][2] = unique triggers (one per coincidence cell)
  *
  * Returns EXIT_SUCCESS / EXIT_FAILURE.
  * ========================================================================= */
 int write_ctrigs_hdf(const char *ctrigs_fname, Coinc_opts *copts,
-                     Search_params *search_par, Coinc_Trigger *ctrigs)
+                     Search_params *search_par, Coinc_Trigger *ctrigs,
+                     int seginfo[][3])
 {
      hid_t  file, attr;
      herr_t hstat;
@@ -562,6 +568,7 @@ int write_ctrigs_hdf(const char *ctrigs_fname, Coinc_opts *copts,
      H5Tinsert(ctrig_tid, "ra",   HOFFSET(Ctrig_base, ra),   H5T_NATIVE_FLOAT);
      H5Tinsert(ctrig_tid, "dec",  HOFFSET(Ctrig_base, dec),  H5T_NATIVE_FLOAT);
      H5Tinsert(ctrig_tid, "fdot", HOFFSET(Ctrig_base, fdot), H5T_NATIVE_FLOAT);
+     H5Tinsert(ctrig_tid, "iccell", HOFFSET(Ctrig_base, iccell), H5T_NATIVE_INT);
 
      Ctrig_base *base_buf = (Ctrig_base *)malloc(sgnlv_size * sizeof(Ctrig_base));
      if (base_buf == NULL) {
@@ -577,6 +584,7 @@ int write_ctrigs_hdf(const char *ctrigs_fname, Coinc_opts *copts,
           base_buf[j].ra   = ctrigs[j].ra;
           base_buf[j].dec  = ctrigs[j].dec;
           base_buf[j].fdot = ctrigs[j].fdot;
+          base_buf[j].iccell = ctrigs[j].iccell;
      }
 
      hsize_t ctrig_dim[1] = {sgnlv_size};
@@ -622,6 +630,19 @@ int write_ctrigs_hdf(const char *ctrigs_fname, Coinc_opts *copts,
      H5Sclose(ff_space);
      H5Tclose(ffstat_vlen_t);
 
+     /* ------------------------------------------------------------------ */
+     /* Dataset "seginfo": int, shape (nseg, 3)                            */
+     /* ------------------------------------------------------------------ */
+     hsize_t si_dims[2] = {nseg, 3};
+     hid_t si_space = H5Screate_simple(2, si_dims, NULL);
+     hid_t si_dset  = H5Dcreate2(file, "seginfo", H5T_NATIVE_INT, si_space,
+                                  H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
+     hstat = H5Dwrite(si_dset, H5T_NATIVE_INT, H5S_ALL, H5S_ALL, H5P_DEFAULT, seginfo);
+     if (hstat < 0)
+          fprintf(stderr, "Error: cannot write 'seginfo' dataset to %s\n", ctrigs_fname);
+     H5Dclose(si_dset);
+     H5Sclose(si_space);
+  
      /* ------------------------------------------------------------------ */
      /* Release shared resources and close file                            */
      /* ------------------------------------------------------------------ */

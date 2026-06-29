@@ -58,17 +58,6 @@ int main (int argc, char* argv[]) {
      for(iseg=0; iseg<copts.nseg; iseg++) {
           printf("> segment %d\n", iseg);
           read_triggers_file(copts.trig_files[iseg], copts.trig_dset, &sgnlv, &search_par);
-
-#if 0
-          {
-               int itest = search_par.sgnlv_size-1;
-               printf("   [select_goodcands: sgnlv[%d].ffstat. len=%zu]", itest, sgnlv[itest].ffstat.len);
-               float *ffp = (float *)sgnlv[itest].ffstat.p;
-               for (size_t k = 0; k < (sgnlv[itest].ffstat.len+1)/2; k++)
-                    printf("  p[%zu]=(%f,%f)  ", k, ffp[2*k], ffp[2*k+1]);
-               printf("\n");
-          }
-#endif
           
           // initialize ctrigs
           if (iseg==0) {
@@ -100,21 +89,9 @@ int main (int argc, char* argv[]) {
           for (size_t k = 0; k < (ctrigs[itest].ffstat[iseg].len+1)/2; k++)
                printf("  p[%zu]=(%f,%f)  ", k, ffp[2*k], ffp[2*k+1]);
           printf("\n");
-#endif          
+#endif
 
      } // iseg
-
-     // write HDF file with ctrigs, if needed
-     if (copts.write_ctrigs) {
-          char ctrigs_fname[FILE_NAME_LEN];
-          // can't use search_par.hemi since it can be 0 (both) and thus
-          // the only source of current hemi is the triggers filename
-          int fname_len = (int)strlen(copts.trig_files[0]);
-          snprintf(ctrigs_fname, FILE_NAME_LEN, "%s/ctrigs%s", 
-               copts.out_dir, copts.trig_files[0]+fname_len-10);
-          printf("Writing coincidence triggers to file: %s\n", ctrigs_fname);
-          write_ctrigs_hdf(ctrigs_fname, &copts, &search_par, ctrigs);
-     }
 
 
      /* ----------------------------------------------------------------------- 
@@ -129,7 +106,7 @@ int main (int argc, char* argv[]) {
      int scf = copts.scalef;
 
      // shift in m,n,s,f directions 
-     int shift[4] = {0, 1, 1, 1};
+     int shift[4] = {0, 0, 1, 0};
      float shiftm = shift[0]*0.5;
      float shiftn = shift[1]*0.5;
      float shifts = shift[2]*0.5;
@@ -221,8 +198,11 @@ int main (int argc, char* argv[]) {
           s2c_mns[iccell].nc = keys[jstart].nc;
           s2c_mns[iccell].sc = keys[jstart].sc;
           s2c_mns[iccell].nctrigs = ncell;
-          for (int jj=0; jj<ncell; jj++)
+          for (int jj=0; jj<ncell; jj++){
                s2c_mns[iccell].ictrigs[jj] = keys[jstart+jj].orig;
+               // save the coincidence cell index to the ctrigs structure
+               ctrigs[keys[jstart+jj].orig].iccell = iccell;
+          }
           iccell++;
           jstart = jend;
      }
@@ -235,13 +215,24 @@ int main (int argc, char* argv[]) {
           printf("Cell %d: mc=%d, nc=%d, sc=%d, nctrigs=%d, ictrigs=", 
                ic, s2c_mns[ic].mc, s2c_mns[ic].nc, s2c_mns[ic].sc, s2c_mns[ic].nctrigs);
           for(int j=0; j<s2c_mns[ic].nctrigs; j++)
-               printf("%d ", s2c_mns[ic].ictrigs[j]);
+               printf("%d(%d) ", s2c_mns[ic].ictrigs[j], ctrigs[s2c_mns[ic].ictrigs[j]].iccell);
           printf("\n");
      }
      
 
-     // TODO: save s2c_mns to HDF file for ccells visualization
+     // write HDF file with ctrigs, if needed
+     if (copts.write_ctrigs) {
+          char ctrigs_fname[FILE_NAME_LEN];
+          // can't use search_par.hemi since it can be 0 (both) and thus
+          // the only source of current hemi is the triggers filename
+          int fname_len = (int)strlen(copts.trig_files[0]);
+          snprintf(ctrigs_fname, FILE_NAME_LEN, "%s/ctrigs%s", 
+               copts.out_dir, copts.trig_files[0]+fname_len-10);
+          printf("Writing coincidence triggers to file: %s\n", ctrigs_fname);
+          write_ctrigs_hdf(ctrigs_fname, &copts, &search_par, ctrigs, seginfo);
+     }
 
+     
      /* -------------------------------------------------------------------------
       * search for coincidences between segments
       * -------------------------------------------------------------------------*/
@@ -518,18 +509,7 @@ int select_goodcands(int iseg, Coinc_opts *copts, Search_params *search_par,
      int buffer_size = 2048; // initial buffer for ffdot shifts, will be reallocated if needed
      float *ffbuffer = (float *) malloc(sizeof(float) * buffer_size);
 
-#if 0
-     // only for testing: copy sgnlv[j].ffstat to allcands[j].ffstat[i]
      for (j=0; j<search_par->sgnlv_size; j++) {
-          ctrigs[j].ffstat[iseg].p = (float *) malloc(sizeof(float) * sgnlv[j].ffstat.len);
-          ctrigs[j].ffstat[iseg].len = sgnlv[j].ffstat.len;
-          memcpy(ctrigs[j].ffstat[iseg].p, sgnlv[j].ffstat.p, sizeof(float) * sgnlv[j].ffstat.len);
-          ntrig_seg += (sgnlv[j].ffstat.len+1)/2;
-     }
-#endif
-
-     for (j=0; j<search_par->sgnlv_size; j++) {
-          //fprintf(stderr, "     Segment %d, j=%d, sgnlv[j]->ffstat.len = %zu\n", iseg, j, sgnlv[j].ffstat.len);
           // check if ffstat is null? 
           int ic = 0; // "good" triggers counter
           for (itrig=0; itrig<sgnlv[j].ffstat.len/2; itrig++) {
@@ -550,10 +530,10 @@ int select_goodcands(int iseg, Coinc_opts *copts, Search_params *search_par,
                }
                if (isline) continue;
                // spindown in linear units
-               //float fdot_lin = M_PI*sgnlv[j].fdot*pow(search_par->dt,2);
+               float fdot_lin = sgnlv[j].fdot*M_PI*pow(search_par->dt,2);
                // shifting f to the reference segment (copts->refr) due to spindown 
-               //f = f + 2.*fdot_lin*(search_par->N)*(copts->refr - search_par->seg);
-               f = f + sgnlv[j].fdot*search_par->dt*(search_par->N)*(copts->refr - search_par->seg);
+               f = f + 2.*fdot_lin*(search_par->N)*(copts->refr - search_par->seg);
+               //f = f + sgnlv[j].fdot*search_par->dt*(search_par->N)*(copts->refr - search_par->seg) * 2.*M_PI*search_par->dt;
                if((f<0) || (f>M_PI)) continue; // skip triggers shifted out of the band
                ffbuffer[2*ic] = f;
                ffbuffer[2*ic+1] = fstat;

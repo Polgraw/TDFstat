@@ -52,6 +52,7 @@ typedef struct {
      float  m, n, s;          // "integer" grid coordinates
      float  ra, dec, fdot;    // physical coordinates corresponding to the grid point
      hvl_t  *ffstat;          // interleaved f (in 0-PI units) and Fstatistic values
+     int iccell;              // index of the coincidence cell this trigger falls into
 } Coinc_Trigger;
 
 /*
@@ -83,4 +84,5 @@ size_t read_triggers_file(const char *filename, const char *t_dset_name,
 int select_goodcands(int iseg, Coinc_opts *copts, Search_params *search_par,
                      Trigger *sgnlv, Coinc_Trigger *ctrigs);
 int write_ctrigs_hdf(const char *ctrigs_fname, Coinc_opts *copts,
-                     Search_params *search_par, Coinc_Trigger *ctrigs);
+                     Search_params *search_par, Coinc_Trigger *ctrigs,
+                     int seginfo[][3]);
