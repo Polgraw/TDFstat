@@ -14,10 +14,15 @@ void init_arrays(
                     Command_line_opts *opts,
                     Aux_arrays *aux_arr);
 
+void read_signal_file(
+                    Signal_params *sgnl_params,
+                    Command_line_opts *opts);
+
 void add_signal(
                     Search_settings *sett,
                     Command_line_opts *opts,
-                    Aux_arrays *aux_arr);
+                    Aux_arrays *aux_arr,
+                    Signal_params *sgnl_params);
 
 void set_search_range(
                     Search_settings *sett,
