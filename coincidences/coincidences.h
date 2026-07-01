@@ -1,4 +1,4 @@
-
+// coincidences options read from ini file
 typedef struct {
 
      int
@@ -20,7 +20,8 @@ typedef struct {
 
 } Coinc_opts;
 
-
+// Search parameters read from triggers HDF file
+// contains both sett and opts elements
 typedef struct {
 
      int
@@ -47,7 +48,7 @@ typedef struct {
 
 } Search_params;
 
-
+// Coincidence trigger structure; ffstat here has additionsl dim - time segment
 typedef struct {
      float  m, n, s;          // "integer" grid coordinates
      float  ra, dec, fdot;    // physical coordinates corresponding to the grid point
@@ -55,12 +56,6 @@ typedef struct {
      int iccell;              // index of the coincidence cell this trigger falls into
 } Coinc_Trigger;
 
-/*
-typedef struct {
-     float  mc, nc, sc, fc;               // "integer" grid coordinates
-     float  *ra, *dec, *fdot, *f, *snr;   // physical coordinates of unique trigger in each segment
-} Cell_Unique_Trigger;
- */
 
 // This structure maps search grid cells m,n,s to coincidences cells
 typedef struct {
@@ -69,6 +64,7 @@ typedef struct {
      int *ictrigs;        // indices of sgnlv/ctrigs that fall in the coin cell
 } Search2coi_mns;
 
+// Coincidence structure; contains information about the coincidence cell and the triggers that fall into it
 typedef struct {
      short shift;  // Cell shifts  (4 digit number corresponding to fsmn, e.g. 0101)
      short w;     // number of segments participating in the coincidence
@@ -77,6 +73,7 @@ typedef struct {
      int *trig_mns; // indices of the unique triggers in each segment (size=w)
      float avg_snr, avg_f, avg_fdot, avg_ra, avg_dec;   // physical coordinates of unique trigger in each segment
 } Coincidence;
+
 
 void read_coinc_ini(char *ini_fname, Coinc_opts *copts);
 size_t read_triggers_file(const char *filename, const char *t_dset_name,
