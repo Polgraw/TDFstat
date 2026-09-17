@@ -96,6 +96,8 @@ int init_coin_hdf(const char *coin_fname, Coinc_opts *copts,
                   Search_params *search_par);
 int write_coi_hdf(const char *coin_fname, Coinc_opts *copts,
                   Coincidence *coi, int icoi, const char *shift_str,
-                  int seginfo[][3], Fap_t *fap_data);
+                  int seginfo[][3]);
+int add_maxcoi_hdf(const char *coin_fname, Coinc_opts *copts,
+                   Coincidence *max_coi, Fap_t *fap_data);
 float read_vlines_file(const char *veto_fname, Search_params *search_par);
 int FalseAlarmProb(int, int, double, int*, double, double *);

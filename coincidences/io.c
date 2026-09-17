@@ -192,7 +192,8 @@ size_t read_triggers_file(const char *filename, const char *t_dset_name,
         H5Tclose(t_tid);
         H5Tclose(ffstat_type);
         *sgnlv = NULL;
-        return 0;
+        H5Fclose(file);
+        exit(EXIT_FAILURE);
     }
 
     /* ------------------------------------------------------------------ */
@@ -673,7 +674,7 @@ int write_ctrigs_hdf(const char *ctrigs_fname, Coinc_opts *copts,
     H5Tclose(vstr_t);
     H5Fclose(file);
 
-    printf("Written ctrigs HDF5 file: %s  (%zu ctrigs, %zu segs)\n",
+    printf("Wrote ctrigs HDF5 file: %s  (%zu ctrigs, %zu segs)\n",
         ctrigs_fname, sgnlv_size, nseg);
     return EXIT_SUCCESS;
 } /* write_ctrigs_hdf */
@@ -821,7 +822,7 @@ int init_coin_hdf(const char *coin_fname, Coinc_opts *copts,
  * ========================================================================= */
 int write_coi_hdf(const char *coin_fname, Coinc_opts *copts,
                   Coincidence *coi, int icoi, const char *shift_str,
-                  int seginfo[][3], Fap_t *FAP)
+                  int seginfo[][3])
 {
     herr_t hstat;
     int    k;
@@ -864,7 +865,7 @@ int write_coi_hdf(const char *coin_fname, Coinc_opts *copts,
             return EXIT_FAILURE;
         }
         for (k = 0; k < icoi; k++) {
-            strncpy(cbuf[k].shift, coi[k].shift, 4);
+            memcpy(cbuf[k].shift, coi[k].shift, 4);
             cbuf[k].w        = coi[k].w;
             cbuf[k].avg_snr  = coi[k].avg_snr;
             cbuf[k].avg_f    = coi[k].avg_f;
@@ -901,30 +902,6 @@ int write_coi_hdf(const char *coin_fname, Coinc_opts *copts,
             dset_name, coin_fname);
     H5Aclose(si_attr);
     H5Sclose(si_space);
-
-    // write FAP
-    if (FAP->fap.p != NULL) {
-        hid_t vlen_double_t = H5Tvlen_create(H5T_NATIVE_DOUBLE);
-
-        hid_t fap_tid = H5Tcreate(H5T_COMPOUND, sizeof(Fap_t));
-        H5Tinsert(fap_tid, "ncoinc_min",     HOFFSET(Fap_t, ncoinc_min),     H5T_NATIVE_INT);
-        H5Tinsert(fap_tid, "ncoinc_max",     HOFFSET(Fap_t, ncoinc_max),     H5T_NATIVE_INT);
-        H5Tinsert(fap_tid, "crit_mul_0_01",  HOFFSET(Fap_t, crit_mul_0_01),  H5T_NATIVE_INT);
-        H5Tinsert(fap_tid, "crit_mul_0_001", HOFFSET(Fap_t, crit_mul_0_001), H5T_NATIVE_INT);
-        H5Tinsert(fap_tid, "fap",            HOFFSET(Fap_t, fap),            vlen_double_t);
-
-        hid_t fap_scalar_space = H5Screate(H5S_SCALAR);
-        hid_t fap_attr = H5Acreate2(dset, "FAP", fap_tid, fap_scalar_space,
-            H5P_DEFAULT, H5P_DEFAULT);
-        hstat = H5Awrite(fap_attr, fap_tid, FAP);
-        if (hstat < 0)
-            fprintf(stderr, "Warning: cannot write FAP attribute on %s in %s\n",
-                dset_name, coin_fname);
-        H5Aclose(fap_attr);
-        H5Sclose(fap_scalar_space);
-        H5Tclose(fap_tid);
-        H5Tclose(vlen_double_t);
-    }
 
     H5Dclose(dset);
     H5Sclose(space);
@@ -976,6 +953,7 @@ float read_vlines_file(const char *veto_fname, Search_params *search_par)
             }
             i++;
         } // while
+        fclose(data);
     } else {
         printf("Can't open file %s\nAborting!\n", veto_fname);
         exit(EXIT_FAILURE);
@@ -993,3 +971,122 @@ float read_vlines_file(const char *veto_fname, Search_params *search_par)
     return vf;
 
 } // read_vlines_file
+
+/* =========================================================================
+ * add_maxcoi_hdf()
+ *
+ * Called once, after all shifts have been processed:
+ *
+ *   1. Attaches a compound "FAP" attribute (mirroring Fap_t, hvl_t fap
+ *      member included) to the dataset belonging to the shift that holds
+ *      the global maximum coincidence (max_coi->shift).
+ *
+ *   2. Writes a new dataset named "max_coi" (a single row, same Coi_hdf
+ *      compound layout used for the per-shift coincidence datasets)
+ *      containing just the max_coi structure.
+ *
+ * Returns EXIT_SUCCESS / EXIT_FAILURE.
+ * ========================================================================= */
+int add_maxcoi_hdf(const char *coin_fname, Coinc_opts *copts,
+                   Coincidence *max_coi, Fap_t *fap_data)
+{
+    herr_t hstat;
+
+    hid_t file = H5Fopen(coin_fname, H5F_ACC_RDWR, H5P_DEFAULT);
+    if (file < 0) {
+        fprintf(stderr, "Error: cannot open HDF5 file %s for writing\n", coin_fname);
+        return EXIT_FAILURE;
+    }
+
+    /* ---- 1. attach FAP attribute to the winning shift's dataset ---- */
+    char dset_name[FILE_NAME_LEN];
+    snprintf(dset_name, FILE_NAME_LEN, "%s%s", copts->coinc_dset, max_coi->shift);
+
+    hid_t dset = H5Dopen2(file, dset_name, H5P_DEFAULT);
+    if (dset < 0) {
+        fprintf(stderr, "Error: cannot open dataset '%s' in %s to attach FAP\n",
+            dset_name, coin_fname);
+        H5Fclose(file);
+        return EXIT_FAILURE;
+    }
+
+    if (fap_data != NULL && fap_data->fap.p != NULL) {
+        hid_t vlen_double_t = H5Tvlen_create(H5T_NATIVE_DOUBLE);
+
+        hid_t fap_tid = H5Tcreate(H5T_COMPOUND, sizeof(Fap_t));
+        H5Tinsert(fap_tid, "ncoinc_min",     HOFFSET(Fap_t, ncoinc_min),     H5T_NATIVE_INT);
+        H5Tinsert(fap_tid, "ncoinc_max",     HOFFSET(Fap_t, ncoinc_max),     H5T_NATIVE_INT);
+        H5Tinsert(fap_tid, "crit_mul_0_01",  HOFFSET(Fap_t, crit_mul_0_01),  H5T_NATIVE_INT);
+        H5Tinsert(fap_tid, "crit_mul_0_001", HOFFSET(Fap_t, crit_mul_0_001), H5T_NATIVE_INT);
+        H5Tinsert(fap_tid, "fap",            HOFFSET(Fap_t, fap),            vlen_double_t);
+
+        hid_t fap_scalar_space = H5Screate(H5S_SCALAR);
+        hid_t fap_attr = H5Acreate2(dset, "FAP", fap_tid, fap_scalar_space,
+            H5P_DEFAULT, H5P_DEFAULT);
+        hstat = H5Awrite(fap_attr, fap_tid, fap_data);
+        if (hstat < 0)
+            fprintf(stderr, "Warning: cannot write FAP attribute on %s in %s\n",
+                dset_name, coin_fname);
+        H5Aclose(fap_attr);
+        H5Sclose(fap_scalar_space);
+        H5Tclose(fap_tid);
+        H5Tclose(vlen_double_t);
+    }
+
+    H5Dclose(dset);
+
+    /* ---- 2. write the "max_coi" dataset (single row) ---- */
+    hid_t vlen_short_t = H5Tvlen_create(H5T_NATIVE_SHORT);
+    hid_t vlen_int_t   = H5Tvlen_create(H5T_NATIVE_INT);
+
+    hid_t shift_str_t = H5Tcopy(H5T_C_S1);
+    H5Tset_size(shift_str_t, 4);
+
+    hid_t coi_tid = H5Tcreate(H5T_COMPOUND, sizeof(Coi_hdf));
+    H5Tinsert(coi_tid, "shift",         HOFFSET(Coi_hdf, shift),         shift_str_t);
+    H5Tinsert(coi_tid, "w",             HOFFSET(Coi_hdf, w),             H5T_NATIVE_SHORT);
+    H5Tinsert(coi_tid, "avg_snr",       HOFFSET(Coi_hdf, avg_snr),       H5T_NATIVE_FLOAT);
+    H5Tinsert(coi_tid, "avg_f",         HOFFSET(Coi_hdf, avg_f),         H5T_NATIVE_FLOAT);
+    H5Tinsert(coi_tid, "avg_fdot",      HOFFSET(Coi_hdf, avg_fdot),      H5T_NATIVE_FLOAT);
+    H5Tinsert(coi_tid, "avg_ra",        HOFFSET(Coi_hdf, avg_ra),        H5T_NATIVE_FLOAT);
+    H5Tinsert(coi_tid, "avg_dec",       HOFFSET(Coi_hdf, avg_dec),       H5T_NATIVE_FLOAT);
+    H5Tinsert(coi_tid, "cseg",          HOFFSET(Coi_hdf, cseg),          vlen_short_t);
+    H5Tinsert(coi_tid, "n_ccell_trigs", HOFFSET(Coi_hdf, n_ccell_trigs), vlen_short_t);
+    H5Tinsert(coi_tid, "trig_mns",      HOFFSET(Coi_hdf, trig_mns),      vlen_int_t);
+    H5Tclose(shift_str_t);
+
+    Coi_hdf mbuf;
+    memcpy(mbuf.shift, max_coi->shift, 4);
+    mbuf.w        = max_coi->w;
+    mbuf.avg_snr  = max_coi->avg_snr;
+    mbuf.avg_f    = max_coi->avg_f;
+    mbuf.avg_fdot = max_coi->avg_fdot;
+    mbuf.avg_ra   = max_coi->avg_ra;
+    mbuf.avg_dec  = max_coi->avg_dec;
+    mbuf.cseg.len          = (size_t)max_coi->w;
+    mbuf.cseg.p            = max_coi->cseg;
+    mbuf.n_ccell_trigs.len = (size_t)max_coi->w;
+    mbuf.n_ccell_trigs.p   = max_coi->n_ccell_trigs;
+    mbuf.trig_mns.len      = (size_t)max_coi->w;
+    mbuf.trig_mns.p        = max_coi->trig_mns;
+
+    hsize_t dims[1] = {1};
+    hid_t space = H5Screate_simple(1, dims, NULL);
+    hid_t mdset = H5Dcreate2(file, "max_coi", coi_tid, space,
+        H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
+    hstat = H5Dwrite(mdset, coi_tid, H5S_ALL, H5S_ALL, H5P_DEFAULT, &mbuf);
+    if (hstat < 0)
+        fprintf(stderr, "Error: cannot write 'max_coi' dataset to %s\n", coin_fname);
+
+    H5Dclose(mdset);
+    H5Sclose(space);
+    H5Tclose(coi_tid);
+    H5Tclose(vlen_short_t);
+    H5Tclose(vlen_int_t);
+    H5Fclose(file);
+
+    printf("   Wrote dataset 'max_coi' to %s (w=%d, shift=%s)\n",
+        coin_fname, max_coi->w, max_coi->shift);
+
+    return EXIT_SUCCESS;
+} /* add_maxcoi_hdf */

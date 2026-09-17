@@ -146,7 +146,7 @@ int FalseAlarmProb(
 #if 0
     printf("FAP results:\n");
     for(i=noc; i<=L; i++){
-	printf("%hu %le ", i, fap[i]);
+        printf("%hu %le ", i, fap[i]);
     }
     printf("\n");
 
