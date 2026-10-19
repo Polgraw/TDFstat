@@ -940,13 +940,13 @@ float read_vlines_file(const char *veto_fname, Search_params *search_par)
                 }
                 continue;
             }
-
+/*          to be removed - vlines.dat can change after search was run
             // sanity check: number of non-comment lines in the vlines.dat file = nvlines_all_inband
             if (i >= search_par->nvlines_all_inband) {
                 printf("Number of entries in the vlines.dat is larger then nvlines_all_inband! Aborting\n");
                 exit(EXIT_FAILURE);
             }
-
+ */
             if (sscanf(line, "%lf %lf", &search_par->lines[i][0], &search_par->lines[i][1]) != 2) {
                 printf("Can't parse line %s in file:\n%s\nAborting!\n", line, veto_fname);
                 exit(EXIT_FAILURE);
@@ -961,6 +961,11 @@ float read_vlines_file(const char *veto_fname, Search_params *search_par)
 
     printf("   [read_vlines_file: read %d lines from %s, veto fraction = %f]\n",
         i, veto_fname, vf);
+    if (i != search_par->nvlines_all_inband) {
+        printf("   [Vlines changed after search, updating nvlines_all_inband = %d]\n", i);
+        search_par->nvlines_all_inband = i;
+    }
+
     printf("   [");
     for(size_t i = 0; i < (size_t)search_par->nvlines_all_inband; i++) {
         printf("line[%zu]=(%f, %f)  ", i,
