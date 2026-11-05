@@ -45,15 +45,14 @@ In alphabetic order:
 
 This repository gathers several elements of the pipeline: 
 
-* Extraction of narrow band short time series from SFDB: `extract_band_hdf_td`
-* Creation of long duration time series: `genseg`
-* Parameter space grid generation:`gridgen` (this is a copy of external repository https://github.com/apisarski/gridgen)
+* Extraction of narrow band short time series from SFDB: `input/extract_band`
+* Creation of long duration time series: `input/genseg`
+* Parameter space grid generation:`input/gridgen` (submodule refers to the external repository https://github.com/apisarski/gridgen)
 * Coherent search for candidate signals in narrowband time segments: `search`
+* Search for coincidences among different time segments and estimation of their false alarm probability: `coincidences`
 
 TO BE ADDED LATER
 
-* Search for coincidences among different time segments: `coincidences` 
-* Estimation of false alarm probability of coincidences: `fap`
 * Followup of interesting outliers: `followup`
 * Sensitivity upper limits: in `sensitivity-scripts`
 * [Test data](https://polgraw.camk.edu.pl/H1L1_2d_0.25.tar.gz).  
