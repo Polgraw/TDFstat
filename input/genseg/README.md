@@ -14,7 +14,7 @@ In addition:
 
 Compilation:
 ```
-mamba activate lal
+mamba activate igwn
 make
 ```
 
