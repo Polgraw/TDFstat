@@ -9,7 +9,7 @@ else
 	LSL_LIBS =
 endif
 
-INIPARSER_DIR = ../utils/iniparser
+INIPARSER_DIR = ../../utils/iniparser
 INIPARSER_FLAGS = -I$(INIPARSER_DIR)/src
 INIPARSER_LIBS = -L$(INIPARSER_DIR) -liniparser
 
@@ -34,4 +34,3 @@ clean:
 	$(MAKE) -C $(INIPARSER_DIR) veryclean
 
 .PHONY:	clean
-

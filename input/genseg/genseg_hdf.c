@@ -11,7 +11,7 @@
 #include <gsl/gsl_randist.h>
 #include <hdf5.h>
 #include <hdf5_hl.h>
-#include "../utils/iniparser/src/iniparser.h"
+#include "../../utils/iniparser/src/iniparser.h"
 #include "genseg.h"
 
 #ifdef USE_LAL
