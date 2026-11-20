@@ -18,16 +18,18 @@
 /* Command line options for search */
 typedef struct _comm_line_opts {
 
-     int checkp_flag, veto_flag, help_flag;
-     //int fftinterp;
-     int seg, band, hemi; //, nod;
-     double thr;
-     double fpo_val, narrowdown, overlap;
-     // dump_range_file is kept for backward HDF compatibility, but is not used anymore
-     const char *indir, *outdir, *grid_file, *dump_range_file,
-          *usedet, *addsig, *fstat_norm, *label, *mods,
-          *gtype, *gcenter, *gsizes, *gsteps;
-     char state_file[FNAME_LENGTH];
+    int checkp_flag, veto_flag, help_flag;
+    //int fftinterp;
+    int seg, band, hemi; //, nod;
+    double thr;
+    double fpo_val, narrowdown, overlap;
+    // dump_range_file is kept for backward HDF compatibility, but is not used anymore
+    const char *indir, *outdir, *grid_file, *dump_range_file,
+        *usedet, *addsig, *fstat_norm, *label, *mods,
+        *gtype, *gcenter, *gsizes, *gsteps;
+    int use_amp, inj_flag;
+    const char *inj_mode, *inj_file, *inj_dict;
+    char state_file[FNAME_LENGTH];
 
 } Command_line_opts;
 
@@ -174,28 +176,6 @@ typedef struct _detector {
 /* Global array of detectors (network) */
 extern Detector_settings ifo[MAX_DETECTORS];
 
-/* Command line option struct for coincidences */
-typedef struct _comm_line_opts_coinc {
-
-     int help_flag;
-
-     int shift,    // Cell shifts  (4 digit number corresponding to fsda, e.g. 0101)
-                   // Cell scaling in fsda: 4 numbers corresponding to
-         scalef,   // frequency f,
-         scales,   // spindown s,
-         scaled,   // declination d,
-         scalea,   // right ascencion a
-         refr,     // Reference frame
-         band,     // band number
-         hemi;     // Hemisphere
-
-     // Minimal number of coincidences recorded in the output
-     int mincoin;
-     double fpo, refgps, narrowdown, snrcutoff, overlap;
-     char prefix[512], refgrid[1024], *wd, infile[512];
-
-} Command_line_opts_coinc;
-
 
 typedef struct _triggers {
 
@@ -214,6 +194,7 @@ typedef struct _trigger {
           hvl_t  ffstat;
 } Trigger;
 
+// OLD
 typedef struct _signal_params {
     int reffr;                   // Reference frame number
     double h0, snr, freq, fdot;  // Intrinsic signal parameters
@@ -221,5 +202,19 @@ typedef struct _signal_params {
     double ra, dec;              // sky position
     char amporsnr[4];                 // String of 3 characters + null terminator
 } Signal_params;
+
+// NEW INJ
+typedef struct _inj_par {
+    int    id;      // injection id number (unique per run)
+    double t_ref;   // reference time (GPS seconds)
+    double amp;     // amplitude of the signal in the same units as xdat (usually 10^-20)
+    double f;       // frequency of the signal in Hz
+    double fdot;    // frequency derivative of the signal in Hz/s
+    double ra;      // right ascension of the signal in radians
+    double dec;     // declination of the signal in radians
+    double iota;    // inclination angle of the signal in radians
+    double psi;     // polarization angle of the signal in radians
+    double phase;   // initial phase of the signal in radians
+} Injection_params;
 
 #endif

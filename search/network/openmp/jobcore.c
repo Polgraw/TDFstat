@@ -31,162 +31,184 @@ void search( Search_settings *sett,
              FFTW_plans *plans,
              FFTW_arrays *fftw_arr,
              Aux_arrays *aux,
-             int *FNum )
+             int *FNum,
+             Injection_params *inj,
+             int ninj,
+             int inj_idx)
 {
 
-     struct flock lck;
+    struct flock lck;
 
-     int i;
-     int pm;                // hemisphere
-     float mm, nn;          // sky positions
-     int sgnlc=0;           // number of triggers in the buffer
-     //FLOAT_TYPE *sgnlv;   // array with candidates data
-     Trigger *sgnlv;        // triggers buffer (to be saved)
-     long totsgnl;          // total number of triggers found
+    int i;
+    int pm;                // hemisphere
+    float mm, nn;          // sky positions
+    int sgnlc=0;           // number of triggers in the buffer
+    //FLOAT_TYPE *sgnlv;   // array with candidates data
+    Trigger *sgnlv;        // triggers buffer (to be saved)
+    long totsgnl;          // total number of triggers found
 
-     char outname[1100];
-     int fd, status;
-     FILE *state;
+    char outname[1100];
+    int fd, status;
+    FILE *state;
 
-     // sgnlv is a buffer for triggers produced in one run of jobcore
-     // max size = <spindown range>/<spindown step>
+    // sgnlv is a buffer for triggers produced in one run of jobcore
+    // max size = <spindown range>/<spindown step>
 
-     int max_spindowns = (s_range->spndr[1]-s_range->spndr[0])/s_range->sstep + 1;
-     sgnlv = (Trigger *)calloc(max_spindowns, sizeof(Trigger));
+    int max_spindowns = (s_range->spndr[1]-s_range->spndr[0])/s_range->sstep + 1;
+    sgnlv = (Trigger *)calloc(max_spindowns, sizeof(Trigger));
 
-     // buffer size for (f, fstat) pairs in sgnlv structure per one spindown
-     // whole F-statistic arrays can be saved if bufsize = 2*nfftf/2
-     if ( strcmp(opts->gtype, "allsky")==0 ) {
-          // reduce buffer by 16 to avoid large memory usage and large output files
-          sett->bufsize = sett->nfftf / 16;
-     } else {
-          // all F-statistic values can be saved
-          sett->bufsize = sett->nfftf;
-     }
-     printf("Triggers buffer size per spindown = %ld bytes\n", sett->bufsize*sizeof(float));
+    // buffer size for (f, fstat) pairs in sgnlv structure per one spindown
+    // whole F-statistic arrays can be saved if bufsize = 2*nfftf/2
+    if ( strcmp(opts->gtype, "allsky")==0 ) {
+        // reduce buffer by 16 to avoid large memory usage and large output files
+        sett->bufsize = sett->nfftf / 16;
+    } else {
+        // all F-statistic values can be saved
+        sett->bufsize = sett->nfftf;
+    }
+    printf("Triggers buffer size per spindown = %ld bytes\n", sett->bufsize*sizeof(float));
 
-     // max buffer size for (f, fstat) pairs = 2*nfftf/2
-     // sett->bufsize = sett->nfftf;
-     // initialize ffstat
-     for (i=0; i<max_spindowns; i++) {
-          sgnlv[i].ffstat.len = 0;
-          sgnlv[i].ffstat.p = NULL;
-     }
+    // max buffer size for (f, fstat) pairs = 2*nfftf/2
+    // sett->bufsize = sett->nfftf;
+    // initialize ffstat
+    for (i=0; i<max_spindowns; i++) {
+        sgnlv[i].ffstat.len = 0;
+        sgnlv[i].ffstat.p = NULL;
+    }
 
-     state = NULL;
-     if (opts->checkp_flag) {
-          state = fopen (opts->state_file, "w");
-          // spindown below is wrong if addsig or range_file is used
-          // but then we don't need checkpointing
-          fprintf(state, "%d %f %f %f %d\n", s_range->pst, s_range->mst,
-               s_range->nst, s_range->sst, *FNum);
-          fseek(state, 0, SEEK_SET);
-     }
+    state = NULL;
+    if (opts->checkp_flag) {
+        state = fopen (opts->state_file, "w");
+        // spindown below is wrong if addsig or range_file is used
+        // but then we don't need checkpointing
+        fprintf(state, "%d %f %f %f %d\n", s_range->pst, s_range->mst,
+            s_range->nst, s_range->sst, *FNum);
+        fseek(state, 0, SEEK_SET);
+    }
 
-     /* Loop over hemispheres */
+    /* Loop over hemispheres */
 
-     for (pm=s_range->pst; pm<=s_range->pmr[1]; ++pm) {
+    for (pm=s_range->pst; pm<=s_range->pmr[1]; ++pm) {
 
-          struct timespec tstart = get_current_time(CLOCK_REALTIME), tend;
+        struct timespec tstart = get_current_time(CLOCK_REALTIME), tend;
 
-          sprintf (outname, "%s/triggers_%03d_%04d%s_%d.h5",
-               opts->outdir, opts->seg, opts->band, opts->label, pm);
-          // remove existing trigger file if checkpointing is disabled
-          if (! opts->checkp_flag) remove(outname);
-          totsgnl = 0;
+        sprintf (outname, "%s/triggers_%03d_%04d%s_%d.h5",
+            opts->outdir, opts->seg, opts->band, opts->label, pm);
+        totsgnl = 0;
 
-          // overwrite value from ini file to store actual hemi in the HDF file in case hemi=0
-          opts->hemi=pm;
+        // overwrite value from ini file to store actual hemi in the HDF file in case hemi=0
+        opts->hemi=pm;
 
-          hdfout_init(outname, opts, sett, s_range, sgnlv);
+        // WIP INJ
+        // search_range should be an attribute of the dataset
+        // if mode=null : add new empty dataset dset_name = triggers
+        // if mode=single : add new empty dataset dset_name = inj_id
+        // if mode=multi : add new empty dataset dset_name = inj_0
+        char dset_name[32] = "triggers";
+        if (opts->inj_mode && opts->inj_mode[0]) {
+            if (strcmp(opts->inj_mode, "single") == 0) {
+                snprintf(dset_name, sizeof(dset_name), "inj_%d", inj[inj_idx].id);
+            } else if (strcmp(opts->inj_mode, "multi") == 0) {
+                strcpy(dset_name, "inj_0");   /* or snprintf; no format args needed */
+            }
+        }
 
-          /* Two main loops over sky positions */
+        // The file (and its file-level attributes) is created once, on the first injection
+        // (inj_idx=0 always for inj_mode=NULL or multi); later injections add new datasets
+        if (inj_idx == 0) {
+            // remove existing trigger file if checkpointing is disabled
+            if (! opts->checkp_flag) remove(outname);
+            hdfout_attr_init(outname, opts, sett, inj, ninj);
+        }
+        hdfout_dset_init(outname, dset_name, s_range, sgnlv);
 
-          // imm & inn allow to transform loop indices from float to int
-          int imm_size = (s_range->mr[1]-s_range->mst)/s_range->mstep + 1;
-          //for (mm=s_range->mst; mm<=s_range->mr[1]; ++mm) {
-          for (int imm=0; imm<imm_size; ++imm) {
-               mm = s_range->mst + imm*s_range->mstep;
+        /* Two main loops over sky positions */
 
-               int inn_size = (s_range->nr[1]-s_range->nst)/s_range->nstep + 1;
-               //for (nn=s_range->nst; nn<=s_range->nr[1]; ++nn) {
-               for (int inn=0; inn<inn_size; ++inn) {
-                    nn = s_range->nst + inn*s_range->nstep;
+        // imm & inn allow to transform loop indices from float to int
+        int imm_size = (s_range->mr[1]-s_range->mst)/s_range->mstep + 1;
+        //for (mm=s_range->mst; mm<=s_range->mr[1]; ++mm) {
+        for (int imm=0; imm<imm_size; ++imm) {
+            mm = s_range->mst + imm*s_range->mstep;
 
-                    int fnum_old = *FNum;  // number of records already written to file
+            int inn_size = (s_range->nr[1]-s_range->nst)/s_range->nstep + 1;
+            //for (nn=s_range->nst; nn<=s_range->nr[1]; ++nn) {
+            for (int inn=0; inn<inn_size; ++inn) {
+                nn = s_range->nst + inn*s_range->nstep;
 
-                    /* Loop over spindowns is inside job_core() */
-                    status = job_core(
-                         pm,           // hemisphere
-                         mm,           // grid 'sky position'
-                         nn,           // other grid 'sky position'
-                         sett,         // search settings
-                         opts,         // code config options
-                         s_range,      // search ranges
-                         plans,        // fftw plans
-                         fftw_arr,     // arrays for fftw
-                         aux,          // auxiliary arrays
-                         &sgnlc,       // number of triggers in the buffer
-                         sgnlv,        // triggers buffer
-                         FNum);        // number of F-statistic evaluations (=n_spindowns)
+                int fnum_old = *FNum;  // number of records already written to file
 
-                    // Get back to regular spin-down range
-                    s_range->sst = s_range->spndr[0];
+                /* Loop over spindowns is inside job_core() */
+                status = job_core(
+                    pm,           // hemisphere
+                    mm,           // grid 'sky position'
+                    nn,           // other grid 'sky position'
+                    sett,         // search settings
+                    opts,         // code config options
+                    s_range,      // search ranges
+                    plans,        // fftw plans
+                    fftw_arr,     // arrays for fftw
+                    aux,          // auxiliary arrays
+                    &sgnlc,       // number of triggers in the buffer
+                    sgnlv,        // triggers buffer
+                    FNum);        // number of F-statistic evaluations (=n_spindowns)
 
-                    totsgnl += sgnlc;
-                    // Write triggers buffer to the file if not empty
-                    int nrec = *FNum - fnum_old;  // number of records to write
-                    if (nrec>0) {
-                         //printf("Writing [m=%g   n=%g]  nrec=%d\n", mm, nn, nrec);
-                         //exit(EXIT_SUCCESS);
-                         hdfout_extend(outname, sgnlv, nrec);
+                // Get back to regular spin-down range
+                s_range->sst = s_range->spndr[0];
+
+                totsgnl += sgnlc;
+                // Write triggers buffer to the file if not empty
+                int nrec = *FNum - fnum_old;  // number of records to write
+                if (nrec>0) {
+                    //printf("Writing [m=%g   n=%g]  nrec=%d\n", mm, nn, nrec);
+                    //exit(EXIT_SUCCESS);
+                    hdfout_extend_dset(outname, dset_name, sgnlv, nrec);
+                }
+
+                sgnlc=0;
+
+                if(opts->checkp_flag) {
+                    ftruncate(fileno(state), 0);
+                    fprintf(state, "%d %f %f %f %d\n", pm, mm, nn+1, s_range->sst, *FNum);
+                    fseek(state, 0, SEEK_SET);
+                    if (save_state == 1) {
+                        //printf("%d %d %d %d %d\n", pm, mm, nn+1, s_range->sst, *FNum);
+                        printf("\nState saved after signal\nExiting\n");
+                        exit(EXIT_SUCCESS);
                     }
+                }
+                save_state = 0;
+                //} /* if sgnlc > sett-nfft */
+            } // for nn
+            s_range->nst = s_range->nr[0];
+        } // for mm
+        s_range->mst = s_range->mr[0];
 
-                    sgnlc=0;
+        tend = get_current_time(CLOCK_REALTIME);
+        double time_elapsed = get_time_difference(tstart, tend);
+        int nthreads = omp_get_max_threads();
+        printf("\nwalltime = %e s | ncpus = %d | ncpus*walltime = %e s\n",
+            time_elapsed, nthreads, time_elapsed*nthreads);
 
-                    if(opts->checkp_flag) {
-                         ftruncate(fileno(state), 0);
-                         fprintf(state, "%d %f %f %f %d\n", pm, mm, nn+1, s_range->sst, *FNum);
-                         fseek(state, 0, SEEK_SET);
-                         if (save_state == 1) {
-                              //printf("%d %d %d %d %d\n", pm, mm, nn+1, s_range->sst, *FNum);
-                              printf("\nState saved after signal\nExiting\n");
-                              exit(EXIT_SUCCESS);
-                         }
-                    }
-                    save_state = 0;
-                    //} /* if sgnlc > sett-nfft */
-               } // for nn
-               s_range->nst = s_range->nr[0];
-          } // for mm
-          s_range->mst = s_range->mr[0];
+        // All triggers should be written at this point
+        printf("\n### Total number of triggers in %s = %ld\n\n", outname, totsgnl);
+        sgnlc=0;
+        hdfout_finalize(outname, dset_name, totsgnl, time_elapsed, nthreads);
 
-          tend = get_current_time(CLOCK_REALTIME);
-          double time_elapsed = get_time_difference(tstart, tend);
-          int nthreads = omp_get_max_threads();
-          printf("\nwalltime = %e s | ncpus = %d | ncpus*walltime = %e s\n",
-               time_elapsed, nthreads, time_elapsed*nthreads);
+    } // for pm
 
-          // All triggers should be written at this point
-          printf("\n### Total number of triggers in %s = %ld\n\n", outname, totsgnl);
-          sgnlc=0;
-          hdfout_finalize(outname, totsgnl, time_elapsed, nthreads);
+    if (opts->checkp_flag) {
+        // empty state file to prevent restart after successful end
+        ftruncate(fileno(state), 0);
+        fclose(state);
+    }
 
-     } // for pm
+    // Free triggers buffer
+    for(i=0; i<max_spindowns; i++) {
+        if (sgnlv[i].ffstat.p) free(sgnlv[i].ffstat.p);
+    }
+    free(sgnlv);
 
-     if (opts->checkp_flag) {
-          // empty state file to prevent restart after successful end
-          ftruncate(fileno(state), 0);
-          fclose(state);
-     }
-
-     // Free triggers buffer
-     for(i=0; i<max_spindowns; i++) {
-          if (sgnlv[i].ffstat.p) free(sgnlv[i].ffstat.p);
-     }
-     free(sgnlv);
-
-     printf("\nEND\n");
+    printf("\nEND\n");
 
 } //search
 

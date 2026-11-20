@@ -11,7 +11,10 @@ void search(
                FFTW_plans *plans,
                FFTW_arrays *fftw_arr,
                Aux_arrays *aux,
-               int *Fnum);
+               int *Fnum,
+               Injection_params *inj,
+               int ninj,
+               int inj_idx);
 
 /* Main job function
  * The output is stored in single or double precision

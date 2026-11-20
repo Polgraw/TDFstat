@@ -13,15 +13,16 @@
 #define TRIG_RANK       1
 
 
-int hdfout_init (char *outname, Command_line_opts *opts, Search_settings *sett,
-     Search_range *s_range, Trigger *sgnlv)
+int hdfout_attr_init (char *outname, Command_line_opts *opts, Search_settings *sett,
+     Injection_params *inj, int ninj)
 {
-     int       i, j;
-     hid_t     file, t_dataset, t_space, t_prop, filespace, memspace, space_scalar;
+     // Create the output file (overwrite if it exists) and write file-level attributes:
+     // format_version, git_commit, opts, sett, ifo and (if injections are used) inj
+     // inj is the array of all ninj injections (also in inj_mode=single)
+     // Datasets (and their attributes) are created by hdfout_dset_init()
+
+     hid_t     file;
      hid_t     attr;
-     hsize_t   dims[2] = {0,0};
-     hsize_t   t_dim[TRIG_RANK] = {0};
-     hsize_t   t_maxdim[TRIG_RANK] = {H5S_UNLIMITED};
      herr_t    hstat;
 
      hid_t vstr_type_id = H5Tcopy(H5T_C_S1);
@@ -29,17 +30,6 @@ int hdfout_init (char *outname, Command_line_opts *opts, Search_settings *sett,
 
      // ------------------------------------------------------------------------
      // Define data types
-
-     // triggers data type (sgnlv)
-     hid_t ffstat_type = H5Tvlen_create(H5T_NATIVE_FLOAT);
-     hid_t t_tid = H5Tcreate (H5T_COMPOUND, sizeof(Trigger));
-     H5Tinsert(t_tid, "m", HOFFSET(Trigger, m), H5T_NATIVE_FLOAT);
-     H5Tinsert(t_tid, "n", HOFFSET(Trigger, n), H5T_NATIVE_FLOAT);
-     H5Tinsert(t_tid, "s", HOFFSET(Trigger, s), H5T_NATIVE_FLOAT);
-     H5Tinsert(t_tid, "ra", HOFFSET(Trigger, ra), H5T_NATIVE_FLOAT);
-     H5Tinsert(t_tid, "dec", HOFFSET(Trigger, dec), H5T_NATIVE_FLOAT);
-     H5Tinsert(t_tid, "fdot", HOFFSET(Trigger, fdot), H5T_NATIVE_FLOAT);
-     H5Tinsert(t_tid, "ffstat", HOFFSET(Trigger, ffstat), ffstat_type);
 
      // Command line options data type  (opts)
      hid_t cmd_opts_tid = H5Tcreate (H5T_COMPOUND, sizeof(Command_line_opts));
@@ -105,6 +95,102 @@ int hdfout_init (char *outname, Command_line_opts *opts, Search_settings *sett,
           H5Tinsert(sett_tid, "lines", HOFFSET(Search_settings, lines), lines_t);
      }
      */
+
+     // ifo data type  (Detector_settings)
+     hid_t ifo_tid = H5Tcreate(H5T_COMPOUND, sizeof(Detector_settings));
+     hid_t name_type_id = H5Tcopy(H5T_C_S1);
+     H5Tset_size(name_type_id, DETNAME_LENGTH);
+     hid_t xdat_type_id = H5Tcopy(H5T_C_S1);
+     H5Tset_size(xdat_type_id, FNAME_LENGTH);
+     H5Tinsert(ifo_tid, "name", HOFFSET(Detector_settings, name), name_type_id);
+     H5Tinsert(ifo_tid, "xdatname", HOFFSET(Detector_settings, xdatname), xdat_type_id);
+     H5Tinsert(ifo_tid, "start_time", HOFFSET(Detector_settings, start_time), H5T_NATIVE_DOUBLE);
+
+     // injection data type  (Injection_params)
+     hid_t inj_tid = H5Tcreate(H5T_COMPOUND, sizeof(Injection_params));
+     H5Tinsert(inj_tid, "id", HOFFSET(Injection_params, id), H5T_NATIVE_INT);
+     H5Tinsert(inj_tid, "t_ref", HOFFSET(Injection_params, t_ref), H5T_NATIVE_DOUBLE);
+     H5Tinsert(inj_tid, "amp", HOFFSET(Injection_params, amp), H5T_NATIVE_DOUBLE);
+     H5Tinsert(inj_tid, "f", HOFFSET(Injection_params, f), H5T_NATIVE_DOUBLE);
+     H5Tinsert(inj_tid, "fdot", HOFFSET(Injection_params, fdot), H5T_NATIVE_DOUBLE);
+     H5Tinsert(inj_tid, "ra", HOFFSET(Injection_params, ra), H5T_NATIVE_DOUBLE);
+     H5Tinsert(inj_tid, "dec", HOFFSET(Injection_params, dec), H5T_NATIVE_DOUBLE);
+     H5Tinsert(inj_tid, "iota", HOFFSET(Injection_params, iota), H5T_NATIVE_DOUBLE);
+     H5Tinsert(inj_tid, "psi", HOFFSET(Injection_params, psi), H5T_NATIVE_DOUBLE);
+     H5Tinsert(inj_tid, "phase", HOFFSET(Injection_params, phase), H5T_NATIVE_DOUBLE);
+
+     // ------------------------------------------------------------------------
+
+     //Create the file.
+     file = H5Fcreate(outname, H5F_ACC_TRUNC, H5P_DEFAULT, H5P_DEFAULT);
+
+     // Basic attributes
+     int fv = FORMAT_VERSION;
+     hstat = H5LTset_attribute_int(file, "/", "format_version", &fv, 1);
+     hstat = H5LTset_attribute_string(file, "/", "git_commit", CODEVER);
+
+     // write structs as attributes
+     hid_t scalar_space_id = H5Screate(H5S_SCALAR);
+
+     attr = H5Acreate2(file, "opts", cmd_opts_tid, scalar_space_id, H5P_DEFAULT, H5P_DEFAULT);
+     hstat = H5Awrite(attr, cmd_opts_tid, opts);
+     H5Aclose(attr);
+
+     attr = H5Acreate2(file, "sett", sett_tid, scalar_space_id, H5P_DEFAULT, H5P_DEFAULT);
+     hstat = H5Awrite(attr, sett_tid, sett);
+     H5Aclose(attr);
+
+     hid_t ifo_space_id = H5Screate_simple(1, (hsize_t[]){sett->nifo}, NULL);
+     attr = H5Acreate2(file, "ifo", ifo_tid, ifo_space_id, H5P_DEFAULT, H5P_DEFAULT);
+     hstat = H5Awrite(attr, ifo_tid, &ifo);
+     H5Aclose(attr);
+
+     // all injections (only if injections are used)
+     if (inj != NULL && ninj > 0 && opts->inj_mode && opts->inj_mode[0]) {
+          hid_t inj_space_id = H5Screate_simple(1, (hsize_t[]){ninj}, NULL);
+          attr = H5Acreate2(file, "inj", inj_tid, inj_space_id, H5P_DEFAULT, H5P_DEFAULT);
+          hstat = H5Awrite(attr, inj_tid, inj);
+          H5Aclose(attr);
+          H5Sclose(inj_space_id);
+     }
+
+     // Release resources
+     H5Sclose(ifo_space_id);
+     H5Sclose(scalar_space_id);
+     H5Fclose(file);
+
+     return(EXIT_SUCCESS);
+}
+
+
+
+int hdfout_dset_init (char *outname, const char *dset_name, Search_range *s_range,
+     Trigger *sgnlv)
+{
+     // Add a new empty triggers dataset dset_name to an existing file
+     // (created by hdfout_attr_init) and write its attributes: s_range, t_start
+     // The function closes all HDF5 objects it opens
+
+     hid_t     file, t_dataset, t_space, t_prop;
+     hid_t     attr;
+     hsize_t   t_dim[TRIG_RANK] = {0};
+     hsize_t   t_maxdim[TRIG_RANK] = {H5S_UNLIMITED};
+     herr_t    hstat;
+
+     // ------------------------------------------------------------------------
+     // Define data types
+
+     // triggers data type (sgnlv)
+     hid_t ffstat_type = H5Tvlen_create(H5T_NATIVE_FLOAT);
+     hid_t t_tid = H5Tcreate (H5T_COMPOUND, sizeof(Trigger));
+     H5Tinsert(t_tid, "m", HOFFSET(Trigger, m), H5T_NATIVE_FLOAT);
+     H5Tinsert(t_tid, "n", HOFFSET(Trigger, n), H5T_NATIVE_FLOAT);
+     H5Tinsert(t_tid, "s", HOFFSET(Trigger, s), H5T_NATIVE_FLOAT);
+     H5Tinsert(t_tid, "ra", HOFFSET(Trigger, ra), H5T_NATIVE_FLOAT);
+     H5Tinsert(t_tid, "dec", HOFFSET(Trigger, dec), H5T_NATIVE_FLOAT);
+     H5Tinsert(t_tid, "fdot", HOFFSET(Trigger, fdot), H5T_NATIVE_FLOAT);
+     H5Tinsert(t_tid, "ffstat", HOFFSET(Trigger, ffstat), ffstat_type);
+
      // search ranges data type  (s_range)
      hid_t range_tid = H5Tcreate (H5T_COMPOUND, sizeof(Search_range));
      hid_t t1d_int = H5Tarray_create2(H5T_NATIVE_INT, 1, (hsize_t[]){2});
@@ -122,62 +208,34 @@ int hdfout_init (char *outname, Command_line_opts *opts, Search_settings *sett,
      H5Tinsert(range_tid, "sst", HOFFSET(Search_range, sst), H5T_NATIVE_FLOAT);
      H5Tinsert(range_tid, "pst", HOFFSET(Search_range, pst), H5T_NATIVE_INT);
 
-     // ifo data type  (Detector_settings)
-     hid_t ifo_tid = H5Tcreate(H5T_COMPOUND, sizeof(Detector_settings));
-     hid_t name_type_id = H5Tcopy(H5T_C_S1);
-     H5Tset_size(name_type_id, DETNAME_LENGTH);
-     hid_t xdat_type_id = H5Tcopy(H5T_C_S1);
-     H5Tset_size(xdat_type_id, FNAME_LENGTH);
-     H5Tinsert(ifo_tid, "name", HOFFSET(Detector_settings, name), name_type_id);
-     H5Tinsert(ifo_tid, "xdatname", HOFFSET(Detector_settings, xdatname), xdat_type_id);
-     H5Tinsert(ifo_tid, "start_time", HOFFSET(Detector_settings, start_time), H5T_NATIVE_DOUBLE);
-
      // ------------------------------------------------------------------------
 
-     //Create the file.
-     file = H5Fcreate(outname, H5F_ACC_TRUNC, H5P_DEFAULT, H5P_DEFAULT);
+     // Open the existing file.
+     file = H5Fopen(outname, H5F_ACC_RDWR, H5P_DEFAULT);
 
-     // Basic attributes
-     int fv = FORMAT_VERSION;
-     hstat = H5LTset_attribute_int(file, "/", "format_version", &fv, 1);
-     hstat = H5LTset_attribute_string(file, "/", "git_commit", CODEVER);
-
-     char datetime_str[80];
-     time_t now = time(NULL);
-     struct tm *t = localtime(&now);
-     strftime(datetime_str, sizeof(datetime_str), "%Y-%m-%d %H:%M:%S", t);
-     hstat = H5LTset_attribute_string(file, "/", "t_start", datetime_str);
-
-     // write structs as attributes
-     hid_t scalar_space_id = H5Screate(H5S_SCALAR);
-
-     attr = H5Acreate2(file, "opts", cmd_opts_tid, scalar_space_id, H5P_DEFAULT, H5P_DEFAULT);
-     hstat = H5Awrite(attr, cmd_opts_tid, opts);
-     H5Aclose(attr);
-
-     attr = H5Acreate2(file, "sett", sett_tid, scalar_space_id, H5P_DEFAULT, H5P_DEFAULT);
-     hstat = H5Awrite(attr, sett_tid, sett);
-     H5Aclose(attr);
-
-     attr = H5Acreate2(file, "s_range", range_tid, scalar_space_id, H5P_DEFAULT, H5P_DEFAULT);
-     hstat = H5Awrite(attr, range_tid, s_range);
-     H5Aclose(attr);
-
-     hid_t ifo_space_id = H5Screate_simple(1, (hsize_t[]){sett->nifo}, NULL);
-     attr = H5Acreate2(file, "ifo", ifo_tid, ifo_space_id, H5P_DEFAULT, H5P_DEFAULT);
-     hstat = H5Awrite(attr, ifo_tid, &ifo);
-     H5Aclose(attr);
-
-     // Write triggers dataset
+     // initialize the triggers dataset
      hsize_t chunk_dims[1] = {3};
      t_prop = H5Pcreate(H5P_DATASET_CREATE);
      hstat = H5Pset_chunk(t_prop, TRIG_RANK, chunk_dims);
 
      t_space = H5Screate_simple(TRIG_RANK, t_dim, t_maxdim);
-     t_dataset = H5Dcreate2(file, TRIG_DSET_NAME, t_tid, t_space, H5P_DEFAULT, t_prop, H5P_DEFAULT);
+     t_dataset = H5Dcreate2(file, dset_name, t_tid, t_space, H5P_DEFAULT, t_prop, H5P_DEFAULT);
      hstat = H5Dwrite(t_dataset, t_tid, H5S_ALL, H5S_ALL, H5P_DEFAULT, sgnlv);
 
+     // dataset attributes
+     char datetime_str[80];
+     time_t now = time(NULL);
+     struct tm *t = localtime(&now);
+     strftime(datetime_str, sizeof(datetime_str), "%Y-%m-%d %H:%M:%S", t);
+     hstat = H5LTset_attribute_string(file, dset_name, "t_start", datetime_str);
+
+     hid_t scalar_space_id = H5Screate(H5S_SCALAR);
+     attr = H5Acreate2(t_dataset, "s_range", range_tid, scalar_space_id, H5P_DEFAULT, H5P_DEFAULT);
+     hstat = H5Awrite(attr, range_tid, s_range);
+     H5Aclose(attr);
+
      // Release resources
+     H5Sclose(scalar_space_id);
      H5Pclose(t_prop);
      H5Dclose(t_dataset);
      H5Sclose(t_space);
@@ -189,11 +247,11 @@ int hdfout_init (char *outname, Command_line_opts *opts, Search_settings *sett,
 
 
 
-int hdfout_extend(char *outname, Trigger *sgnlv, int sgnlv_size)
+int hdfout_extend_dset(char *outname, const char *dset_name, Trigger *sgnlv, int sgnlv_size)
 {
 
      // Extend the triggers dataset by sgnlv_size entries from sgnlv bffer
-     // Assume the file is already created and contains dataset "triggers"
+     // Assume the file is already created and contains dataset dset_name
      // The function closes all HDF5 objects it opens
 
      int        i, j;
@@ -222,7 +280,7 @@ int hdfout_extend(char *outname, Trigger *sgnlv, int sgnlv_size)
      file = H5Fopen(outname, H5F_ACC_RDWR, H5P_DEFAULT);
 
      // Open the dataset.
-     t_dataset = H5Dopen2(file, TRIG_DSET_NAME, H5P_DEFAULT);
+     t_dataset = H5Dopen2(file, dset_name, H5P_DEFAULT);
 
      // Get the dataspace.
      filespace = H5Dget_space(t_dataset);
@@ -257,8 +315,9 @@ int hdfout_extend(char *outname, Trigger *sgnlv, int sgnlv_size)
 
 
 
-int hdfout_finalize(char *outname, int totsgnl, double time_elapsed, int nthreads)
+int hdfout_finalize(char *outname, const char *dset_name, int totsgnl, double time_elapsed, int nthreads)
 {
+     // Write the final run statistics as attributes of the dataset dset_name
      hid_t file;
      herr_t hstat;
 
@@ -269,11 +328,11 @@ int hdfout_finalize(char *outname, int totsgnl, double time_elapsed, int nthread
      time_t now = time(NULL);
      struct tm *t = localtime(&now);
      strftime(datetime_str, sizeof(datetime_str), "%Y-%m-%d %H:%M:%S", t);
-     hstat = H5LTset_attribute_string(file, "/", "t_end", datetime_str);
+     hstat = H5LTset_attribute_string(file, dset_name, "t_end", datetime_str);
 
-     hstat = H5LTset_attribute_int(file, "/", "totsgnl", &totsgnl, 1);
-     hstat = H5LTset_attribute_double(file, "/", "walltime", &time_elapsed, 1);
-     hstat = H5LTset_attribute_int(file, "/", "num_threads", &nthreads, 1);
+     hstat = H5LTset_attribute_int(file, dset_name, "totsgnl", &totsgnl, 1);
+     hstat = H5LTset_attribute_double(file, dset_name, "walltime", &time_elapsed, 1);
+     hstat = H5LTset_attribute_int(file, dset_name, "num_threads", &nthreads, 1);
 
      H5Fclose(file);
 

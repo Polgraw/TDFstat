@@ -33,113 +33,144 @@ void read_ini_file( Search_settings *sett,
                     char* argv[])
 {
 
-     char ini_fname[FNAME_LENGTH];
-     dictionary *ini;
-     int error = 0;
+    char ini_fname[FNAME_LENGTH];
+    dictionary *ini;
+    int error = 0;
 
-     if (argc > 1) {
-          strcpy (ini_fname, argv[1]);
-     } else if (argc > 2) {
-          printf("WARNING: too many arguments, only first one is used.\n");
-     } else {
-          printf("ERROR: missing input file name. Call: \"<executable> search.ini\" \n");
-          exit(EXIT_FAILURE);
-     }
+    if (argc > 1) {
+        strcpy (ini_fname, argv[1]);
+    } else if (argc > 2) {
+        printf("WARNING: too many arguments, only first one is used.\n");
+    } else {
+        printf("ERROR: missing input file name. Call: \"<executable> search.ini\" \n");
+        exit(EXIT_FAILURE);
+    }
 
-     printf ("Loading config file %s\n", ini_fname);
-     if ((ini = iniparser_load(ini_fname)) == NULL) {
-          perror(ini_fname);
-          exit(EXIT_FAILURE);
-     }
-     printf("-- INI file contents --\n");
-     iniparser_dump(ini, stdout);
-     printf("-----------------------\n");
+    printf ("Loading config file %s\n", ini_fname);
+    if ((ini = iniparser_load(ini_fname)) == NULL) {
+        perror(ini_fname);
+        exit(EXIT_FAILURE);
+    }
+    printf("-- INI file contents --\n");
+    iniparser_dump(ini, stdout);
+    printf("-----------------------\n");
 
-     // directory containing input data
-     opts->indir = iniparser_getstring(ini, "search:indir", NULL);
-     // output directory
-     opts->outdir = iniparser_getstring(ini, "search:outdir", ".");
-     // band number
-     opts->band = iniparser_getint(ini, "search:band", 0);
-     // time segment number
-     opts->seg = iniparser_getint(ini, "search:seg", 0);
-     // hemisphere 1,2 or 0 for both
-     opts->hemi = iniparser_getint(ini, "search:hemi", 0);
-     // candidate fstatistic threshold
-     opts->thr = iniparser_getdouble(ini, "search:thr", 20.);
-     // number of days (integer)
-     sett->nod = iniparser_getint(ini, "search:nod", 0);
-     // sampling interval of the input time series [seconds] (double)
-     sett->dt = iniparser_getdouble(ini, "search:dt", -1.);
-     // bands overlap [0-1.] defines band base frequency, fpo
-     opts->overlap = iniparser_getdouble(ini, "search:overlap", 0.);
-     // [0-0.5] range of frequencies to output; 0 is nothing, 0.5 is full band,
-     // -1 means automatic for given overlap
-     opts->narrowdown = iniparser_getdouble(ini, "search:narrowdown", -1.);
-     // use data from subset of detectors only (default is to use all available)
-     opts->usedet = iniparser_getstring(ini, "search:usedet", "");
-     // path to the grid file (absolute or relative)
-     opts->grid_file = iniparser_getstring(ini, "search:grid_file", "");
-     // name of the range file to read
-     // opts->range_file = iniparser_getstring(ini, "search:range_file", "");
-     // name of the range file to dump and exit
-     // opts->dump_range_file = iniparser_getstring(ini, "search:dump_range_file", "");
-     // name of the file with signall to add
-     // TODO: single line signals to enable multiple signals, more flexible gsize
-     opts->addsig = iniparser_getstring(ini, "search:addsig", "");
-     // optional label of output files
-     opts->label = iniparser_getstring(ini, "search:label", "");
-     if (strlen(opts->label)) {
-         const char *tmp = opts->label;
-         opts->label = malloc(strlen(tmp) + 2);
-         sprintf((char*)opts->label, "_%s", tmp);
-     }
-     // runtime modifiers, supported values are: {read_O3}
-     opts->mods = iniparser_getstring(ini, "search:mods", "");
+    // directory containing input data
+    opts->indir = iniparser_getstring(ini, "search:indir", NULL);
+    // output directory
+    opts->outdir = iniparser_getstring(ini, "search:outdir", ".");
+    // band number
+    opts->band = iniparser_getint(ini, "search:band", 0);
+    // time segment number
+    opts->seg = iniparser_getint(ini, "search:seg", 0);
+    // hemisphere 1,2 or 0 for both
+    opts->hemi = iniparser_getint(ini, "search:hemi", 0);
+    // candidate fstatistic threshold
+    opts->thr = iniparser_getdouble(ini, "search:thr", 20.);
+    // number of days (integer)
+    sett->nod = iniparser_getint(ini, "search:nod", 0);
+    // sampling interval of the input time series [seconds] (double)
+    sett->dt = iniparser_getdouble(ini, "search:dt", -1.);
+    // bands overlap [0-1.] defines band base frequency, fpo
+    opts->overlap = iniparser_getdouble(ini, "search:overlap", 0.);
+    // [0-0.5] range of frequencies to output; 0 is nothing, 0.5 is full band,
+    // -1 means automatic for given overlap
+    opts->narrowdown = iniparser_getdouble(ini, "search:narrowdown", -1.);
+    // use data from subset of detectors only (default is to use all available)
+    opts->usedet = iniparser_getstring(ini, "search:usedet", "");
+    // path to the grid file (absolute or relative)
+    opts->grid_file = iniparser_getstring(ini, "search:grid_file", "");
+    // name of the range file to read
+    // opts->range_file = iniparser_getstring(ini, "search:range_file", "");
+    // name of the range file to dump and exit
+    // opts->dump_range_file = iniparser_getstring(ini, "search:dump_range_file", "");
+    // name of the file with signall to add
+    // TODO: single line signals to enable multiple signals, more flexible gsize
+    opts->addsig = iniparser_getstring(ini, "search:addsig", "");
+    // optional label of output files
+    opts->label = iniparser_getstring(ini, "search:label", "");
+    if (strlen(opts->label)) {
+        const char *tmp = opts->label;
+        opts->label = malloc(strlen(tmp) + 2);
+        sprintf((char*)opts->label, "_%s", tmp);
+    }
+    // runtime modifiers, supported values are: {read_O3}
+    opts->mods = iniparser_getstring(ini, "search:mods", "");
 
-     // fstatistics normalization; if NULL white noise is assumed
-     // currently only NULL and old blocks_avg are implemented
-     opts->fstat_norm = iniparser_getstring(ini, "search:fstat_norm", NULL);
+    // fstatistics normalization; if NULL white noise is assumed
+    // currently only NULL and old blocks_avg are implemented
+    opts->fstat_norm = iniparser_getstring(ini, "search:fstat_norm", NULL);
 
-     //   FLAGS
-     // [0, 1] (in future other values can select different subsets of lines
-     opts->veto_flag = iniparser_getint(ini, "search:veto_flag", 0);
-     // [0, 1] generate checkpoint files at each new sky position
-     opts->checkp_flag = iniparser_getint(ini, "search:checkp_flag", 0);
+    //   FLAGS
+    // [0, 1] (in future other values can select different subsets of lines
+    opts->veto_flag = iniparser_getint(ini, "search:veto_flag", 0);
+    // [0, 1] generate checkpoint files at each new sky position
+    opts->checkp_flag = iniparser_getint(ini, "search:checkp_flag", 0);
 
-     // grid specification
-     opts->gtype = iniparser_getstring(ini, "grid:gtype", "allsky");
-     opts->gcenter = iniparser_getstring(ini, "grid:gcenter", NULL);
-     opts->gsizes = iniparser_getstring(ini, "grid:gsizes", NULL);
-     opts->gsteps = iniparser_getstring(ini, "grid:gsteps", NULL);
+    // grid specification
+    opts->gtype = iniparser_getstring(ini, "grid:gtype", "allsky");
+    opts->gcenter = iniparser_getstring(ini, "grid:gcenter", NULL);
+    opts->gsizes = iniparser_getstring(ini, "grid:gsizes", NULL);
+    opts->gsteps = iniparser_getstring(ini, "grid:gsteps", NULL);
 
-     // various checks
-     if (! opts->indir) {
-          error = 1; printf("[ERROR] missing indir !\n");
-     }
-     if (opts->band < 1) {
-          error = 1; printf("[ERROR] missing band !\n");
-     }
-     if (opts->seg < 1) {
-          error = 1; printf("[ERROR] missing segment !\n");
-     }
-     if (sett->nod < 1) {
-          error = 1; printf("[ERROR] missing nod !\n");
-     }
-     if (sett->dt < 0.) {
-          error = 1; printf("[ERROR] missing dt !\n");
-     }
-     if (error == 1) exit(EXIT_FAILURE);
+    // injections configuration
+    opts->use_amp = iniparser_getint(ini, "injections:use_amp", 1);
+    opts->inj_mode = iniparser_getstring(ini, "injections:inj_mode", NULL);
+    opts->inj_file = iniparser_getstring(ini, "injections:inj_file", NULL);
+    opts->inj_dict = iniparser_getstring(ini, "injections:inj_dict", NULL);
 
-     // test overlap and narrowdown
-     // todo: NAV
-     if (opts->narrowdown < 0.) {
-          opts->narrowdown = (1. - opts->overlap)/2. ;
-     }
-     opts->narrowdown *= M_PI;
+    // WIP INJ
+    // validate injection options
+    // we assume that inj_dict is just 1 line string with single injection exactly like a line in inj_file
+    if (opts->inj_mode && strlen(opts->inj_mode) > 0) {
+        if (strcmp(opts->inj_mode, "single") != 0 && strcmp(opts->inj_mode, "multi") != 0) {
+            printf("[ERROR] invalid inj_mode: %s. Must be 'single' or 'multi'.\n", opts->inj_mode);
+            exit(EXIT_FAILURE);
+        }
+        if (opts->inj_file && opts->inj_dict) {
+            printf("[ERROR] inj_file and inj_dict cannot be used together. Please specify only one.\n");
+            exit(EXIT_FAILURE);
+        }
+        if ((opts->inj_file && strlen(opts->inj_file) > 0)) {
+            // check if the file exists
+            FILE *file = fopen(opts->inj_file, "r");
+            if (file) {
+                fclose(file);
+            } else {
+                printf("[ERROR] inj_file can't be opened: %s\n", opts->inj_file);
+                exit(EXIT_FAILURE);
+            }
+        }
+    }
 
-     //sett->fpo = 10. + (1. - opts->overlap)*opts->band*(0.5/sett->dt);
-     sett->fpo = fpo(opts->band, opts->overlap, sett->dt);
+    // various checks
+    if (! opts->indir) {
+        error = 1; printf("[ERROR] missing indir !\n");
+    }
+    if (opts->band < 1) {
+        error = 1; printf("[ERROR] missing band !\n");
+    }
+    if (opts->seg < 1) {
+        error = 1; printf("[ERROR] missing segment !\n");
+    }
+    if (sett->nod < 1) {
+        error = 1; printf("[ERROR] missing nod !\n");
+    }
+    if (sett->dt < 0.) {
+        error = 1; printf("[ERROR] missing dt !\n");
+    }
+
+    if (error == 1) exit(EXIT_FAILURE);
+
+    // test overlap and narrowdown
+    // todo: NAV
+    if (opts->narrowdown < 0.) {
+        opts->narrowdown = (1. - opts->overlap)/2. ;
+    }
+    opts->narrowdown *= M_PI;
+
+    //sett->fpo = 10. + (1. - opts->overlap)*opts->band*(0.5/sett->dt);
+    sett->fpo = fpo(opts->band, opts->overlap, sett->dt);
 } // read_ini_file
 
 
@@ -582,6 +613,7 @@ void set_search_range( Search_settings *sett,
                printf("Setting grid center at the current injection point.\n");
                // get fr, sr, alphar, deltar from from aux->injection
                printf("This option is not implemented.\n");
+               // WIP INJ
                exit(EXIT_FAILURE);
           } else if (strncmp(opts->gcenter, "pulsar", 6) == 0) {
                printf("Setting grid center at pulsar %s\n", opts->gcenter);
@@ -852,305 +884,3 @@ void cleanup( Search_settings *sett,
      fftw_cleanup();
 
 } // end of cleanup & memory free
-
-
-
-/*	Command line options handling: coincidences	 */
-
-void handle_opts_coinc( Search_settings *sett,
-     			    Command_line_opts_coinc *opts,
-                        int argc,
-                        char* argv[])
-{
-
-     opts->wd=NULL;
-
-     strcpy (opts->prefix, TOSTR(PREFIX));
-     //strcpy (opts->dtaprefix, TOSTR(DTAPREFIX));
-
-     // Initial value of the number of days is set to 0
-     sett->nod = 0;
-
-     // Default initial value of the data sampling time
-     sett->dt = 0.5;
-
-     opts->help_flag=0;
-     static int help_flag=0;
-
-     // Default value of the minimal number of coincidences
-     opts->mincoin=3;
-
-     // Default value of the narrow-down parameter
-     opts->narrowdown=0.5;
-
-     // Default value of the cell shift: 0000 (no shifts)
-     opts->shift=0;
-
-     // Default value of the cell scaling: 1111 (no scaling)
-     opts->scalef=4;
-     opts->scales=4;
-     opts->scaled=4;
-     opts->scalea=4;
-
-     sett->fpo = -1;
-
-     // Default signal-to-noise threshold cutoff
-     opts->snrcutoff=6;
-
-     // Reading arguments
-
-     while (1) {
-          static struct option long_options[] = {
-               {"help", no_argument, &help_flag, 1},
-               // Cell shifts
-               {"shift", required_argument, 0, 's'},
-               // Cell scaling
-               {"scale", required_argument, 0, 'z'},
-               // Reference frame number
-               {"refr", required_argument, 0, 'r'},
-               // output directory
-               {"output", required_argument, 0, 'o'},
-               // input data directory
-               {"data", required_argument, 0, 'd'},
-               // frequency band number
-               {"band", required_argument, 0, 'b'},
-               // fpo value
-               {"fpo", required_argument, 0, 'p'},
-               // data sampling time
-               {"dt", required_argument, 0, 't'},
-               // a file with input files (triggers + grids)
-               {"infiles", required_argument, 0, 'i'},
-               // Location of the reference frame grid
-               {"refgrid", required_argument, 0, 'g'},
-               // Minimal number of coincidences recorded in the output
-               {"mincoin", required_argument, 0, 'm'},
-               // Narrow down the frequency band (+- the center of band)
-               {"narrowdown", required_argument, 0, 'n'},
-               // Signal-to-noise threshold cutoff
-               {"snrcutoff", required_argument, 0, 'c'},
-               // number of days in the time-domain segment
-               {"nod", required_argument, 0, 'y'},
-               // band overlap
-               {"overlap", required_argument, 0, 'v'},
-               {0, 0, 0, 0}
-          };
-
-          if (help_flag) {
-
-               printf("polgraw-allsky periodic GWs: search for concidences among candidates\n");
-               printf("Usage: ./coincidences -[switch1] <value1> -[switch2] <value2> ...\n") ;
-               printf("Switches are:\n\n");
-               printf("-output       Output directory (default is ./coinc-results)\n");
-               printf("-shift        Cell shifts in fsda directions (4 digit number, e.g. 0101, default 0000)\n");
-               printf("-scale        Cell scaling in fsda directions (coma separated, e.g. 32,8,4,4, default 4,4,4,4)\n");
-               printf("-refr         Reference frame number\n");
-               printf("-band         Band number\n");
-               printf("-fpo          Reference band frequency fpo value\n");
-               printf("-dt           Data sampling time dt (default value: 0.5)\n");
-               printf("-infile       File containing the list of trigger and grid files\n");
-               printf("-refgrid      Location of the reference frame grid\n");
-               printf("-mincoin      Minimal number of coincidences recorded\n");
-               printf("-narrowdown   Narrow-down the frequency band (range [0, 0.5] +- around center)\n");
-               printf("-nod          Number of days\n");
-               printf("-snrcutoff    Signal-to-noise threshold cutoff (default value: 6)\n");
-               printf("-overlap      Band overlap, fpo=10+(1-overlap)*band/(dt*2) ; obligatory if band is used\n\n");
-
-               printf("Also:\n\n");
-               printf("--help		This help\n");
-
-               exit (0);
-          }
-
-          int option_index = 0;
-          int c = getopt_long_only (argc, argv, "p:o:s:z:r:t:g:m:n:c:y:b:v:i:", long_options, &option_index);
-          if (c == -1)
-               break;
-
-          switch (c) {
-               case 'p':
-                    sett->fpo = atof(optarg);
-                    break;
-               case 's': // Cell shifts
-                    opts->shift = atof(optarg);
-                    break;
-               case 'z': // Cell scaling
-                    opts->scalef = atoi(strtok(optarg,","));
-                    opts->scales = atoi(strtok(NULL,","));
-                    opts->scaled = atoi(strtok(NULL,","));
-                    opts->scalea = atoi(strtok(NULL,","));
-                    break;
-               case 'r':
-                    opts->refr = atoi(optarg);
-                    break;
-               case 'o':
-                    strcpy(opts->prefix, optarg);
-                    break;
-               case 't':
-                    sett->dt = atof(optarg);
-                    break;
-               case 'i':
-                    strcpy(opts->infile, optarg);
-                    break;
-               case 'g':
-                    strcpy(opts->refgrid, optarg);
-                    break;
-               case 'm':
-                    opts->mincoin = atoi(optarg);
-                    break;
-               case 'n':
-                    opts->narrowdown = atof(optarg);
-                    break;
-               case 'c':
-                    opts->snrcutoff = atof(optarg);
-                    break;
-               case 'y':
-                    sett->nod = atoi(optarg);
-                    break;
-               case 'b':
-                    opts->band = atoi(optarg);
-                    break;
-               case 'v':
-                    opts->overlap = atof(optarg);
-                    break;
-               case '?':
-                    break;
-               default:
-                    break ;
-          } /* switch c */
-     } /* while 1 */
-
-     // Putting the parameter in triggers' frequency range [0, pi]
-     opts->narrowdown *= M_PI;
-
-     // Check if sett->nod was set up, if not, exit
-     if(!(sett->nod)) {
-          printf("Number of days not set... Exiting\n");
-          exit(EXIT_FAILURE);
-     }
-
-     printf("Number of days is %d\n", sett->nod);
-
-     printf("The SNR threshold cutoff is %.12f, ", opts->snrcutoff);
-     printf("corresponding to F-statistic value of %.12f\n",
-          pow(opts->snrcutoff, 2)/2. + 2);
-
-     if(!(opts->band)) {
-          printf("Band is not set... Exiting\n");
-          exit(EXIT_FAILURE);
-     }
-     if(!(opts->overlap)) {
-          printf("Band overlap is not set... Exiting\n");
-          exit(EXIT_FAILURE);
-     }
-
-     printf("Band=%04d  Overlap=%f\n", opts->band, opts->overlap);
-
-     // hemi must be decoded from filename
-     opts->hemi = -1;
-
-     // Starting band frequency:
-     // fpo_val is optionally read from the command line
-     // Its initial value is set to -1
-     if (!(sett->fpo >= 0)) {
-          if (opts->band > 0 && opts->overlap >=0.) {
-               sett->fpo = 10. + (1. - opts->overlap)*opts->band*(0.5/sett->dt);
-          } else {
-               printf("Band AND overlap or fpo must be specified!\n");
-               exit(EXIT_FAILURE);
-          }
-     }
-     printf("The reference frequency fpo is %f\n", sett->fpo);
-
-     printf("Cell scaling factors are: %d %d %d %d\n", opts->scalef, opts->scales,
-          opts->scaled, opts->scalea);
-
-} // end of command line options handling: coincidences
-
-
-
-void manage_grid_matrix( Search_settings *sett, char *gridfile )
-{
-
-     FILE *data;
-
-     //sett->M = (double *)calloc(16, sizeof (double));
-
-     if ((data=fopen(gridfile, "r")) != NULL) {
-          printf("Reading grid file: %s\n", gridfile);
-          fread ((void *)&sett->fftpad, sizeof (int), 1, data);
-          //printf("fftpad from the grid file: %d\n", sett->fftpad);
-          fread ((void *)sett->M, sizeof(double), 16, data);
-          // We actually need the second (Fisher) matrix from grid.bin,
-          // hence the second fread:
-          fread ((void *)sett->M, sizeof(double), 16, data);
-          fclose (data);
-     } else {
-          perror(gridfile);
-          exit(EXIT_FAILURE);
-     }
-
-
-     // Calculating the eigenvectors and eigenvalues
-     gsl_matrix_view m = gsl_matrix_view_array(sett->M, 4, 4);
-
-     gsl_vector *eval = gsl_vector_alloc(4);
-     gsl_matrix *evec = gsl_matrix_alloc(4, 4);
-
-     gsl_eigen_symmv_workspace *w = gsl_eigen_symmv_alloc(4);
-     gsl_eigen_symmv(&m.matrix, eval, evec, w);
-     gsl_eigen_symmv_free(w);
-
-     double eigval[4], eigvec[4][4];
-     // Saving the results to the settings struct sett->vedva[][]
-     int i, j;
-     for(i=0; i<4; i++) {
-          eigval[i] = gsl_vector_get(eval, i);
-          gsl_vector_view evec_i = gsl_matrix_column(evec, i);
-
-          for(j=0; j<4; j++)
-               eigvec[j][i] = gsl_vector_get(&evec_i.vector, j);
-     }
-
-     // This is an auxiliary matrix composed of the eigenvector
-     // columns multiplied by a matrix with sqrt(eigenvalues) on diagonal
-     for(i=0; i<4; i++) {
-          for(j=0; j<4; j++) {
-               sett->vedva[i][j]  = eigvec[i][j]*sqrt(eigval[j]);
-               //printf("%.12le ", sett->vedva[i][j]);
-          }
-          //      printf("\n");
-     }
-
-
-     /*
-     //#mb matrix generated in matlab, for tests
-     double _tmp[4][4] = {
-     {-2.8622034614137332e-001, -3.7566564762376159e-002, -4.4001551065376701e-012, -3.4516253934827171e-012},
-     {-2.9591999145463371e-001, 3.6335210834374479e-002, 8.1252443441098394e-014, -6.8170555119669981e-014},
-     {1.5497867603229576e-005, 1.9167007413107127e-006, 1.0599051611325639e-008, -5.0379548388381567e-008},
-     {2.4410008440913992e-005, 3.2886518554938671e-006, -5.7338464150027107e-008, -9.3126913365595100e-009},
-     };
-
-     { int i,j;
-     for(i=0; i<4; i++)
-     for(j=0; j<4; j++)
-     sett->vedva[i][j]  = _tmp[i][j];
-     }
-
-     printf("\n");
-
-     { int i, j;
-     for(i=0; i<4; i++) {
-     for(j=0; j<4; j++) {
-     printf("%.12le ", sett->vedva[i][j]);
-     }
-     printf("\n");
-     }
-
-     }
-     */
-
-     gsl_vector_free (eval);
-     gsl_matrix_free (evec);
-
-} // end of manage grid matrix

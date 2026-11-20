@@ -59,8 +59,9 @@ int line_in_band( double* fl, double* fr, Search_settings* sett );
 float lines_veto_fraction(Search_settings* sett, int lf, int le);
 
 // Coincidences
+/*
 void read_trigger_files( Search_settings *sett,
                          Command_line_opts_coinc *opts,
                          Candidate_triggers *trig);
-
+                         */
 #endif

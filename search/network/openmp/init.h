@@ -62,6 +62,7 @@ void cleanup(
                     Aux_arrays *aux);
 
 // Coincidences specific functions
+/*
 void handle_opts_coinc(
                     Search_settings *sett,
                     Command_line_opts_coinc *opts,
@@ -80,5 +81,5 @@ void convert_to_linear(
                     Search_settings *sett,
                     Command_line_opts_coinc *opts,
                     Candidate_triggers *trig);
-
+*/
 #endif
