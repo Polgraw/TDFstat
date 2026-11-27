@@ -519,7 +519,7 @@ int main (int argc, char* argv[]) {
     }
     free(ctrigs);
 
-    return EXIT_SUCCESS;
+    return max_coi.w;
 }
 
 
