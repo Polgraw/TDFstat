@@ -111,6 +111,8 @@ void read_coinc_ini(char *ini_fname, Coinc_opts *copts)
     copts->out_dir         = iniparser_getstring(ini, "coincidences:out_dir",       ".");
     copts->trig_dset       = iniparser_getstring(ini, "coincidences:trig_dset", "triggers");
     copts->coinc_dset      = iniparser_getstring(ini, "coincidences:coinc_dset", "coinc_");
+    copts->calc_fap        = iniparser_getint   (ini, "coincidences:calc_fap", 1);
+    copts->write_coin      = iniparser_getint   (ini, "coincidences:write_coin", 1);
     copts->write_ctrigs    = iniparser_getint   (ini, "coincidences:write_ctrigs", 0);
     tlist                  = (char *)iniparser_getstring(ini, "coincidences:trig_file_list", NULL);
 

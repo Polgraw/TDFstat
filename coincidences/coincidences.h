@@ -9,6 +9,8 @@ typedef struct {
         scalem,       // cell scale in m
         scalen,       // cell scale in n
         mincoin,      // Minimum number of coincidences
+        calc_fap,     // Whether to calculate FAP for coincidences
+        write_coin,   // Whether to write out coincidences file
         write_ctrigs; // Whether to write out coincident triggers
     double cthr;       // Fstatistic threshold for coincidences
     const char *shift; // Cell shifts (binary-like 4 digits corresponding to mnsf shift, e.g. 0101)

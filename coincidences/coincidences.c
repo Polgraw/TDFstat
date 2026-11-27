@@ -137,10 +137,12 @@ int main (int argc, char* argv[]) {
     // attributes (per-shift coi datasets, each with its own seginfo
     // attribute, are added below inside the shift loop via write_coi_hdf())
     char coin_fname[FILE_NAME_LEN];
-    snprintf(coin_fname, FILE_NAME_LEN, "%s/coin_%04d_%1d.h5",
-        copts.out_dir, search_par.band, search_par.hemi);
-    printf("Initializing coincidences file: %s\n", coin_fname);
-    init_coin_hdf(coin_fname, &copts, &search_par);
+    if (copts.write_coin) {
+        snprintf(coin_fname, FILE_NAME_LEN, "%s/coin_%04d_%1d.h5",
+            copts.out_dir, search_par.band, search_par.hemi);
+        printf("Initializing coincidences file: %s\n", coin_fname);
+        init_coin_hdf(coin_fname, &copts, &search_par);
+    }
 
     // maximum coincidence across ALL shifts, based on w & snr
     Coincidence max_coi;
@@ -418,7 +420,9 @@ int main (int argc, char* argv[]) {
         }
 
         // write coincidences to HDF5 file
-        write_coi_hdf(coin_fname, &copts, coi, icoi, shift_str, seginfo);
+        if (copts.write_coin) {
+            write_coi_hdf(coin_fname, &copts, coi, icoi, shift_str, seginfo);
+        }
 
         // free per-shift allocations
         for (i=0; i<maxccells; i++)
@@ -453,7 +457,7 @@ int main (int argc, char* argv[]) {
     }
 
     // ---- FAP calculation for the shift holding the global max, + HDF write ----
-    if (max_coi.w > 0) {
+    if ( copts.calc_fap && max_coi.w > 0) {
         Fap_t FAP;
         int nseg = copts.nseg;
         int mincoin = copts.mincoin;
@@ -489,7 +493,10 @@ int main (int argc, char* argv[]) {
         FAP.ncoinc_max = nseg;
 
         // attach FAP to the winning shift's dataset + write "max_coi" dataset
-        add_maxcoi_hdf(coin_fname, &copts, &max_coi, &FAP);
+        // TODO: separate max_coi writing from FAP writing
+        if (copts.write_coin) {
+            add_maxcoi_hdf(coin_fname, &copts, &max_coi, &FAP);
+        }
 
         free(FAP.fap.p);
     } else {
